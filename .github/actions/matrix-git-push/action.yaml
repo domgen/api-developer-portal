@@ -1,0 +1,57 @@
+
+name: Matrix Git Push
+description: Git Push (with time waits and retry)
+
+inputs:
+  ref:
+    description: "The git origin reference"
+    required: true
+  add:
+    description: "Files to push"
+    required: true
+  initial-max-wait:
+    description: "Inititial Max Wait time"
+    required: false
+    default: "10"
+  retry-max-wait:
+    description: "Retry Max Wait time"
+    required: false
+    default: "30"
+
+runs:
+  using: "composite"
+  steps:
+      - name: Random Wait
+        uses: m3y/random-wait-action@v1
+        with:
+          max-wait-time: ${{ inputs.initial-max-wait }}
+      - name: Refresh repo
+        shell: bash
+        run: |
+          git fetch
+          git pull origin ${{ inputs.ref }} --rebase -X ours
+      - name: Check in any changes
+        uses: EndBug/add-and-commit@v9
+        with:
+          add: "${{ inputs.add }}"
+          default_author: github_actions
+          tag_push: --atomic
+      - name: Random Wait
+        if: ${{ failure() }}
+        uses: m3y/random-wait-action@v1
+        with:
+          max-wait-time: ${{ inputs.retry-max-wait }}         
+      - name: Re-pull on failure
+        if: ${{ failure() }}
+        shell: bash
+        run: |
+          git reset HEAD~1
+          git fetch
+          git pull origin ${{ inputs.ref }} --rebase -X ours
+      - name: Retry Check in on failure
+        if: ${{ failure() }}      
+        uses: EndBug/add-and-commit@v9
+        with:
+          add: "${{ inputs.add }}"
+          default_author: github_actions
+          tag_push: --atomic

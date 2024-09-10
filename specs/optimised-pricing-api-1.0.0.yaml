@@ -1,0 +1,1288 @@
+# ./schema.yml
+openapi: 3.0.0
+info:
+  description: "Optimised Pricing API: PERSON, ITEM, CONTRACT"
+  version: 1.0.0
+  title: "Optimised Pricing API"
+paths:
+   /v1/item:
+    post:
+      tags:
+        - Item    
+      summary: "Create a ITEM"
+      description: >
+        A detailed description of the operation.
+        Use markdown for rich text representation,
+        such as **bold**, *italic*, and [links](https://swagger.io).
+      operationId: createItem
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateItemRequest'
+      responses:
+        '201':
+          description: The request has succeeded and the ITEM created as a result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateItemResponse'
+        '400':
+          description: Incorrect Syntax. The client should not repeat the request without modifications 
+  
+   /v1/item/{id}:
+    patch:
+    # post:
+      tags:
+        - Item
+      summary: "Update an ITEM"
+      description: >
+        A detailed description of the operation.
+        Use markdown for rich text representation,
+        such as **bold**, *italic*, and [links](https://swagger.io).
+      operationId: updateItemById
+      parameters:
+        - name: id
+          in: path
+          description: Item ID
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateItemRequest'
+      responses:
+        "201":
+          description: The request has succeeded and the resource updated as a result
+        "400":
+          description: Incorrect Syntax. The client should not repeat the request without modifications
+        "404":
+          description: The requested resource does not exist
+          
+   /v1/person:
+    get:
+      tags:
+        - Person
+      summary: "Get PERSONs matching submitted criteria"
+      description: >
+        A detailed description of the operation.
+        Use markdown for rich text representation,
+        such as **bold**, *italic*, and [links](https://swagger.io).
+      operationId: getPersons
+      parameters:
+        - in: query
+          name: surname
+          schema:
+            type: string
+          allowEmptyValue: true
+        - in: query
+          name: postcode
+          schema:
+            type: string
+          allowEmptyValue: true
+        - in: query
+          name: address
+          schema:
+            type: string
+          allowEmptyValue: true
+        - in: query
+          name: phone
+          schema:
+            type: string
+          allowEmptyValue: true
+        - in: query
+          name: email
+          schema:
+            type: string
+          allowEmptyValue: true
+        - in: query
+          name: offerRef
+          schema:
+            type: string
+          allowEmptyValue: true
+      responses:
+        '200':
+          description: The request has succeeded and the resource returned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchPersonResponse'
+        '404':
+          description: The requested resource does not exist 
+ 
+    post:
+      tags:
+        - Person    
+      summary: "Create a PERSON"
+      description: >
+        A detailed description of the operation.
+        Use markdown for rich text representation,
+        such as **bold**, *italic*, and [links](https://swagger.io).
+      operationId: createPerson
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePersonRequest'
+      responses:
+        '201':
+          description: The request has succeeded and the resource created as a result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreatePersonResponse'
+        '400':
+          description: Incorrect Syntax. The client should not repeat the request without modifications 
+  
+   /v1/person/{id}:
+    get:
+      tags:
+        - Person
+      summary: Get a PERSON by ID.
+      description: >
+        A detailed description of the operation.
+        Use markdown for rich text representation,
+        such as **bold**, *italic*, and [links](https://swagger.io).
+      operationId: getPersonById
+      parameters:
+        - name: id
+          in: path
+          description: Person ID
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The request has succeeded and the resource returned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetPersonResponse'
+        '404':
+          description: The requested resource does not exist 
+          
+    patch:
+    # post:
+      tags:
+        - Person
+      summary: "Update a PERSON"
+      description: >
+        A detailed description of the operation.
+        Use markdown for rich text representation,
+        such as **bold**, *italic*, and [links](https://swagger.io).
+      operationId: updatePersonById
+      parameters:
+        - name: id
+          in: path
+          description: Person ID
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdatePersonRequest'
+      responses:
+        "201":
+          description: The request has succeeded and the resource updated as a result
+        "400":
+          description: Incorrect Syntax. The client should not repeat the request without modifications
+        "404":
+          description: The requested resource does not exist
+
+   /v1/pricing/getPrice:
+    post:
+      tags:
+        - Pricing    
+      summary: "Get a price and create an OFFER"
+      description: >
+        A detailed description of the operation.
+        Use markdown for rich text representation,
+        such as **bold**, *italic*, and [links](https://swagger.io).
+      operationId: getPrice
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GetPriceRequest'
+      responses:
+        '201':
+          description: The request has succeeded and the OFFER created as a result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetPriceResponse'
+        '400':
+          description: Incorrect Syntax. The client should not repeat the request without modifications 
+          
+components:
+  schemas:   
+    
+    #ITEM REQUEST/RESPONSE
+
+    CreateItemRequest:
+      type: object
+      #required:
+      properties:
+         itemData:
+          $ref: "#/components/schemas/ItemData"   
+
+    CreateItemResponse:
+      type: object
+      #required:
+      properties:
+        itemIDData:
+          $ref: "#/components/schemas/ItemIDData"
+        itemURNData:
+          $ref: "#/components/schemas/ItemURNData"
+          
+    UpdateItemRequest:
+      type: object
+      #required:
+      properties:
+        itemData:
+          $ref: "#/components/schemas/ItemData"   
+        updatePersonReason:
+          type: string
+          example: ""
+
+    UpdateItemResponse:
+      type: object
+      #required:
+      properties:
+        itemIDData:
+          $ref: "#/components/schemas/ItemIDData"
+        itemURNData:
+          $ref: "#/components/schemas/ItemURNData"   
+
+    #PERSON REQUEST/RESPONSE
+    
+    SearchPersonResponse:
+      type: object
+      #required:
+      properties:
+        persons:
+          $ref: "#/components/schemas/PersonDataArray"                  
+
+    GetPersonResponse:
+      type: object
+      #required:
+      properties:
+        person:
+          $ref: "#/components/schemas/PersonData"  
+
+    CreatePersonRequest:
+      type: object
+      #required:
+      properties:
+         personData:
+          $ref: "#/components/schemas/PersonData"   
+
+    CreatePersonResponse:
+      type: object
+      #required:
+      properties:
+        personIDData:
+          $ref: "#/components/schemas/PersonIDData"
+        personURNData:
+          $ref: "#/components/schemas/PersonURNData"
+          
+    UpdatePersonRequest:
+      type: object
+      #required:
+      properties:
+        personData:
+          $ref: "#/components/schemas/PersonData"   
+        updatePersonReason:
+          type: string
+          example: "E:Edit O:Other M:Move S:Split X:PersonChannelURN P=Preferences"
+
+    UpdatePersonResponse:
+      type: object
+      #required:
+      properties:
+        personIDData:
+          $ref: "#/components/schemas/PersonIDData"
+        personURNData:
+          $ref: "#/components/schemas/PersonURNData"
+
+    #PRICING REQUEST/RESPONSE
+
+    GetPriceRequest:
+      type: object
+      required:
+      - rtpPriceType
+      properties:
+          rtpPriceType:
+            type: string
+            enum:
+            - NEW_BUSINESS
+            - RETENTION
+            - NEW_BUSINESS_REQTYPE
+            - NEW_BUSINESS_REQTYPE_IB
+            - NEW_BUSINESS_REQTYPE_SFO
+            - PRODUCT_REPLACEMENT
+          personId:  
+            type: string
+          ratingData:
+            $ref: "#/components/schemas/RatingData" 
+          retentionData:
+            $ref: "#/components/schemas/RetentionData" 
+          sfoData:
+            $ref: "#/components/schemas/SfoData"
+          offerInputData:
+            $ref: "#/components/schemas/OfferInputData" 
+          channelData:
+            $ref: "#/components/schemas/ChannelData"   
+            
+    GetPriceResponse:
+      type: object
+      #required:
+      properties:
+        rateArray:
+          $ref: "#/components/schemas/RateArray"
+        offerArray:
+          $ref: "#/components/schemas/OfferArray"    
+    
+    
+   #COMMON DATA
+
+    AddressDataArray:
+      type: array
+      items:
+        $ref: "#/components/schemas/AddressData"
+
+    AddressData:
+      type: object
+      required:
+        - addressCategory
+      properties:
+        addressCategory:
+          type: string
+          example: "??"
+        addressOverride:
+          type: string
+          example: "??"
+        addressStatus:
+          type: string
+          example: "??"
+        addressDetailsData:
+          $ref: "#/components/schemas/AddressDetailsData" 
+
+    AddressDetailsData:
+      type: object
+      required:
+        - postalCode
+      properties:
+        addressLine1:
+          type: string
+          example: "??"
+        addressLine2:
+          type: string
+          example: "??"
+        addressLine3:
+          type: string
+          example: "??"
+        addressLine4:
+          type: string
+          example: "??"
+        postalCode:
+          type: string
+          example: "??"
+        countryCode:
+          type: string
+          example: "??" 
+
+    TelephoneData:
+      type: object
+      #required:
+      properties:
+        homeTel:
+          type: string
+          example: "123456789"
+        mobTel:
+          type: string
+          example: "123456789"
+        workTel:
+          type: string
+          example: "123456789"
+        preferredTel:
+          type: string
+          example: "H: Home or Other M:Mobile or Personal W: Work or Professional" 
+
+    EmailData:
+      type: object
+      #required:
+      properties:
+        emailAddr:
+          type: string
+          example: "a.a@a.com"
+        emailHome:
+          type: string
+          example: "a.a@a.com"
+        emailWork:
+          type: string
+          example: "a.a@a.com"
+        preferredEmail:
+          type: string
+          example: "H: Home or Other M:Mobile or Personal W: Work or Professional" 
+
+    SocialMediaData:
+      type: object
+      #required:
+      properties:
+        socialHome:
+          type: string
+          example: ""
+        socialAddr:
+          type: string
+          example: ""
+        socialWork:
+          type: string
+          example: ""
+
+    LinkData:
+      type: object
+      #required:
+      properties:
+        MemIdNum:
+          type: string
+          example: "??"
+        SrcCode:
+          type: string
+          example: "??"
+
+    DisabilityDataArray:
+      type: array
+      items:
+        $ref: "#/components/schemas/DisabilityData"
+
+    DisabilityData:
+      type: object
+      #required:
+      properties:
+        disability:
+          type: string
+          example: "??"
+
+    VulnerabilityDataArray:
+      type: array
+      items:
+        $ref: "#/components/schemas/VulnerabilityData"
+
+    VulnerabilityData:
+      type: object
+      #required:
+      properties:
+        disability:
+          type: string
+          example: "??"
+
+    MailerData:
+      type: object
+      #required:
+      properties:
+        disability:
+          type: string
+          example: "??"
+ 
+     #ITEM DATA
+
+    ItemData:
+      type: object
+      #required:
+      properties:
+        itemIDData:
+          $ref: "#/components/schemas/ItemIDData"
+        itemURNData:
+          $ref: "#/components/schemas/ItemURNData"  
+        itemDetailsData:
+          $ref: "#/components/schemas/ItemDetailsData" 
+        otherIdsData:
+          $ref: "#/components/schemas/OtherIdsData"  
+        coverData:
+          $ref: "#/components/schemas/CoverData"
+        purchaseData:
+          $ref: "#/components/schemas/PurchaseData"  
+        addressData:
+          $ref: "#/components/schemas/AddressData" 
+        personOwnerData:
+          $ref: "#/components/schemas/PersonOwnerData" 
+        personUserData:
+          $ref: "#/components/schemas/PersonUserData"  
+        RegisterMailer:
+          type: boolean
+          example: 
+        mailerData:
+          $ref: "#/components/schemas/MailerData" 
+        itemGetPriceData:
+          $ref: "#/components/schemas/ItemGetPriceData"
+
+    ItemIDData:
+      type: object
+      required:
+        - EID
+      properties:
+        EID:
+          type: string
+          example: "123456789"
+
+    ItemURNData:
+      type: object
+      #required:
+      properties:
+        PersonClientURN:
+          type: string
+          example: "123456789"
+        ApplianceToken:
+          type: string
+          example: "123456789"     
+
+    ItemLinkData:
+      $ref: "#/components/schemas/LinkData" 
+
+    ItemDetailsData:
+      type: object
+      #required:
+      properties:
+        itemCode:
+          type: string
+          example: ""
+        itemCodeDescription:
+          type: string
+          example: ""
+        manufacturerBrandCode:
+          type: string
+          example: ""
+        manufacturerBrandDescription:
+          type: string
+          example: ""  
+        goodsColour:
+          type: string
+          example: ""
+        modelNumber:
+          type: string
+          example: ""
+        serialNumber:
+          type: string
+          example: ""
+        operationalStatusCode:
+          type: string
+          example: "" 
+        dGAllocatedSupplierAgentCode:
+          type: string
+          example: ""
+        dGAllocatedSupplierBranchCode:
+          type: string
+          example: ""
+        lastServiceDate:
+          type: string
+          example: ""
+          format: date-time
+        lastServiceTime:
+          type: string
+          example: "" 
+          format: date-time
+
+    OtherIdsData:
+      type: object
+      #required:
+      properties:
+        otherId1:
+          type: string
+          example: ""
+        otherId1CategoryCode:
+          type: string
+          example: ""
+        otherId2:
+          type: string
+          example: ""
+        otherId2CategoryCode:
+          type: string
+          example: ""
+        otherId3:
+          type: string
+          example: ""
+        otherId3CategoryCode:
+          type: string
+          example: ""
+        otherModelId1:
+          type: string
+          example: ""
+        otherModelId1CategoryCode:
+          type: string
+          example: ""
+        otherModelId2:
+          type: string
+          example: ""
+        otherModelId2CategoryCode:
+          type: string
+          example: ""
+
+    CoverData:
+      type: object
+      #required:
+      properties:
+        manufacturerGuaranteeLabourMonths:
+          type: integer
+          example: "12"
+        manufacturerGuaranteePartsMonths:
+          type: integer
+          example: "12"
+        thirdPartyGuaranteeLabourMonths:
+          type: integer
+          example: "12"
+        thirdPartyGuaranteePartsMonths:
+          type: integer
+          example: "12"
+
+    PurchaseData:
+      type: object
+      #required:
+      properties:
+        purchasePrice:
+          type: number
+          example: 199.00
+        priceCurrencyCode:
+          type: string
+          example: "GBP"
+        purchaseDate:
+          type: string
+          format: date-time
+        purchaseTime:
+          type: string
+          format: date-time
+        recommendedPrice:
+          type: number
+          example: 199.00
+        recommendedPriceCurrencyCode:
+          type: string
+          example: "GBP"
+        PurchaseRetailer:
+          type: string
+          example: ""
+
+    PersonOwnerData:
+      type: object
+      #required:
+      properties:
+        previousClientURN:
+          type: string
+          example: ""
+        clientURN:
+          type: string
+          example: ""
+        previousEID:
+          type: string
+          example: ""
+        eID:
+          type: string
+          example: ""
+
+    PersonUserData:
+      type: object
+      #required:
+      properties:
+        previousClientURN:
+          type: string
+          example: ""
+        clientURN:
+          type: string
+          example: ""
+        previousEID:
+          type: string
+          example: ""
+        eID:
+          type: string
+          example: ""
+ 
+    ItemGetPriceData:
+      type: object
+      #required:
+      properties:
+        disability:
+          type: string
+          example: "??"  
+          
+    #PERSON DATA
+
+    PersonDataArray:
+      type: array
+      items:
+        $ref: "#/components/schemas/PersonData"
+
+    PersonData:
+      type: object
+      #required:
+      properties:
+        personIDData:
+          $ref: "#/components/schemas/PersonIDData"
+        personURNData:
+          $ref: "#/components/schemas/PersonURNData"  
+        personDetailsData:
+          $ref: "#/components/schemas/PersonDetailsData" 
+        telephoneData:
+          $ref: "#/components/schemas/TelephoneData"  
+        fax:
+          type: string
+          example: "0208999999" 
+          # Not applicable for SubmitSearchRequest  
+        socialMediaData:
+          $ref: "#/components/schemas/SocialMediaData"
+          # Not applicable for SubmitSearchRequest  
+        emailData:
+          $ref: "#/components/schemas/EmailData"  
+        preferredContactMethod:
+          type: string
+          example: "VOI" 
+          # Not applicable for SubmitSearchRequest 
+        addressDataArray:
+          $ref: "#/components/schemas/AddressDataArray" 
+        disabilityDataArray:
+          $ref: "#/components/schemas/DisabilityDataArray"
+          # Not applicable for SubmitSearchRequest  
+        vulnerabilityData:
+          $ref: "#/components/schemas/VulnerabilityDataArray"
+          # Not applicable for SubmitSearchRequest 
+        preferenceData:
+          $ref: "#/components/schemas/PreferenceData"
+          # Not applicable for SubmitSearchRequest 
+        docSendData:
+          $ref: "#/components/schemas/DocSendData"
+          # Not applicable for SubmitSearchRequest 
+        personlinkData:
+          $ref: "#/components/schemas/LinkData"
+          # Not applicable for SubmitSearchRequest  
+        optOut:
+          type: string
+          example: "Y/N"
+          # Not applicable for SubmitSearchRequest
+        personFlagsData:
+          $ref: "#/components/schemas/PersonFlagsData"
+          # Not applicable for SubmitSearchRequest  
+
+    PersonIDData:
+      type: object
+      required:
+        - EID
+      properties:
+        EID:
+          type: string
+          example: "123456789"
+
+    PersonURNData:
+      type: object
+      #required:
+      properties:
+        personChannelURN:
+          type: string
+          example: "123456789"
+        personClientUrn:
+          type: string
+          example: "123456789"
+        CustomerToken:
+          type: string
+          example: "123456789"
+        SchemePerID:
+          type: string
+          example: "123456789"
+        Householdtoken:
+          type: string
+          example: "123456789"      
+
+    PersonDetailsData:
+      type: object
+      required:
+       - surname
+       - title
+      properties:
+        initial:
+          type: string
+          example: "J"
+        firstName:
+          type: string
+          example: "John"
+        surname:
+          type: string
+          example: "Smith"
+        preferredName:
+          type: string
+          example: "John"
+        title:
+          type: string
+          example: "Mr" 
+        gender:
+          type: string
+          example: "M"
+        maritalStatus:
+          type: string
+          example: "S"
+        dob:
+          type: string
+          format: date-time
+          example: "2000-01-01"
+        language:
+          type: string
+          example: "Person Preferred Language"
+        nationalIdCategoryCode:
+          type: string
+          example: "??" 
+        nationalIdentifier:
+          type: string
+          example: "??" 
+        personStatus:
+          type: string
+          example: "PROS" 
+
+    PreferenceData:
+      type: object
+      #required:
+      properties:
+        MarketingFlagPost:
+          type: string
+          example: "Y"
+        MarketingFlagEmail:
+          type: string
+          example: "N"
+        MarketingFlagTel:
+          type: string
+          example: "N"
+        MarketingFlagSMS:
+          type: string
+          example: "N"
+
+    PersonLinkData:
+      $ref: "#/components/schemas/LinkData" 
+
+    PersonFlagsData:
+      type: object
+      #required:
+      properties:
+        deceased:
+          type: string
+          example: ""
+        specialConsideration:
+          type: string
+          example: ""
+        complained:
+          type: string
+          example: ""
+        activeComplaint:
+          type: string
+          example: ""
+        personStatus:
+          type: string
+          example: ""
+        multiPlanEligibilty:
+          type: string
+          example: ""
+        activePlanCount:
+          type: string
+          example: ""
+
+    PersonAdditionalFlagsData:
+      type: object
+      #required:
+      properties:
+        DoNotMail:
+          type: string
+          example: "Y/N"
+        DoNotMailReason:
+          type: string
+          example: ""
+        AllowCustomer:
+          type: string
+          example: "Y/N"
+        PersonStatus:
+          type: string
+          example: ""
+
+    DocSendData:
+      type: object
+      #required:
+      properties:
+        docSendEmailAddr:
+          type: string
+          example: ""
+        docSendPreference:
+          type: string
+          example: ""
+        emailScore:
+          type: string
+          example: ""
+
+    #PRICNG DATA
+
+    RetentionData:
+      type: object
+      #required:
+      properties:
+        planNumber:
+          type: string
+          example: "DABC1234567"
+        fee:
+          type: number
+          example: "599.00"
+        renewalDate:
+          type: string
+          format: date-time    
+
+    SfoData:
+      type: object
+      required:
+        - companyCode
+        - schemeCode
+        - fee
+      properties:
+        companyCode:
+          type: string
+          example: "DABC1234567"
+        schemeCode:
+          type: string
+          example: "ABC"         
+        fee:
+          type: number
+          example: "599.00"
+
+    RatingData:
+      type: object
+      required:
+        - companyCode
+        - schemeCode
+        - fee
+      properties:
+        itemRatingData:
+          $ref: "#/components/schemas/ItemRatingData"       
+        multiplanRatingData:
+          $ref: "#/components/schemas/MultiplanRatingData"  
+          
+    ItemRatingData:
+      type: object
+      #required:
+      properties:
+        ratingTypeData:
+          $ref: "#/components/schemas/RatingTypeData"
+        isMultiPlan:
+          type: boolean
+        numberOfItems:
+          type: integer
+          example: "1"
+        itemId:
+          type: string
+          example: "123456"
+        itemCode:
+          type: string
+          example: "AW"
+        boilerType:
+          type: string
+          example: "CMB: Combination CNV:Conventional CND:Condensing" 
+        manufacturerBrandCode:
+          type: string
+          example: "BAXI"         
+        purchasePrice:
+          type: number
+          example: "599.00" 
+        purchaseDate:
+          type: string
+          format: date-time 
+        manufacturerGuaranteeLabourMonths:
+          type: integer
+          example: "12"
+        manufacturerGuaranteePartsMonths:
+          type: string
+          example: "12"       
+        thirdPartyGuaranteeLabourMonths:
+          type: string
+          example: "12"            
+        goodsCategoryCode:
+          type: string
+          example: "W: White B:Brown H:Heating"          
+        modelNumber:
+          type: string
+          example: "XYZ1234567"
+        serialNumber:
+          type: string
+          example: "" 
+
+    RatingTypeData:
+      type: object
+      #required:
+      properties:
+        callSourceArray:
+          $ref: "#/components/schemas/CallSourceArray"
+        RequestType:
+          type: string
+          example: "RPL"
+        companyCode:
+          type: string
+          example: "DABC1234567"
+        schemeCode:
+          type: string
+          example: "ABC" 
+ 
+    CallSourceArray:
+      type: object
+      #required:
+      properties:
+        callSources:
+          $ref: "#/components/schemas/CallSourceData" 
+          
+    CallSourceData:
+      type: object
+      required:
+        - callSource
+      properties:
+        callSource:
+          type: string
+          example: "ABCD" 
+        schemeCodeData:
+          $ref: "#/components/schemas/SchemeCodeData" 
+        agentData:
+          $ref: "#/components/schemas/AgentData"    
+        itemCode:
+          type: string
+          example: "AW"
+        itemCodeDesscription:
+          type: string
+          example: "Washing Machine"
+        priceBand:
+          type: string
+          example: "499"
+        numberOfItems:
+          type: integer
+          example: "1"
+        coverType:
+          type: string
+          example: "AW"         
+        breakdownStartDate:
+          type: string
+          format: date
+        contractData:
+          $ref: "#/components/schemas/ContractData" 
+          
+    MultiplanRatingData:
+      type: object
+      #required:
+      properties:
+        ItemBasketData:
+          $ref: "#/components/schemas/MultiplanItemBasketData"
+        multiplanItemArray:
+          $ref: "#/components/schemas/MultiplanItemArray"
+          
+    MultiplanItemBasketData:
+      type: object
+      #required:
+      properties:
+        ProductClass:
+          type: string
+          example: "RPL"
+        NumberOfItemsWithLT:
+          type: string
+          example: "DABC1234567"
+        CallType:
+          type: string
+          example: "IB"
+        CallTypeScenario:
+          type: string
+          example: "RETENTION UP_DOWN_GRADE"
+          
+    MultiplanItemArray:
+      type: object
+      #required:
+      properties:
+        multiplanItemData:
+          $ref: "#/components/schemas/MultiplanItemData" 
+ 
+    MultiplanItemData:
+      type: object
+      #required:
+      properties:
+        itemId:
+          type: string
+          example: "123456"
+        itemCode:
+          type: string
+          example: "AW"
+        boilerType:
+          type: string
+          example: "CMB: Combination CNV:Conventional CND:Condensing" 
+        manufacturerBrandCode:
+          type: string
+          example: "BAXI"         
+        purchasePrice:
+          type: number
+          example: "599.00" 
+        purchaseDate:
+          type: string
+          format: date-time 
+        manufacturerGuaranteeLabourMonths:
+          type: integer
+          example: "12"
+        manufacturerGuaranteePartsMonths:
+          type: string
+          example: "12"       
+        goodsCategoryCode:
+          type: string
+          example: "W: White B:Brown H:Heating"       
+          
+    OfferInputData:
+      type: object
+      #required:
+      properties:
+        OfferExpirationDate:
+          type: string
+          format: date-time
+        OriginalOfferReference:
+          type: string
+          example: "362-000-001-999"         
+
+    ChannelData:
+      type: object
+      #required:
+      properties:
+        dialerInteractionID:
+          type: string
+          example: ""
+        dnisName:
+          type: string
+          example: ""         
+        dnisCode:
+          type: number
+          example: ""   
+          
+    RateArray:
+      type: object
+      #required:
+      properties:
+        rateData:
+          $ref: "#/components/schemas/RateData" 
+ 
+    RateData:
+      type: object
+      #required:
+      properties:
+        callSourceData:
+          $ref: "#/components/schemas/CallSourceData"           
+        offerRateData:
+          $ref: "#/components/schemas/OfferRateData"
+ 
+    OfferRateData:
+      type: object
+      #required:
+      properties:
+        offerData:
+          $ref: "#/components/schemas/OfferData"
+        offerPricingData:
+          $ref: "#/components/schemas/OfferPricingData"
+        paymentDetailsData:
+          $ref: "#/components/schemas/PaymentDetailsData"
+          
+    OfferArray:
+      type: object
+      #required:
+      properties:
+        offerData:
+          $ref: "#/components/schemas/OfferData" 
+ 
+    OfferData:
+      type: object
+      #required:
+      properties:
+        offerReference:
+          type: string
+          example: "362-000-001-999"
+        offerKey:
+          type: number
+          example: "12345"
+        callSource:
+          type: string
+          example: "ABCD"   
+          
+    OfferPricingData:
+      type: object
+      #required:
+      properties:
+        OfferPricingKey:
+          type: number
+          example: "12345"
+        periodOfCover:
+          type: integer
+          example: "12"
+        fee:
+          type: number
+          example: 199.00
+ 
+    PaymentDetailsData:
+      type: object
+      #required:
+      properties:
+        paymentData:
+          $ref: "#/components/schemas/PaymentData"
+        cashPaymentType:
+          type: string
+          example: "12345"
+        numberOfPayments:
+          type: integer
+          example: "12" 
+        paymentFrequency:
+          type: integer
+          example: "12"
+        firstPayment:
+          type: number
+          example: "10.00" 
+        subsequentPayment:
+          type: number
+          example: "10.00"
+        excessAmount:
+          type: number
+          example: "100.00" 
+        numberOfFreePayments:
+          type: integer
+          example: "12"
+          
+    PaymentData:
+      type: object
+      #required:
+      properties:
+        paymentType:
+          type: string
+          example: "D:re-occuring C:1 off" 
+        paymentProfile:
+          type: string
+          example: "P" 
+        preferredPayment:
+          type: string
+          example: "Y/N" 
+          
+    SchemeCodeData:
+      type: object
+      #required:
+      properties:
+        companyCode:
+          type: string
+          example: "D"
+        schemeCode:
+          type: string
+          example: "ABC"
+          
+    AgentData:
+      type: object
+      #required:
+      properties:
+        branch:
+          type: string
+          example: "01"
+        agent:
+          type: string
+          example: "12345"
+          
+    ContractData:
+      type: object
+      #required:
+      properties:
+        todo:
+          type: number
+          example: "12345"          
