@@ -6,7 +6,7 @@ on:
       - main
     paths:
       - 'specs/**'
- 
+
 permissions:
   contents: write
   pages: write
@@ -18,7 +18,7 @@ env:
 jobs:
   # Calculate changes
   calculate-changes:
-    runs-on: ubuntu-latest
+    runs-on: eks-runners
     outputs:
       added: ${{ steps.changed-files.outputs.added_files }}
       modified: ${{ steps.changed-files.outputs.modified_files }}
@@ -40,7 +40,7 @@ jobs:
   render-added:
     name: Render new specs
     if: ${{ needs.calculate-changes.outputs.added != '[]' }}
-    runs-on: ubuntu-latest
+    runs-on: eks-runners
     continue-on-error: true
     needs: calculate-changes
     strategy:  
@@ -70,7 +70,7 @@ jobs:
   render-modified:
     name: Render modified specs
     if: ${{ needs.calculate-changes.outputs.modified != '[]' }}
-    runs-on: ubuntu-latest
+    runs-on: eks-runners
     continue-on-error: true
     needs: calculate-changes
     strategy:  
@@ -102,7 +102,7 @@ jobs:
   render-removed:
     name: Render removed specs
     if: ${{ needs.calculate-changes.outputs.removed != '[]' }}
-    runs-on: ubuntu-latest
+    runs-on: eks-runners
     continue-on-error: true
     needs: calculate-changes
     strategy:  
@@ -126,7 +126,7 @@ jobs:
 
   # Update the index page
   update-index:
-    runs-on: ubuntu-latest
+    runs-on: eks-runners
     needs: [calculate-changes, render-added , render-modified, render-removed]
     if: |
       always() &&
@@ -166,20 +166,17 @@ jobs:
                 *)  file_day=${file_day}th ;;
             esac
             file_date="$file_day "$(date -d "@$file_ts" '+%b %Y')
-
             if [ "$first" != "true" ] ; then
               comma=","
             else
               comma=""
               first="false"
             fi;
-
             echo "  $comma{\"title\":$title,\"description\":$description,\"version\":\"$version\",\"href\":\"$href\",\"date\":\"${file_date}\"}" >> template-list.json  
           done
           echo "]}" >> template-list.json
           
           jq '.apis | group_by(.title) | map({key: .[0].href | split("/")| .[1] | split("-") | .[0:-1] | join("-"), value: {"title": .[0].title, "description": .[0].description, "href": .[0].href | split("/")| .[1] | split("-") | .[0:-1] | join("-"), "date": .[0].date, "versions": map(.version) | sort_by(values) | reverse }}) | {"apis": map(.value) }' template-list.json > template-data.json
-
           cat template-data.json
       - name: Render Template
         uses: cuchi/jinja2-action@v1.2.2
@@ -203,5 +200,4 @@ jobs:
           path: pages/
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4          
-
+        uses: actions/deploy-pages@v4 
