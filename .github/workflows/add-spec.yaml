@@ -10,7 +10,7 @@ permissions:
 jobs:
   build:
     name: Publish OpenApi Spec File
-    runs-on: eks-runners
+    runs-on: ubuntu-latest
     env:
       TMP_FILE: .open-api.${{ github.run_id }}-${{ github.run_attempt }}.yaml
     steps:
