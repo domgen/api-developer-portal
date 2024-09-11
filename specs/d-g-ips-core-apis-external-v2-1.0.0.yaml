@@ -1,0 +1,5288 @@
+openapi: 3.0.0
+info:
+  description: Domestic And General API
+  # Version matching SwaggerHub
+  version: 1.0.0
+  title: D&G IPS Core APIs External V2
+servers:
+  # Added by API Auto Mocking Plugin
+  - description: SwaggerHub API Auto Mocking
+    url: https://virtserver.swaggerhub.com/DomesticandGeneralUS/Internal-API/1.0.0
+  - url: https://apis-internal.sbx.domgen.io
+    variables: {}
+security:
+  - oauth2Auth: []
+paths:
+  /v2/{countryCode}/case:
+    post:
+      tags:
+        - Case
+      summary: Create a new Case
+      description: Create a new Case
+      operationId: createCase
+      parameters:
+        - in: path
+          required: true
+          name: countryCode
+          schema:
+            $ref: "#/components/schemas/CountryCode"
+          description: "The 3 character ISO-3166 country code"
+          example: GBR
+          allowEmptyValue: false
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateCaseRequest"
+      responses:
+        "200":
+          description: The request has succeeded and the resource returned
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreateCaseResponse"
+  /v2/{countryCode}/contract/{contractId}/invoice:
+    get:
+      tags:
+        - Contract
+      summary: Get Contract Invoices
+      description: Get Contract Invoices by contractId
+      operationId: getContractInvoices
+      parameters:
+        - in: path
+          required: true
+          name: countryCode
+          schema:
+            $ref: "#/components/schemas/CountryCode"
+          description: "The 3 character ISO-3166 country code"
+          example: GBR
+          allowEmptyValue: false
+        - in: path
+          required: true
+          name: contractId
+          description: "D&G Contract Unique Identifier"
+          example: 1-01-123-456-789
+          allowEmptyValue: false
+          schema:
+            type: string
+        - in: query
+          name: status
+          description: Status
+          example: outstanding
+          schema:
+            type: string
+            enum:
+              - "outstanding"
+              - "settled"
+              - "future"
+        - $ref: "#/components/parameters/pageNoParam"
+        - $ref: "#/components/parameters/pageSizeParam"
+      responses:
+        "200":
+          description: The request has succeeded and the resource returned
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetContractInvoicesResponse"
+  /v2/{countryCode}/person/{personId}/invoice:
+    get:
+      tags:
+        - Person
+      summary: Get Person Invoices
+      description: Get Person Invoices by personId
+      operationId: getPersonInvoices
+      parameters:
+        - in: path
+          required: true
+          name: countryCode
+          schema:
+            $ref: "#/components/schemas/CountryCode"
+          description: "The 3 character ISO-3166 country code"
+          example: GBR
+          allowEmptyValue: false
+        - in: path
+          name: personId
+          description: D&G Person Unique Identifier
+          example: 123456789
+          allowEmptyValue: false
+          required: true
+          schema:
+            type: string
+            maxLength: 100
+        - in: query
+          name: clientCode
+          description: D&G code representing the client supplying the data or on behalf of whom D&G is capturing this Person data in their system
+          example: WHIRL
+          schema:
+            type: string
+            maxLength: 10
+        - in: query
+          name: status
+          description: Status
+          example: outstanding
+          schema:
+            type: string
+            enum:
+              - "outstanding"
+              - "settled"
+        - $ref: "#/components/parameters/pageNoParam"
+        - $ref: "#/components/parameters/pageSizeParam"
+      responses:
+        "200":
+          description: The request has succeeded and the resource returned
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetPersonInvoicesResponse"
+  /v2/{countryCode}/alert:
+    post:
+      tags:
+        - Alert
+      summary: Alert Create
+      description: Create an ALERT
+      operationId: alertCreate
+      parameters:
+        - in: path
+          name: countryCode
+          schema:
+            $ref: "#/components/schemas/CountryCode"
+          description: "The 3 character ISO-3166 country code"
+          example: GBR
+          allowEmptyValue: false
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateAlertRequest"
+      responses:
+        "200":
+          description: "The request has succeeded and the resource created as a result"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreateAlertResponse"
+        "400":
+          description: >-
+            Incorrect Syntax. The client should not repeat the request without modifications
+    get:
+      tags:
+        - Alert
+      summary: Get Alert History
+      description: Get alert message history by personId and contractId
+      operationId: getAlertHistory
+      parameters:
+        - in: query
+          name: personId
+          description: D&G Person Unique Identifer
+          required: true
+          schema:
+            type: string
+            maxLength: 100
+        - in: query
+          name: contractId
+          description: >-
+            Contract ID - Format Scheme Code + Reference. Examples, ABC1234567
+            or AB1234567
+          schema:
+            type: string
+            minLength: 9
+            maxLength: 10
+          allowEmptyValue: true
+        - in: path
+          required: true
+          name: countryCode
+          schema:
+            $ref: "#/components/schemas/CountryCode"
+          description: "The 3 character ISO-3166 country code"
+          example: GBR
+          allowEmptyValue: false
+      responses:
+        "200":
+          description: The request has succeeded and the resource returned
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetAlertHistoryResponse"
+        "404":
+          description: The requested resource does not exist
+
+  /v2/{countryCode}/alert/{id}:
+    patch:
+      tags:
+        - Alert
+      summary: Alert Update
+      description: Update alert details
+      operationId: alertUpdate
+      parameters:
+        - in: path
+          required: true
+          name: countryCode
+          schema:
+            $ref: "#/components/schemas/CountryCode"
+          description: "The 3 character ISO-3166 country code"
+          example: GBR
+          allowEmptyValue: false
+        - in: path
+          name: id
+          schema:
+            type: integer
+          example: 1992062
+          description: Alert ID
+          allowEmptyValue: false
+          required: true
+
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateAlertRequest"
+      responses:
+        "200":
+          description: The request has succeeded and the resource updated as a result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UpdateAlertResponse"
+        "400":
+          description: >-
+            Incorrect Syntax. The client should not repeat the request without modifications
+
+  /v2/{countryCode}/product/variant/{id}/overview:
+    get:
+      tags:
+        - Product Overview
+      summary: Get product overview
+      description: Get product overview by productVariantId
+      operationId: getProductOverview
+      parameters:
+        - name: id
+          in: path
+          description: Product variant Id
+          required: true
+          schema:
+            type: string
+        - in: path
+          required: true
+          name: countryCode
+          schema:
+            $ref: "#/components/schemas/CountryCode"
+          description: "The 3 character ISO-3166 country code"
+          example: GBR
+          allowEmptyValue: false
+        - in: query
+          name: type
+          example: PRDV or CLM
+          description: Overview type
+          required: false
+          schema:
+            type: string
+            default: PRDV
+      responses:
+        "200":
+          description: The request has succeeded and the resource returned
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetProductOverviewResponse"
+        "404":
+          description: The requested resource does not exist
+
+  /v2/{countryCode}/pricing/tax:
+    post:
+      tags:
+        - Merchandise Tax
+      summary: Pricing Merchandise Tax
+      description: Returns tax details for the state code in the item address
+      operationId: taxGet
+      parameters:
+        - name: countryCode
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/CountryCode"
+          description: "The 3 character ISO-3166 country code"
+          example: GBR
+          allowEmptyValue: false
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MerchandiseTaxRequest"
+      responses:
+        "200":
+          description: The request has succeeded and the resource created as a result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MerchandiseTaxResponse"
+        "404":
+          description: Internal Server Error
+
+  /v2/{countryCode}/pricing/base-rate:
+    post:
+      tags:
+        - Base Rate
+      summary: Pricing Base Rate
+      description: Returns a base rate for a product variant ID and item
+      operationId: baseRate
+      parameters:
+        - name: countryCode
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/CountryCode"
+          description: "The 3 character ISO-3166 country code"
+          example: GBR
+          allowEmptyValue: false
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BaseRateRequest"
+      responses:
+        "200":
+          description: The request has succeeded and the resource created as a result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BaseRateResponse"
+        "404":
+          description: Base rate not found
+  /v2/{countryCode}/splits/split-price:
+    post:
+      tags:
+        - Splits
+      summary: Pricing Splits
+      description: Returns Splits for a product variant ID
+      operationId: splitPricing
+      parameters:
+        - name: countryCode
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/CountryCode"
+          description: "The 3 character ISO-3166 country code"
+          example: GBR
+          allowEmptyValue: false
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SplitPricingRequest"
+      responses:
+        "200":
+          description: The request has succeeded and the resource created as a result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SplitPricingResponse"
+        "404":
+          description: Splits not found
+  /v2/splits:
+    post:
+      tags:
+        - Contract Split
+      summary: Creates Contract Split
+      description: Returns created split details
+      operationId: ContractSplit
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ContractSplit"
+      responses:
+        "200":
+          description: The request has succeeded and the resource created as a result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ContractSplitResponse"
+        "404":
+          description: Internal Server Error
+  /v2/{countryCode}/billing/{personId}:
+    post:
+      tags:
+        - Billing
+      summary: Create billing account and profile
+      description: Create billing account and profile
+      operationId: billingCreate
+      parameters:
+        - name: countryCode
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/CountryCode"
+          description: "The 3 character ISO-3166 country code"
+          example: USA
+          allowEmptyValue: false
+        - name: personId
+          in: path
+          example: "1234567890"
+          description: D&G Person Unique Identifer
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BillingCreateRequest"
+      responses:
+        "200":
+          description: The request has succeeded and the resource created as a result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BillingCreateResponse"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BillingCreateErrorResponse"
+    get:
+      tags:
+        - Billing
+      summary: Get billing account and profile
+      description: Get billing account and profile
+      operationId: getBillingAccount
+      parameters:
+        - name: countryCode
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/CountryCode"
+          description: "The 3 character ISO-3166 country code"
+          example: USA
+          allowEmptyValue: false
+        - name: personId
+          in: path
+          example: "1234567890"
+          description: D&G Person Unique Identifer
+          required: true
+          schema:
+            type: string
+        - name: profileId
+          in: query
+          example: "bb9f74b4-26f4-4d52-8c4a-d144e06fbb22"
+          description: D&G Billing Profile Unique Identifer
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: The request has succeeded and the resource created as a result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetBillingAccountResponse"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetBillingDataErrorResponseItem"
+    patch:
+      tags:
+        - Billing
+      summary: Partial Modification for billing account and profile
+      description: Partial Modification for billing account and profile
+      operationId: patchBillingAccount
+      parameters:
+        - name: countryCode
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/CountryCode"
+          description: "The 3 character ISO-3166 country code"
+          example: USA
+          allowEmptyValue: false
+        - name: personId
+          in: path
+          example: "1234567890"
+          description: D&G Person Unique Identifer
+          required: true
+          schema:
+            type: string
+            maxLength: 100
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BillingPatchRequest"
+      responses:
+        "200":
+          description: "{ Billing Profile 123456 successfully updated }"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetBillingDataErrorResponseItem"
+
+  /v2/{countryCode}/billing/profile/{profileId}:
+    get:
+      tags:
+        - Billing
+      summary: Get profile by id
+      description: Get profile by id
+      operationId: getBillingProfile
+      parameters:
+        - name: countryCode
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/CountryCode"
+          description: "The 3 character ISO-3166 country code"
+          example: USA
+          allowEmptyValue: false
+        - name: profileId
+          in: path
+          example: "bb9f74b4-26f4-4d52-8c4a-d144e06fbb22"
+          description: "D&G Billing Profile Unique Identifer"
+          required: true
+          schema:
+            type: string
+            maxLength: 100
+      responses:
+        "200":
+          description: The request has succeeded and the resource created as a result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BillingAccountResponseWithProfile"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetBillingDataErrorResponseItem"
+
+  /v2/{countryCode}/billing/account/{accountId}/profile:
+    put:
+      tags:
+        - Billing
+      summary: Create a new profile for and existing account
+      description: Create a new profile for an existing account
+      operationId: createProfile
+      parameters:
+        - name: countryCode
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/CountryCode"
+          description: "The 3 character ISO-3166 country code"
+          example: USA
+          allowEmptyValue: false
+        - name: accountId
+          in: path
+          example: "1234567890"
+          description: D&G Billing Account Unique Identifer
+          required: true
+          schema:
+            type: string
+            maxLength: 100
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BillingCreateRequest"
+      responses:
+        "200":
+          description: The Profile is created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BillingProfileResponse"
+  /v2/{countryCode}/payment/auth-settle:
+    post:
+      tags:
+        - Payment
+      summary: Payment Auth Settle
+      description: Authorise or "Authorise and Settle" a payment
+      operationId: paymentAuthSettle
+      parameters:
+        - in: path
+          name: countryCode
+          schema:
+            $ref: "#/components/schemas/CountryCode"
+          description: "The 3 character ISO-3166 country code"
+          example: GBR
+          allowEmptyValue: false
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PaymentAuthSettleRequest"
+      responses:
+        "200":
+          description: "The payment was authorised successfully"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaymentAuthSettleResponse"
+  /v2/{countryCode}/payment/refund:
+    post:
+      tags:
+        - Payment
+      summary: Payment Refund
+      description: Issue a refund to a customer following the cancellation of a contract
+      operationId: paymentRefund
+      parameters:
+        - in: path
+          name: countryCode
+          schema:
+            $ref: "#/components/schemas/CountryCode"
+          description: "The 3 character ISO-3166 country code"
+          example: GBR
+          allowEmptyValue: false
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PaymentRefundRequest"
+      responses:
+        "200":
+          description: "The payment was refunded successfully"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaymentAuthSettleResponse"
+
+  # INTERACTION
+
+  /v2/{countryCode}/interaction:
+    get:
+      tags:
+        - Interaction
+      summary: Interaction Search
+      description: Get Interaction history
+      operationId: getInteractionHistory
+      parameters:
+        - in: path
+          name: countryCode
+          schema:
+            $ref: "#/components/schemas/CountryCode"
+          description: "The 3 character ISO-3166 country code"
+          example: GBR
+          allowEmptyValue: false
+          required: true
+        - in: query
+          name: personId
+          schema:
+            type: string
+            maxLength: 100
+          description: "D&G Person Unique Identifer"
+          example: 12345678
+          allowEmptyValue: true
+        - in: query
+          name: referenceId
+          schema:
+            type: string
+            maxLength: 100
+          description: "D&G Reference Unique Identifer"
+          example: ABC123467
+          allowEmptyValue: true
+        - $ref: "#/components/parameters/pageNoParam"
+        - $ref: "#/components/parameters/pageSizeParam"
+        - $ref: "#/components/parameters/protectedParam"
+      responses:
+        "200":
+          description: The request has succeeded and the resource returned
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetInteractionHistoryResponse"
+        "404":
+          description: The requested resource does not exist
+
+  /v2/{countryCode}/interaction/{id}:
+    get:
+      tags:
+        - Interaction
+      summary: Interaction Get
+      description: Get Interaction Record
+      operationId: getInteraction
+      parameters:
+        - in: path
+          name: countryCode
+          schema:
+            $ref: "#/components/schemas/CountryCode"
+          description: "The 3 character ISO-3166 country code"
+          example: GBR
+          allowEmptyValue: false
+          required: true
+        - in: path
+          name: id
+          schema:
+            type: string
+            maxLength: 36
+          description: "D&G Interaction Unique Identifer - GUID"
+          example: 0262f4d4-20e6-4a6a-83b8-55177b1fbdf5
+          allowEmptyValue: false
+          required: true
+      responses:
+        "200":
+          description: The request has succeeded and the resource returned
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetInteractionResponse"
+        "404":
+          description: The requested resource does not exist
+
+  # REPAIR
+  /v2/{countryCode}/repair/{appointmentId}/reschedule:
+    patch:
+      tags:
+        - Repair
+      summary: Reschedule Appointment
+      description: Reschedule a repair appointment by appointment reference.
+      operationId: rescheduleRepair
+      parameters:
+        - in: path
+          required: true
+          name: countryCode
+          example: 'USA'
+          schema:
+            $ref: "#/components/schemas/CountryCode"
+        - in: path
+          required: true
+          name: appointmentId
+          example: 1
+          schema:
+            type: number
+      requestBody:
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: '#/components/schemas/RepairRescheduleRequestServiceBench'
+                - $ref: '#/components/schemas/RepairRescheduleRequestAE'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RepairRescheduleResponse'
+        '400':
+          description: Invalid Request
+        '5XX':
+          description: Error occur at server end
+
+  '/v2/{countryCode}/repair/{appointmentId}':
+    patch:
+      tags:
+        - Repair
+      summary: Update / Cancel Appointment
+      description: Update or Cancel a repair appointment by appointment reference.
+      operationId: patchRepair
+      parameters:
+        - in: path
+          required: true
+          name: countryCode
+          example: USA
+          schema:
+            $ref: '#/components/schemas/CountryCode'
+        - in: path
+          required: true
+          name: appointmentId
+          description: The Service Appointment ID
+          example: 1
+          schema:
+            type: number
+      requestBody:
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: '#/components/schemas/RepairUpdateRequest'
+                - $ref: '#/components/schemas/RepairCancelRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RepairUpdateResponse'
+        '400':
+          description: Invalid Request
+        5XX:
+          description: Error occur at server end
+
+  /v2/{countryCode}/repair/{appointmentId}/status:
+    post:
+      tags:
+        - Repair
+      summary: Check Appointment Status
+      description: Check Status of a repair appointment
+      operationId: checkStatus
+      parameters:
+        - in: path
+          required: true
+          name: countryCode
+          example: 'USA'
+          schema:
+            $ref: "#/components/schemas/CountryCode"
+        - in: path
+          required: true
+          name: appointmentId
+          example: 1
+          schema:
+            type: number
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RepairCheckStatusRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RepairCheckStatusResponse'
+        '400':
+          description: Invalid Request
+        '5XX':
+          description: Error occur at server end
+
+  /v2/{countryCode}/repair:
+    post:
+      tags:
+        - Repair
+      summary: Create Appointment
+      description: Creates a repair appointment and returns the appointment reference and the order ID. If the brand param in the request payload is any value other than Whirlpool brands then retrieve the mandatory values for AE(Sears) flow using check availability API
+      operationId: createRepair
+      parameters:
+        - in: path
+          required: true
+          name: countryCode
+          example: 'USA'
+          schema:
+            $ref: "#/components/schemas/CountryCode"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: '#/components/schemas/RepairScheduleRequestAe'
+                - $ref: '#/components/schemas/RepairScheduleRequestServiceBench'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RepairScheduleRequestResponse'
+        '400':
+          description: Invalid Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RepairScheduleResponse400'
+        '5XX':
+          description: Error occur at server end
+
+  /v2/{countryCode}/repair/check-availability:
+    post:
+      tags:
+        - Repair
+      summary: Check Availability
+      description: Returns dates and time slots for repair appointments from various service providers. Gives dates & time slots for the next 7 days from the availability request start date.
+      operationId: checkAvailability
+      parameters:
+        - in: path
+          required: true
+          name: countryCode
+          example: 'USA'
+          schema:
+            $ref: "#/components/schemas/CountryCode"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RepairCheckAvailabilityRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/RepairCheckAvailabilityResponseAE'
+                  - $ref: '#/components/schemas/RepairCheckAvailabilityResponseServiceBench'
+        '400':
+          description: Invalid Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RepairCheckAvailabilityResponse400'
+        '5XX':
+          description: Error occur at server end
+
+  /v2/{countryCode}/repair/service-checker:
+    post:
+      tags:
+        - Repair
+      summary: Service Checker
+      description: This API is only for RMS. Returns number of available slots for a service job if an availability is found on a given availability requested date.
+      operationId: serviceChecker
+      parameters:
+        - in: path
+          required: true
+          name: countryCode
+          example: 'USA'
+          schema:
+            $ref: "#/components/schemas/CountryCode"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RepairServiceCheckerRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RepairServiceCheckerResponse'
+        '400':
+          description: Invalid Request
+        '5XX':
+          description: Error occur at server end
+
+  /v2/{countryCode}/repair/job-download:
+    post:
+      tags:
+        - Repair
+      summary: Request Job Download
+      parameters:
+        - in: path
+          required: true
+          name: countryCode
+          example: "USA"
+          schema:
+            $ref: "#/components/schemas/CountryCode"
+
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RepairRequestJobDownloadRequest"
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RepairRequestJobDownloadResponse"
+        "400":
+          description: Invalid Request
+        "5XX":
+          description: Error occur at server end
+
+  /v2/{countryCode}/claim/faultcodes:
+    get:
+      tags:
+        - Claims
+      summary: Faultcodes
+      description: This API returns all faultcodes (questions) as part of the claim / repair journey.
+      operationId: getFaultcodes
+      parameters:
+        - in: path
+          required: true
+          name: countryCode
+          example: 'USA'
+          schema:
+            $ref: "#/components/schemas/CountryCode"
+        - in: query
+          required: true
+          name: manufacturerBrandCode
+          description: "The manufacturer brand code of the item, e.g. WHIRL"
+          example: 'WHIRL'
+          schema:
+            type: string
+        - in: query
+          required: true
+          name: merchandiseType
+          description: "The merchandise type code, e.g. DISH for Dishwasher"
+          example: 'DISH'
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FaultCodeResponse'
+        '400':
+          description: Invalid Request
+        '5XX':
+          description: Error occur at server end
+
+  /v2/{countryCode}/claim/contract/{id}:
+    get:
+      tags:
+        - Claims
+      summary: All Claims (By Contract)
+      description: This API returns all claims (service requests) for a given contract (reference).
+      operationId: getAllClaimsByContract
+      parameters:
+        - in: path
+          required: true
+          name: countryCode
+          example: 'USA'
+          schema:
+            $ref: "#/components/schemas/CountryCode"
+        - in: path
+          required: true
+          name: id
+          example: 'PLANID78621'
+          schema:
+            type: string
+          description: The contract id / D&G Plan reference 
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetAllClaimsResponse'
+        '400':
+          description: Invalid Request
+        '5XX':
+          description: Error occur at server end
+
+  /v2/{countryCode}/claim/{id}:
+    get:
+      tags:
+        - Claims
+      summary: Claim
+      description: This API returns the details of a single claim by service request id
+      operationId: getClaim
+      parameters:
+          - in: path
+            required: true
+            name: countryCode
+            example: 'USA'
+            schema:
+              $ref: "#/components/schemas/CountryCode"
+          - in: path
+            required: true
+            name: id
+            example: '1234'
+            schema:
+              type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetClaimResponse'
+    patch:
+      tags:
+        - Claims
+      summary: Patch Update (Cancel)
+      description: Claims API to be able to update a claim and any related appointment.
+      operationId: updateClaim
+      parameters:
+        - in: path
+          required: true
+          name: countryCode
+          example: 'USA'
+          schema:
+            $ref: "#/components/schemas/CountryCode"
+        - in: path
+          required: true
+          name: id
+          description: "The Service Request ID, Used to look up record in Service Request table"
+          example: 1
+          schema:
+            type: number
+      requestBody:
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: '#/components/schemas/DeleteClaimRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateClaimResponse'
+        '400':
+          description: Invalid Request
+        '5XX':
+          description: Error occur at server end
+
+  /v2/{countryCode}/claim:
+    post:
+      tags:
+        - Claims
+      summary: Create
+      description: This API creates a new claim and appointment, if an appointment is booked at the same time. The claim & appointment details are returned.
+      operationId: createClaim
+      parameters:
+        - in: path
+          required: true
+          name: countryCode
+          example: 'USA'
+          schema:
+            $ref: "#/components/schemas/CountryCode"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateClaimRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateClaimResponse'
+        '400':
+          description: Invalid Request
+        '5XX':
+          description: Error occur at server end
+
+components:
+  securitySchemes:
+    oauth2Auth:
+      type: http
+      scheme: oauth2
+
+  parameters:
+    pageNoParam:
+      in: query
+      name: pageNo
+      description: Page number of the results returned
+      example: 1
+      schema:
+        type: number
+        default: 1
+    pageSizeParam:
+      in: query
+      name: pageSize
+      description: Number of items per page
+      example: 20
+      schema:
+        type: number
+        default: 20
+    protectedParam:
+      in: query
+      name: protected
+      description: Indicates if protected messages should be returned
+      example: true
+      schema:
+        type: boolean
+        default: false
+
+  schemas:
+    CountryCode:
+      type: string
+      enum:
+        - "GBR"
+        - "AUS"
+        - "AUT"
+        - "BEL"
+        - "DNK"
+        - "FRA"
+        - "DEU"
+        - "IRL"
+        - "ITA"
+        - "NLD"
+        - "NZL"
+        - "POL"
+        - "PRT"
+        - "ESP"
+        - "SWE"
+        - "USA"
+    ClaimType:
+      type: string
+      enum:
+        - "Repair"
+        - "Replacement"
+        - "Return"
+        - "Customer Payment"
+    ContractSplit:
+      type: object
+      properties:
+        contractId:
+          type: string
+          example: "155515364"
+          description: D&G Contract Id
+        policyHolderLocatorId:
+          type: number
+          example: "155515364"
+          description: policy Holder Locator Id
+        businessType:
+          type: string
+          example: "N"
+          description: Type Of Business N,R...
+        renewalPhase:
+          type: number
+          example: "36"
+          description: Should be multiple of 12
+        itemCode:
+          type: string
+          example: D-
+          description: Code of the item
+        manufacturerGuaranteePeriod:
+          type: number
+          example: "24"
+          description: Should be multiple of 12
+        levelOfCover:
+          type: string
+          example: STD
+          description: Level of Cover like STD,GEN
+        periodOfCover:
+          type: number
+          example: "24"
+          description: Should be multiple of 12
+        channelCode:
+          type: string
+          example: GEN
+          description: Code of the Channel
+        itemAge:
+          type: number
+          example: "24"
+          description: Should be multiple of 12
+        basePrice:
+          type: number
+          example: "36"
+          description: Should be multiple of 12
+        merchandiseTax:
+          type: number
+          example: "33"
+          description: Merchandise Tax
+        splitLookupId:
+          type: number
+          example: "1"
+          description: Split Lookup Reference
+        splitAmount:
+          type: number
+          example: "1"
+          description: Split Amount
+    ContractSplitResponse:
+      type: object
+      properties:
+        id:
+          type: number
+          example: "1"
+          description: Split Creation Id
+        contractId:
+          type: string
+          example: "155515364"
+          maxLength: 10
+          minLength: 9
+          description: D&G Contract Id
+        policyHolderLocatorId:
+          type: number
+          example: "155515364"
+          description: policy Holder Locator Id
+        businessType:
+          type: string
+          example: "N"
+          description: Type Of Business N,R...
+        renewalPhase:
+          type: number
+          example: "36"
+          description: Should be multiple of 12
+        itemCode:
+          type: string
+          example: D-
+          description: Code of the item
+        manufacturerGuaranteePeriod:
+          type: number
+          example: "24"
+          description: Should be multiple of 12
+        levelOfCover:
+          type: string
+          example: STD
+          description: Level of Cover like STD,GEN
+        periodOfCover:
+          type: number
+          example: "24"
+          description: Should be multiple of 12
+        channelCode:
+          type: string
+          example: GEN
+          description: Code of the Channel
+        itemAge:
+          type: number
+          example: "24"
+          description: Should be multiple of 12
+        basePrice:
+          type: number
+          example: "36"
+          description: Should be multiple of 12
+        merchandiseTax:
+          type: number
+          example: "33"
+          description: Merchandise Tax
+        splitLookupId:
+          type: number
+          example: "1"
+          description: Split Lookup Reference
+        splitAmount:
+          type: number
+          example: "1"
+          description: Split Amount
+    GetAlertHistoryResponse:
+      type: object
+      properties:
+        alert:
+          $ref: "#/components/schemas/AlertHistoryArray"
+    PaymentAuthSettleRequest:
+      type: object
+      required:
+        - legalEntityCode
+        - amount
+        - billingProfileId
+      properties:
+        legalEntityCode:
+          type: string
+          example: "DGUSALLC"
+          description: "D&G Contract Legal Entity"
+          maxLength: 10
+        amount:
+          type: number
+          example: 12.00
+          description: "Invoice Amount"
+        billingProfileId:
+          type: string
+          example: "c77d3d93-b097-4014-96d0-a220b59e048f"
+          description: "Pay Supervisor Billing Profile id"
+          maxLength: 100
+        paymentToken:
+          type: string
+          example: "c77d3d93-b097-4014-96d0-a220b59e048f"
+          description: "Used for once off payments not attached to a billing profile"
+          maxLength: 50
+        contractStartDate:
+          type: string
+          example: "2024-12-10"
+          description: "Contract Start Date (YYYY-MM-DD)"
+        firstInvoiceIssueDate:
+          type: string
+          example: "2024-12-10"
+          description: "First Invoice Issue Date (YYYY-MM-DD)"
+        channelCode:
+          type: string
+          example: "DGCCC"
+          default: 'DGCCC'
+          description: "D&G Channel Code"
+    PaymentRefundRequest:
+      type: object
+      required:
+        - legalEntityCode
+        - amount
+        - billingProfileId
+        - channelCode
+      properties:
+        legalEntityCode:
+          type: string
+          example: "DGUSALLC"
+          description: "D&G Contract Legal Entity"
+          maxLength: 10
+        amount:
+          type: number
+          example: 12.00
+          description: "Invoice Amount"
+        billingProfileId:
+          type: string
+          example: "c77d3d93-b097-4014-96d0-a220b59e048f"
+          description: "Pay Supervisor Billing Profile id"
+          maxLength: 100
+        channelCode:
+          type: string
+          example: "DGCCC"
+          description: "D&G Channel Code"
+    CreateAlertRequest:
+      type: object
+      required:
+        - personId
+        - code
+        - source
+      properties:
+        personId:
+          type: string
+          example: "12345678"
+          description: "D&G Person Unique Identifier"
+          maxLength: 100
+        contractId:
+          type: string
+          example: ABC1234567
+          maxLength: 10
+          minLength: 9
+          description: D&G Contract ID
+        code:
+          type: string
+          example: "SUA"
+          description: "Alert Type Code - Please refer to the D&G reference dataset for a full list of values"
+        source:
+          type: object
+          $ref: "#/components/schemas/AlertSourceData"
+
+    AlertSourceData:
+      type: object
+      required:
+        - clientCode
+        - channelCode
+        - systemCode
+        - journeyCode
+        - interactionEventCode
+        - interactionEventDateTime
+        - interactionType
+        - interactionId
+        - interactionIdSystemCode
+        - userId
+      properties:
+        clientCode:
+          type: string
+          maxLength: 10
+          example: "WHIRL"
+          description: "A D&G code representing the client supplying the data or on behalf of whom D&G is capturing this Person data in their system - Please refer to the D&G reference dataset for a full list of values"
+        channelCode:
+          type: string
+          maxLength: 10
+          example: "DGCCC"
+          description: "A D&G code representing the channel supplying the data or on behalf of whom D&G is capturing this Person data in their system - Please refer to the D&G reference dataset for a full list of values"
+        systemCode:
+          type: string
+          maxLength: 10
+          example: "ADP"
+          description: "A D&G code representing the system supplying the data - Please refer to the D&G reference dataset for a full list of values"
+        journeyCode:
+          type: string
+          maxLength: 10
+          example: "REG"
+          description: "A D&G code representing the business journey that is supplying the data"
+        interactionEventCode:
+          type: string
+          maxLength: 10
+          example: "COCRE"
+          description: "A code to represent the actual significant interaction event - Please refer to the D&G reference dataset for a full list of values"
+        interactionDirection:
+          type: string
+          example: "I"
+          description: "The initiating direction of the interaction event (inbound/outbound)"
+          enum:
+            - I
+            - O
+        interactionEventDateTime:
+          type: string
+          format: date-time
+          maxLength: 10
+          example: "2024-05-30 14:15:22.000Z"
+          description: "The unique date and time of the interaction event"
+        interactionType:
+          type: string
+          example: "SYS"
+          description: "A code to indicate system generated or customer interactions from customer facing channels"
+          enum:
+            - SYS
+            - CUS
+        interactionId:
+          type: string
+          maxLength: 100
+          example: "123ABC"
+          description: "The external web session or telephony conversation id identifying the interaction that triggered the event in digital or telephony journeys or an artificially generated identifier for automated backend processes"
+        interactionIdSystemCode:
+          type: string
+          maxLength: 10
+          example: "GPC"
+          description: "A code to identify the system that generated or master(s) the interactionId. this is different from system code which represents the system that triggered the event - Please refer to the D&G reference dataset for a full list of values"
+        userId:
+          type: string
+          maxLength: 50
+          example: "BLOGGSJ"
+          description: "A system or user identifier which can be used to provide audit and traceability of the data supplied to D&G"
+
+
+    CreateAlertResponse:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          type: integer
+          example: 2097067
+          description: Alert ID
+          
+    GetContractInvoicesResponse:
+      type: object
+      required:
+        - invoice
+      properties:
+        invoice:
+          type: array
+          items:
+           $ref: "#/components/schemas/PartialInvoiceItem"
+        pageNo:
+          type: integer
+          example: 1
+          description: Page number of the results returned
+        totalRecords:
+          type: integer
+          example: 123
+          description: Total number of records
+        totalPages:
+          type: integer
+          example: 20
+          description: Total number of pages for the results
+    GetPersonInvoicesResponse:
+      type: object
+      required:
+        - invoice
+      properties:
+        contract:
+          type: array
+          items:
+            $ref: "#/components/schemas/ContractWithInvoiceArray"
+        pageNo:
+          type: integer
+          example: 1
+          description: Page number of the results returned
+        totalRecords:
+          type: integer
+          example: 123
+          description: Total number of records
+        totalPages:
+          type: integer
+          example: 20
+          description: Total number of pages for the results
+    PaymentAuthSettleResponse:
+      type: object
+      required:
+        - id
+        - merchantReferenceNumber
+        - status
+      properties:
+        id:
+          type: string
+          example: "0262f4d4-20e6-4a6a-83b8-55177b1fbdf5"
+          description: "PaySafe identifier"
+        merchantReferenceNumber:
+          type: string
+          example: "WIB-3142edd1-d197-4b56-9c7e-687d4ccfa437"
+          description: "Merchant Reference Number"
+        status:
+          type: string
+          example: "COMPLETED"
+          description: "PaySafe Response Status"
+
+    UpdateAlertRequest:
+      type: object
+      required:
+        - source
+      properties:
+        source:
+          type: object
+          $ref: "#/components/schemas/AlertSourceData"
+        notes:
+          type: string
+          example: "Alert notes..."
+          description: "Notes relating to the Alert"
+        active:
+          type: boolean
+          example: true
+          description: "Has the Alert been viewed: if not yet, it is active (true)"
+
+    UpdateAlertResponse:
+      type: object
+      required:
+        - msg
+      properties:
+        msg:
+          type: string
+          example: "Alert Updated Successfully"
+          description: Alert Update Message
+
+    AlertHistoryArray:
+      type: array
+      items:
+        $ref: "#/components/schemas/AlertHistoryItem"
+    AlertHistoryItem:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 2097067
+          description: Alert ID
+        contractId:
+          type: string
+          example: ABC1234567
+          maxLength: 10
+          minLength: 9
+          description: D&G Contract ID
+        code:
+          type: integer
+          example: 2
+          description: Alert Code
+        severity:
+          type: integer
+          example: "5"
+          description: Alert Severity
+        note:
+          type: array
+          items:
+            $ref: "#/components/schemas/AlertNoteItem"
+
+    AlertNoteItem:
+      type: object
+      properties:
+        text:
+          type: string
+          example: "Alert notes..."
+          description: "Note relating to the Alert"
+        userId:
+          type: string
+          example: "SMITHJ"
+          description: "A system or user identifier which can be used to provide audit and traceability of the data supplied to D&G"
+          maxLength: 50
+        date:
+          type: string
+          format: date-time
+          example: 2017-07-21T17:32:28Z
+          description: "Timestamp of when the note was added - Format : YYYY-MM-DDTHH:mm:ssZ"
+    GetProductOverviewResponse:
+      type: object
+      properties:
+        messages:
+          $ref: "#/components/schemas/ProductOverviewArray"
+    ProductOverviewArray:
+      type: array
+      items:
+        $ref: "#/components/schemas/ProductOverviewMessageItem"
+    ProductOverviewMessageItem:
+      type: object
+      properties:
+        id:
+          type: number
+          example: 98746
+          description: Id
+        decription:
+          type: string
+          example: D&G. CANCELLATION AFTER 45 DAYS - NO REFUND.
+          description: The product overview description
+          maxLength: 250
+          minLength: 1
+        createdBy:
+          type: string
+          example: HUGHESMA
+          description: The user who created the message
+          maxLength: 20
+          minLength: 1
+        dateCreated:
+          type: string
+          format: date-time
+          description: >-
+            The date/time the message was created - Format
+            YYYY-MM-DDThh:mm:ss.sssZ
+
+    MerchandiseTaxRequest:
+      type: object
+      required:
+        - productVariantId
+        - productClass
+        - vertexMessageType
+        - priceOption
+      properties:
+        personId:
+          type: string
+          example: "1234567890"
+          description: D&G Person Unique Identifer
+          maxLength: 100
+        itemId:
+          type: string
+          example: "12345678"
+          description: D&G Item Unique Identifier
+          maxLength: 100
+        address:
+          $ref: "#/components/schemas/TaxAddressData"
+        productVariantId:
+          type: number
+          example: 1
+          description: Product Variant Id
+        productClass:
+          $ref: "#/components/schemas/ProductClass"
+          description: The Product Class to be used in the Vertex call
+        renewalPhase:
+          type: number
+          example: 1
+          description: Renewal phase (New Business = -1, First Renewal = 0, Second Renewal = 1, etc.)
+        vertexMessageType:
+          $ref: "#/components/schemas/VertexMessageType"
+          description: The Message Type to be used in the Vertex call
+        priceOption:
+          type: array
+          description: Array of price options
+          items:
+            $ref: "#/components/schemas/PriceOptionArrayItem"
+
+
+    MerchandiseTaxResponse:
+      type: object
+      properties:
+        priceOption:
+          type: array
+          description: Array of price options
+          items:
+            $ref: "#/components/schemas/PriceOptionResponseArrayItem"
+
+    TaxAddressData:
+      type: object
+      required:
+        - addressLine1
+        - city
+        - regionOrState
+        - postalCode
+        - countryCode
+      properties:
+        addressLine1:
+          type: string
+          example: "1 High Street"
+          description: Address Line 1
+          maxLength: 150
+        city:
+          type: string
+          example: "City"
+          description: Town or City
+          maxLength: 150
+        regionOrState:
+          type: string
+          example: "CA"
+          description: State or Region
+          maxLength: 150
+        postalCode:
+          type: string
+          example: "AB1 2CD"
+          description: Postal Code
+          maxLength: 20
+        countryCode:
+          $ref: "#/components/schemas/CountryCode"
+    ProductClass:
+      type: string
+      enum:
+        - "APPLCARE"
+        - "APPLPARTS"
+        - "APPLLAB"
+    VertexMessageType:
+      type: string
+      enum:
+        - "QUOTATION"
+        - "INVOICE"
+    PriceOptionArrayItem:
+      type: object
+      required:
+        - levelOfCoverCode
+        - periodOfCover
+        - paymentMethodCode
+        - price
+      properties:
+        levelOfCoverCode:
+          type: string
+          example: "STD"
+          description: Level of Cover Code
+          maxLength: 5
+        periodOfCover:
+          type: number
+          example: 12
+          description: Period of Cover (in months)
+        paymentMethodCode:
+          type: string
+          example: "CC"
+          description: Payment Method Code
+          maxLength: 5
+        price:
+          type: number
+          format: float
+          example: 200
+          description: Price from rating
+        unitPrice:
+          type: number
+          format: float
+          example: 12.12
+          description: Unit Price
+    PriceOptionResponseArrayItem:
+      type: object
+      properties:
+        levelOfCoverCode:
+          type: string
+          example: "STD"
+          description: Level of Cover Code
+        periodOfCover:
+          type: number
+          example: 12
+          description: Period of Cover (in months)
+        paymentMethodCode:
+          type: string
+          example: "CC"
+          description: Payment Method Code
+        price:
+          type: number
+          format: float
+          example: 200
+          description: Price from rating
+        totalTax:
+          type: number
+          format: float
+          example: 50
+          description: Total tax
+        effectiveTaxRate:
+          type: number
+          format: float
+          example: 0.25123
+          description: Effective Tax Rate
+        unitPrice:
+          type: number
+          format: float
+          example: 12
+          description: Unit Price
+        merchandiseTaxResponse:
+          type: string
+          format: JSON
+          example: '{"meta":{"app":"Vertex REST API v2.1.0","timeReceived":"2023-06-21T06:49:28.667Z","timeElapsed(ms)":114},"data":{"saleMessage":"INVOICE","subTotal":200,"total":214,"totalTax":14,"lineItems":[{"seller":{"physicalOrigin":{"taxAreaId":140318411,"streetAddress1":"122 South Michigan Avenue Ste 1390","city":"Miami","mainDivision":"FL","postalCode":"60602-6036","country":"USA"},"administrativeOrigin":{"taxAreaId":140318411,"streetAddress1":"122 South Michigan Avenue Ste 1390","city":"Miami","mainDivision":"FL","postalCode":"60602-6036","country":"USA"},"company":"DGUSAINC"},"quantity":{"value":1},"extendedPrice":0,"totalTax":14,"flexibleFields":{"flexibleCodeFields":[{"fieldId":1,"value":"FixedTerm"}],"flexibleNumericFields":[{"fieldId":1,"value":200}]},"lineItems":[{"customer":{"destination":{"taxAreaId":100690000,"streetAddress1":"31047 Interlachen Drive","city":"Sorrento","mainDivision":"FL","postalCode":"32776","country":"USA"}},"product":{"productClass":"APPLCARE"},"quantity":{"value":1},"fairMarketValue":200,"unitPrice":200,"extendedPrice":200,"taxes":[{"jurisdiction":{"jurisdictionLevel":"STATE","jurisdictionId":5286,"value":"FLORIDA"},"calculatedTax":12,"effectiveRate":0.06,"taxable":200,"imposition":{"impositionId":1,"value":"Sales and Use Tax"},"impositionType":{"impositionTypeId":1,"value":"General Sales and Use Tax"},"taxRuleId":{"value":"511889"},"taxResult":"TAXABLE","taxType":"SALES","situs":"DESTINATION","isService":true,"taxCollectedFromParty":"BUYER","taxStructure":"SINGLE_RATE"},{"jurisdiction":{"jurisdictionLevel":"COUNTY","jurisdictionId":5709,"value":"LAKE"},"calculatedTax":2,"effectiveRate":0.01,"taxable":200,"imposition":{"impositionId":1,"value":"Local Sales and Use Tax (Discretionary Sales Surtax)"},"impositionType":{"impositionTypeId":1,"value":"General Sales and Use Tax"},"taxRuleId":{"value":"27194"},"taxResult":"TAXABLE","taxType":"SALES","situs":"DESTINATION","isService":true,"taxCollectedFromParty":"BUYER","taxStructure":"SINGLE_RATE"}],"totalTax":14,"lineItemId":"ee144fcc-f423-43ae-bf7e-975051ba9356"}],"lineItemId":"a7770b15-7b68-4576-b624-279ea094f340"}],"documentNumber":"35462f90-556d-4f1e-9609-c8a4754af71a","documentDate":"2023-06-21T00:00:00.000Z","transactionType":"SALE"}}'
+          description: Complete vertex response as JSON
+
+    BaseRateRequest:
+      type: object
+      required:
+        - rating
+        - item
+      properties:
+        isPersonPricing:
+          type: boolean
+          example: true
+          description: Identifies if personId and itemId are provided
+        personId:
+          type: string
+          example: "GEN:0001"
+          description: Person Id - Required for countryCode USA if isPersonPricing is true
+        rating:
+          type: object
+          required:
+            - productVariant
+            - channelCode
+            - isMultiPlan
+            - numberOfItems
+            - businessType
+          properties:
+            productVariant:
+              type: array
+              items:
+                type: string
+                example: "[ 1, 2, 3 ]"
+                description: Array of product variant codes to query by
+            channelCode:
+              type: string
+              example: "DGCCC"
+              maxLength: 5
+              description: A D&G code representing the channel supplying the data or on behalf of whom D&G is capturing this data in their system
+            isMultiPlan:
+              type: boolean
+              example: false
+              description: Identifies if rating is for a single plan or multiplan
+            numberOfItems:
+              type: number
+              example: 1
+              description: |
+                Max number of items to be rated.
+  
+                If single plan this must be 1
+            businessType:
+              type: string
+              example: "N"
+              enum:
+                - "N"
+                - "R"
+              description: Business type - "N" - New or "R" - Renewal
+            rateDate:
+              type: string
+              format: date
+              description: Date that the rating will be sourced for, defaults to "todays" date if not provided - Format YYYY-MM-DD
+              example: "2024-01-15"
+            periodOfCover:
+              type: array
+              items:
+                type: number
+                example: 12,24
+                description: Array of period of covers [months] to query by. Single value only to be provided if Business Type is "R"
+            levelOfCoverCode:
+              type: array
+              items:
+                type: string
+                example: "STD"
+                maxLength: 5
+                description: Array of level of covers to query by. Single value only to be provided if Business Type is "R"
+            paymentMethodCode:
+              type: array
+              items:
+                type: string
+                maxLength: 5
+                example: CC
+                description: Allows channel to specify subset of payment methods to be returned. Mandatory if businessType = R
+        item:
+          type: array
+          required:
+            - itemTypeCode
+            - manufacturerGuaranteePeriodLabour
+            - manufacturerGuaranteePeriodParts
+            - manufacturerBrandCode
+            - purchaseDate
+            - purchasePrice
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                example: "GEN:12345"
+                description: D&G unique identifier for an Item in OGC. Required if isPersonPricing is true
+              operationalStatusAtPos:
+                type: string
+                example: "W"
+                description: Operational Status (used to determine D&G product eligibility for protection cover)
+              itemTypeCode:
+                type: string
+                example: "DISH"
+                maxLength: 10
+                description: This is a D&G defined code that identifies the type of item
+              manufacturerGuaranteePeriodLabour:
+                type: number
+                example: 12
+                description: Manufacturer Guarantee Period Labour in months
+              manufacturerGuaranteePeriodParts:
+                type: number
+                example: 12
+                description: Manufacturer Guarantee Period Parts in months
+              manufacturerBrandCode:
+                type: string
+                example: WHIRL
+                maxLength: 5
+                description: This is a D&G defined code that identifies the manufacturer brand of the item
+              purchaseDate:
+                type: string
+                format: date
+                description: "Purchase Date - Format YYYY-MM-DD"
+                example: "2024-06-12"
+              purchasePrice:
+                type: number
+                example: 599.99
+                description: Item Purchase Price. Float with 2 decimal places.
+        contract:
+          type: object
+          description: In the case of Renewals this supplies details of the current contract that is to be renewed. Mandatory if business type is "R".
+          required:
+            - grossAmount
+            - renewalAmount
+            - serviceAmount
+          properties:
+            renewalPhase:
+              type: number
+              example: 1
+              description: Indicates renewal phase of current contract [0=First renewal 1=Second renewal 2,3,4... number of times renewed]
+            grossAmount:
+              type: number
+              example: 299.99
+              description: Gross price paid for current contract. Float with 2 decimal places.
+            serviceAmount:
+              type: number
+              example: 49.90
+              description: Service price paid for current contract. Float with 2 decimal places.
+    BaseRateResponse:
+      type: object
+      properties:
+        variant:
+          $ref: "#/components/schemas/BaseRateVariantArray"
+    BaseRateVariantArray:
+      type: array
+      items:
+        $ref: "#/components/schemas/Variant"
+    Variant:
+      type: object
+      properties:
+        productVariantId:
+          type: number
+          example: 1
+          description: Product Variant Id
+        productTerm:
+          type: string
+          example: "Subscription"
+          description: Product Term
+        cover:
+          type: array
+          items:
+            type: object
+            properties:
+              levelOfCoverCode:
+                type: string
+                example: STD
+                description: Level of Cover Code
+              baseRateCategoryId:
+                type: number
+                example: 103
+                description: Id of the Base Rate Category
+              currencyCode:
+                type: string
+                example: USD
+                description: Currency for the Country in Base Rate Category
+              includeTax:
+                type: boolean
+                example: false
+                description: Indicates if tax is included in the Price
+              priceOptionPoc:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    periodOfCover:
+                      type: number
+                      example: 12
+                      description: Period of Cover in months
+                    priceOption:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          paymentMethodCode:
+                            type: string
+                            example: "CC"
+                            description: Payment Method Code
+                          paymentProfileCode:
+                            type: string
+                            example: "CC12MTHLYW0"
+                            description: Payment Profile Code
+                          preferredPaymentProfile:
+                            type: boolean
+                            example: true
+                          numberOfPayments:
+                            type: number
+                            example: 12
+                            description: Number of payments in the payment profile
+                          monthsBetweenPayments:
+                            type: number
+                            example: 1
+                            description: Months between payment in the payment profile
+                          discountProfileCode:
+                            type: string
+                            example: D20PTM
+                            description: Discount profile code
+                          discountTerm:
+                            type: number
+                            example: 6
+                            description: Discount term (in months)
+                          discountAmount:
+                            type: number
+                            example: 20.99
+                            description: Discount amount. Float with 2 decimal places
+                          discountPercentage:
+                            type: number
+                            example: 0.12345
+                            description: Discount percentage. Float with 5 decimal places
+                          netInsuranceAmount:
+                            type: number
+                            example: 21.99
+                            description: Gross Insurance Amount minus Insurance Tax Amount, with discounts applied. Float with 2 decimal places.
+                          grossInsuranceAmount:
+                            type: number
+                            example: 19.99
+                            description: Insurance split (0 in US) with discount applied, plus applicable insurance taxes (0 in US). Float with 2 decimal places.
+                          insuranceTaxAmount:
+                            type: number
+                            example: 9.99
+                            description: Insurance tax amount (0 in US). Float with 2 decimal places.
+                          netServiceAmount:
+                            type: number
+                            example: 107.89
+                            description: Gross Service Amount minus Service Tax Amount, with discounts applied. Float with 2 decimal places.
+                          serviceTaxAmount:
+                            type: number
+                            example: 9.58
+                            description: Sales tax amount from Vertex, applied on Net Service Amount with discount applied. Float with 2 decimal places.
+                          grossServiceAmount:
+                            type: number
+                            example: 117.47
+                            description: Service split with discount applied, plus applicable service taxes. Float with 2 decimal places.
+                          netTotalAmount:
+                            type: number
+                            example: 107.90
+                            description: Net Service Amount plus Net Insurance Amount, with discounts applied. Float with 2 decimal places.
+                          netTotalAmountExDiscount:
+                            type: number
+                            example: 117.47
+                            description: Net Total Amount but without applying any discounts ((grossTotalAmount - serviceTaxAmount) + discountAmount). Float with 2 decimal places.
+                          grossTotalAmount:
+                            type: number
+                            example: 117.47
+                            description: Gross Service Amount plus Gross Insurance Amount. Float with 2 decimal places.
+                          grossTotalAmountExDiscount:
+                            type: number
+                            example: 130.52
+                            description: Gross Total Amount incl. all taxes but without applying any discounts ((grossTotalAmount - serviceTaxAmount) + discountAmount) * (1 + effectiveServiceTaxRate). Float with 2 decimal places.
+                          insuranceEffectiveTaxRate:
+                            type: number
+                            example: 0.12345
+                            description: Insurance tax rate (0 in US). Float with 5 decimal places.
+                          effectiveServiceTaxRate:
+                            type: number
+                            example: 0.12345
+                            description: Effective tax rate from Vertex. Float with 5 decimal places.
+
+    BillingCreateRequest:
+      allOf:
+        - $ref: "#/components/schemas/CardBankData"
+        - type: object
+          required:
+            - address
+          properties:
+            source:
+              $ref: "#/components/schemas/BillingSourceData"
+            address:
+              $ref: "#/components/schemas/AddressData"
+            payment:
+              $ref: "#/components/schemas/PaymentData"
+            preferred:
+              type: boolean
+              example: true
+              description: "Preferred Billing Profile"
+            clientCode:
+              type: string
+              example: "WHIRL"
+              maxLength: 10
+              description: "A D&G code representing the client supplying the data or on behalf of whom D&G is capturing this Person data in their system - Please refer to the D&G reference dataset for a full list of values"
+            nickName:
+              type: string
+              example: "John's billing account"
+              description: "Profile nickname"
+              maxLength: 50
+    BillingCreateResponse:
+      type: object
+      properties:
+        accountId:
+          type: string
+          example: "50605d6c-22b0-4b94-b38b-95ef2c52f42a"
+          description: "Pay Supervisor Account id"
+          maxLength: 100
+        profileId:
+          type: string
+          example: "f5bc8d57-7ad6-419e-975f-040c9ad069b1"
+          description: "Pay Supervisor Profile id"
+          maxLength: 100
+
+    BillingCreateErrorResponse:
+      type: object
+      properties:
+        errors:
+          type: array
+          description: ""
+          items:
+            $ref: "#/components/schemas/BillingCreateErrorResponseItem"
+
+    BillingCreateErrorResponseItem:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "John's billing account"
+          description: Profile nickname
+        address:
+          type: object
+          properties:
+            addressLine1:
+              type: string
+              example: "Flat B"
+              description: Address line 1
+            addressLine2:
+              type: string
+              example: "13 Noreuil road"
+              description: Address line 2
+            addressLine3:
+              type: string
+              example: "Petersfield"
+              description: Address line 3
+            addressLine4:
+              type: string
+              example: "Hampshire"
+              description: Address line 4
+            postcode:
+              type: string
+              example: "PO30 5DL"
+              description: Post code
+            state:
+              type: string
+              example: "Alabama"
+              description: State
+            countryCode:
+              type: string
+              example: "GBR"
+              description: Country code
+
+    BillingPatchRequest:
+      oneOf:
+        - $ref: "#/components/schemas/BillingPatchData"
+        - $ref: "#/components/schemas/BillingDeactivateData"
+
+    BillingPatchData:
+      type: object
+      required:
+        - account
+      properties:
+        account:
+          type: array
+          description: "Array of Billing Accounts"
+          items:
+            $ref: "#/components/schemas/BillingAccountPatchRequest"
+        source:
+          $ref: "#/components/schemas/BillingSourceData"
+    BillingAccountPatchRequest:
+      type: object
+      required:
+        - accountId
+        - profile
+      properties:
+        accountId:
+          type: string
+          example: "50605d6c-22b0-4b94-b38b-95ef2c52f42a"
+          description: Pay Supervisor Account id
+          maxLength: 100
+        profile:
+          type: array
+          description: Array of Billing profiles
+          items:
+            $ref: "#/components/schemas/BillingPatchRequestWithProfile"
+
+    BillingDeactivateData:
+      type: object
+      required:
+        - accountId
+        - profileId
+      properties:
+        source:
+          $ref: "#/components/schemas/BillingSourceData"
+        accountId:
+          type: string
+          example: "f5bc8d57-7ad6-419e-975f-040c9ad069b1"
+          description: "Pay Supervisor Account id"
+          maxLength: 100
+        profileId:
+          type: string
+          example: "f5bc8d57-7ad6-419e-975f-040c9ad069b1"
+          description: "Pay Supervisor Profile id"
+          maxLength: 100
+
+    BillingUpdateRequest:
+      type: object
+      properties:
+        clientId:
+          type: string
+          example: "00351"
+          description: Client code
+        clientGroup:
+          type: string
+          example: "00296"
+          description: Client group code
+        profileId:
+          type: string
+          example: "bb9f74b4-26f4-4d52-8c4a-d144e06fbb22"
+          description: Profile Id
+        nickName:
+          type: string
+          example: "John's billing account"
+          description: Profile nickname
+        active:
+          type: boolean
+          example: "true or false"
+          description: Profile Active Status
+        preferred:
+          type: boolean
+          example: "true or false"
+          description: Profile Preffered Status
+        payment:
+          type: object
+          properties:
+            profileId:
+              type: string
+              example: "bb9f74b4-26f4-4d52-8c4a-d144e06fbb22"
+              description: "Profile Id"
+            system:
+              type: string
+              example: "PAYSAFE"
+              description: "System Code"
+            token:
+              type: string
+              example: "T49099023"
+              description: "Token"
+            networkToken:
+              type: string
+              example: "56534523"
+              description: "Network Token"
+        bank:
+          type: object
+          properties:
+            id:
+              type: string
+              example: "PSPA_8192"
+              description: "Bank Account Id"
+            accountNo:
+              type: string
+              example: "398922934"
+              description: "Account Number"
+            accountType:
+              type: string
+              example: "SAVINGS"
+              description: "Account Type"
+            sortCode:
+              type: string
+              example: "235087"
+              description: "Sort Code"
+            iban:
+              type: string
+              example: "NY 17 002 00128 00000012005276002"
+              description: "International Bank Account Number"
+        card:
+          type: object
+          properties:
+            id:
+              type: string
+              example: "X903"
+              description: "Card Id"
+            lastFourDigits:
+              type: string
+              example: "0124"
+              description: "Last Four Digits of the Card"
+              minLength: 4
+              maxLength: 4
+            expiryMonth:
+              type: number
+              example: 12
+              description: "Expiry Month"
+            expiryYear:
+              type: string
+              example: "2027"
+              description: "Expiry Year"
+              minLength: 4
+              maxLength: 4
+            ban:
+              type: string
+              example: "test"
+              description: "BAN"
+
+    GetBillingDataErrorResponseItem:
+      type: object
+      properties:
+        message:
+          type: string
+          example: personId is mandatory
+    GetBillingDataErrorResponse:
+      type: object
+      properties:
+        errors:
+          type: array
+          description: ""
+          items:
+            $ref: "#/components/schemas/GetBillingDataErrorResponseItem"
+
+    BillingAccountResponseWithProfiles:
+      allOf:
+        - $ref: "#/components/schemas/CardBankData"
+        - type: object
+          properties:
+            address:
+              $ref: "#/components/schemas/AddressData"
+            profileId:
+              type: string
+              example: '50605d6c-22b0-4b94-b38b-95ef2c52f42a'
+              description: "Pay Supervisor Profile id"
+              maxLength: 100
+            nickName:
+              type: string
+              example: "John's billing account"
+              description: "Profile nickname"
+              maxLength: 50
+            creationDate:
+              type: string
+              format: date-time
+              example: "2024-04-19T10:25:40.7082058Z"
+              description: "Profile Date time (UTC) for the creation "
+            active:
+              type: boolean
+              example: true
+              description: "Active flag"
+            preferred:
+              type: boolean
+              example: true
+              description: "Preferred Billing Profile"
+            pspInitialTransactionId:
+              type: string
+              example: "25f6dadf-176a-415f-95c9-6ff39ff697ba"
+              description: "Initial Transaction Identifier"
+              maxLength: 100
+    GetBillingAccountResponse:
+     type: object
+     properties:
+       account:
+         type: array
+         items:
+           $ref: "#/components/schemas/GetBillingAccountResponseProfileObject"
+
+    GetBillingAccountResponseProfileObject:
+      type: object
+      properties:
+        accountId:
+          type: string
+          example: "50605d6c-22b0-4b94-b38b-95ef2c52f42a"
+          description: Billing account id
+        profile:
+          type: array
+          description: Array of Billing profiles
+          items:
+            $ref: "#/components/schemas/BillingAccountResponseWithProfiles"
+    BillingUpdateResponse:
+      type: object
+      properties:
+        msg:
+          type: string
+          example: "Billing Profiles Updated Successfully"
+          description: Billing Update Message
+    BillingUpdateErrorResponseItem:
+      type: object
+      properties:
+        clientId:
+          type: string
+          example: clientId is mandatory
+        profileId:
+          type: string
+          example: profileId is mandatory
+        nickName:
+          type: string
+          example: nickName is mandatory
+        active:
+          type: string
+          example: active is mandatory
+        preferred:
+          type: string
+          example: preferred is mandatory
+        payment:
+          type: object
+          properties:
+            profileId:
+              type: string
+              example: profileId in Payment Object is mandatory
+            system:
+              type: string
+              example: system in Payment Object is mandatory
+            token:
+              type: string
+              example: token in Payment Object is mandatory
+            networkToken:
+              type: string
+              example: networkToken in Payment Object is mandatory
+        bank:
+          type: object
+          properties:
+            id:
+              type: string
+              example: ID in Bank Object is mandatory
+            accountNo:
+              type: number
+              example: Account No in Bank Object is mandatory
+            accountType:
+              type: string
+              example: accountType in Bank Object is mandatory
+            sortCode:
+              type: string
+              example: sortCode in Bank Object is mandatory
+            iban:
+              type: string
+              example: iban in Bank Object is mandatory
+        card:
+          type: object
+          properties:
+            id:
+              type: string
+              example: ID in Card Object is mandatory
+            lastFourDigits:
+              type: string
+              example: lastFourDigits in Card Object is mandatory
+            expiryMonth:
+              type: number
+              example: expiryMonth in Card Object is mandatory
+            expiryYear:
+              type: number
+              example: expiryYear in Card Object is mandatory
+            ban:
+              type: string
+              example: ban in Card Object is mandatory
+    BillingUpdateErrorResponse:
+      type: object
+      properties:
+        errors:
+          type: array
+          description: ""
+          items:
+            $ref: "#/components/schemas/BillingUpdateErrorResponseItem"
+
+    SplitPricingRequest:
+      type: object
+      required:
+        - contract
+        - item
+        - person
+      properties:
+        contract:
+          type: object
+          required:
+            - grossFee
+            - salesAndServiceTax
+            - businessType
+            - contractId
+            - productVariant
+            - channelCode
+            - levelOfCover
+          properties:
+            grossFee:
+              type: number
+              example: 8.99
+              description: grossFee as returned by the BaseRate API
+            salesAndServiceTax:
+              type: number
+              example: 0.57
+              description: Tax rate as returned by the BaseRate API
+            businessType:
+              type: string
+              example: "N"
+              enum:
+                - "N"
+                - "R"
+              description: Business type - "N" - New or "R" - Renewal
+            contractId:
+              type: string
+              example: "21"
+              description: ContractId that the Splits are being sourced for
+            productVariant:
+              type: string
+              example: source
+              description: Product variant id
+            renewalPhase:
+              type: number
+              example: 1
+              description: Indicates renewal phase of current contract, mandatory if businessType is R [-1=New Business 0=First renewal 1=Second renewal 2,3,4... number of times renewed]
+            levelOfCover:
+              type: string
+              example: "STD"
+              description: level of cover
+            rateDate:
+              type: string
+              format: date
+              description: Date that the rating will be sourced for, defaults to "todays" date if not provided - Format YYYY-MM-DD
+        item:
+          type: object
+          required:
+            - itemCode
+            - manufacturerGuaranteePeriod
+            - periodOfCover
+            - purchaseDate
+            - purchasePrice
+          properties:
+            itemCode:
+              type: string
+              example: FF
+              description: Item Code
+            manufacturerGuaranteePeriod:
+              type: string
+              example: "12"
+              description: Manufacturer Guarantee Period Labour
+            periodOfCover:
+              type: number
+              example: 12
+              description: Period of cover [months]
+            purchaseDate:
+              type: string
+              format: date
+              description: "Purchase Date - Format YYYY-MM-DD"
+            purchasePrice:
+              type: number
+              example: "599"
+              description: Purchase Price
+        person:
+          type: object
+          required:
+            - policyHolderLocatorId
+            - regionOrStateCode
+          properties:
+            policyHolderLocatorId:
+              type: string
+              example: "155515368"
+              description: Policy holder locator Id
+            regionOrStateCode:
+              type: string
+              example: "FL"
+              description: Region or State Code
+
+    SplitPricingResponse:
+      type: object
+      properties:
+        splitPrices:
+          type: object
+          properties:
+            productVariant:
+              type: string
+              example: "ACMCALL"
+              description: Product variant Id
+            categoryCode:
+              type: string
+              example: "ACMRDNGCC"
+              description: Splits Category code identified from the database
+            categoryDescription:
+              type: string
+              example: "Splits for ACM Renewal for D&G Call Centre"
+              description: Splits Category description identified from the database
+            splitPricing:
+              type: array
+              items:
+                properties:
+                  splitTypeId:
+                    type: number
+                    example: 53
+                    description: Split Type Id
+                  splitTypeCode:
+                    type: string
+                    example: "CLIPRESERVEFEE"
+                    description: Split Type Code
+                  splitDescription:
+                    type: string
+                    example: "Reserve fee"
+                    description: Split Type Code Description
+                  splitOrder:
+                    type: number
+                    example: 2
+                    description: Split Order, in ascending order in the array
+                  splitPrice:
+                    type: number
+                    example: 1.66
+                    description: Split Price
+
+    FullSourceData:
+      type: object
+      required:
+        - channelCode
+        - channelType
+        - systemCode
+        - businessEventCode
+        - journeyCode
+        - interactionId
+        - userId
+      properties:
+        clientCode:
+          type: string
+          maxLength: 10
+          example: "WHIR"
+          description: "A D&G code representing the client supplying the data or on behalf of whom D&G is capturing this Person data in their system - Please refer to the D&G reference dataset for a full list of values"
+        channelCode:
+          type: string
+          maxLength: 10
+          example: "0039"
+          description: "A D&G code representing the channel supplying the data or on behalf of whom D&G is capturing this Person data in their system - Please refer to the D&G reference dataset for a full list of values"
+        channelType:
+          type: string
+          maxLength: 10
+          example: "WEB"
+          description: "A D&G code representing the channel supplying the data or on behalf of whom D&G is capturing this Person data in their system - Please refer to the D&G reference dataset for a full list of values"
+        systemCode:
+          type: string
+          maxLength: 10
+          example: "VEM"
+          description: "A D&G code representing the system supplying the data  - Please refer to the D&G reference dataset for a full list of values"
+        businessEventCode:
+          type: string
+          maxLength: 10
+          example: "COCRE"
+          description: "A D&G code representing the business event supplying the data - Please refer to the D&G reference dataset for a full list of values"
+        journeyCode:
+          type: string
+          maxLength: 10
+          example: "CSE"
+          description: "A D&G code representing the business journey supplying the data - Please refer to the D&G reference dataset for a full list of values"
+        interactionId:
+          type: string
+          maxLength: 100
+          example: "1234567890"
+          description: "A channel supplied id that identifes the web or telephone session which can be used to provide audit and tracability of the data supplied to D&G - Please refer to the D&G reference dataset for a full list of values"
+        userId:
+          type: string
+          maxLength: 50
+          example: "BLOGGSJ"
+          description: "A system or user identifier which can be used to provide audit and tracability of the data supplied to D&G"
+        interactionDirection:
+          type: string
+          minLength: 1
+          maxLength: 1
+          example: "I"
+          description: "The initiating direction of the interaction event (inbound/outbound)"
+        interactionEventDateTime:
+          type: string
+          format: date-time
+          example: "2024-05-30 14:15:22.000Z"
+          description: "The unique date and time of the interaction event in ISO format"
+        interactionIdSystemCode:
+          type: string
+          minLength: 10
+          maxLength: 10
+          example: "GPC"
+          description: "The code to identify the system that generated or master(s) the interactionid. this is different from system code which represents the system that triggered the event"
+
+    BillingSourceData:
+      type: object
+      required:
+        - clientCode
+        - channelCode
+        - systemCode
+        - journeyCode
+        - businessEventCode
+        - interactionId
+        - userId
+      properties:
+        clientCode:
+          type: string
+          maxLength: 10
+          example: "WHIR"
+          description: "A D&G code representing the client supplying the data or on behalf of whom D&G is capturing this Person data in their system - Please refer to the D&G reference dataset for a full list of values"
+        channelCode:
+          type: string
+          maxLength: 10
+          example: "0039"
+          description: "A D&G code representing the channel supplying the data or on behalf of whom D&G is capturing this Person data in their system - Please refer to the D&G reference dataset for a full list of values"
+        systemCode:
+          type: string
+          maxLength: 10
+          example: "VEM"
+          description: "A D&G code representing the system supplying the data  - Please refer to the D&G reference dataset for a full list of values"
+        journeyCode:
+          type: string
+          maxLength: 10
+          example: "CSE"
+          description: "A D&G code representing the business journey supplying the data - Please refer to the D&G reference dataset for a full list of values"
+        businessEventCode:
+          type: string
+          maxLength: 10
+          example: "COCRE"
+          description: "A D&G code representing the business event supplying the data - Please refer to the D&G reference dataset for a full list of values"
+        interactionDirection:
+          type: string
+          minLength: 1
+          maxLength: 1
+          example: "I"
+          description: "The initiating direction of the interaction event (inbound/outbound)"
+        interactionEventDateTime:
+          type: string
+          format: date-time
+          example: "2024-05-30 14:15:22.000Z"
+          description: "The unique date and time of the interaction event in ISO format"
+        interactionId:
+          type: string
+          maxLength: 100
+          example: "1234567890"
+          description: "A channel supplied id that identifes the web or telephone session which can be used to provide audit and tracability of the data supplied to D&G - Please refer to the D&G reference dataset for a full list of values"
+        interactionIdSystemCode:
+          type: string
+          minLength: 10
+          maxLength: 10
+          example: "GPC"
+          description: "The code to identify the system that generated or master(s) the interactionid. this is different from system code which represents the system that triggered the event"
+        userId:
+          type: string
+          maxLength: 50
+          example: "BLOGGSJ"
+          description: "A system or user identifier which can be used to provide audit and tracability of the data supplied to D&G"
+
+
+    GetInteractionHistoryResponse:
+      type: object
+      properties:
+        history:
+          $ref: "#/components/schemas/InteractionHistoryItemArray"
+        pageNo:
+          type: number
+          example: 1
+          description: Page number of the results
+        totalRecords:
+          type: number
+          example: 1
+          description: Total number of records
+        totalPages:
+          type: number
+          example: 1
+          description: Total number of pages for the results
+
+
+    GetInteractionResponse:
+      allOf:
+        - $ref: "#/components/schemas/InteractionHistoryItem"
+
+    InteractionHistoryItemArray:
+      type: array
+      items:
+        $ref: "#/components/schemas/InteractionHistoryItem"
+
+    InteractionHistoryItem:
+      type: object
+      required:
+        - id
+        - personId
+        - recordType
+        - notes
+        - businessEventCode
+        - channelCode
+        - systemCode
+      properties:
+        id:
+          type: string
+          example: 0262f4d4-20e6-4a6a-83b8-55177b1fbdf5
+          description: "D&G Interaction Unique Identifer - GUID"
+          maxLength: 36
+        personId:
+          type: string
+          example: "1234567890"
+          description: "D&G Person Unique Identifer"
+          maxLength: 100
+        referenceId:
+          type: string
+          example: "12345678"
+          description: "D&G System Reference Unique Identifer. This could be a Contract Id, a Claim Id, a Case Id, ..."
+          maxLength: 100
+        recordType:
+          type: string
+          enum:
+            - "SYSTEM"
+            - "USER"
+          example: "SYSTEM"
+          description: "Interaction Record Type - SYSTEM or USER"
+        businessEventCode:
+          type: string
+          maxLength: 10
+          example: "COCRE"
+          description: "A D&G code representing the business event supplying the data - Please refer to the D&G reference dataset for a full list of values"
+        businessEventDescription:
+          type: string
+          example: "Contract Create"
+          description: "Business Event Description"
+        processRef:
+          type: string
+          example: "REF1234"
+          description: "Unique Interaction Process Reference that is the result of multiple granular interactions on the system. For example, a Conversation Id that can be used to link all interactions"
+        clientCode:
+          type: string
+          maxLength: 10
+          example: "WHIR"
+          description: "A D&G code representing the client supplying the data or on behalf of whom D&G is capturing this Person data in their system - Please refer to the D&G reference dataset for a full list of values"
+        channelCode:
+          type: string
+          maxLength: 4
+          example: "0039"
+          description: "A D&G code representing the channel supplying the data or on behalf of whom D&G is capturing this Person data in their system"
+        systemCode:
+          type: string
+          maxLength: 3
+          example: "DIG"
+          description: "A D&G code representing the system supplying the data"
+        notes:
+          type: string
+          example: The Interaction Note
+          description: "Notes relating to the Interaction"
+        protected:
+          type: boolean
+          example: false
+          description: "Is Interaction Protected - true or false"
+        interactionTimestamp:
+          type: string
+          format: date-time
+          description: "The date and time when the interaction actually occurred E.g. For a 'postal communication received' - If not provided, the current date and time will be used"
+        createdBy:
+          type: string
+          example: BLOGGSJ
+          description: "Interaction record created by user id"
+        createdAtTimestamp:
+          type: string
+          format: date-time
+          description: "Interaction record created date/time - Format YYYY-MM-DDThh:mm:ss.sssZ"
+
+    BillingPatchRequestWithProfile:
+      allOf:
+        - $ref: "#/components/schemas/CardBankData"
+        - type: object
+          required:
+            - profileId
+            - nickName
+          properties:
+            address:
+              $ref: "#/components/schemas/AddressData"
+            payment:
+              $ref: "#/components/schemas/PaymentData"
+            profileId:
+              type: string
+              example: "50605d6c-22b0-4b94-b38b-95ef2c52f42a"
+              description: "Pay Supervisor Profile id"
+              maxLength: 100
+            nickName:
+              type: string
+              example: "John's billing account"
+              description: "Profile nickname"
+              maxLength: 50
+            active:
+              type: boolean
+              example: true
+              description: "Active flag"
+            preferred:
+              type: boolean
+              example: true
+              description: "Preferred Billing Profile"
+
+    BillingAccountResponseWithProfile:
+      allOf:
+        - $ref: "#/components/schemas/CardBankData"
+        - type: object
+          properties:
+            address:
+              $ref: "#/components/schemas/AddressData"
+            profileId:
+              type: string
+              example: "50605d6c-22b0-4b94-b38b-95ef2c52f42a"
+              description: "Pay Supervisor Profile id"
+              maxLength: 100
+            nickName:
+              type: string
+              example: "John's billing account"
+              description: "Profile nickname"
+              maxLength: 50
+            creationDate:
+              type: string
+              format: date-time
+              example: "2024-04-19T10:25:40.7082058Z"
+              description: "Profile Date time (UTC) for the creation "
+            active:
+              type: boolean
+              example: true
+              description: "Active flag"
+            preferred:
+              type: boolean
+              example: true
+              description: "Preferred Billing Profile"
+            pspInitialTransactionId:
+              type: string
+              example: "25f6dadf-176a-415f-95c9-6ff39ff697ba"
+              description: "Initial Transaction Identifier"
+              maxLength: 100
+    CardBankData:
+      oneOf:
+        - $ref: "#/components/schemas/BankFullData"
+        - $ref: "#/components/schemas/CardFullData"
+    BankFullData:
+      type: object
+      properties:
+        bank:
+          $ref: "#/components/schemas/BankData"
+
+    CardFullData:
+      type: object
+      properties:
+        card:
+          $ref: "#/components/schemas/CardData"
+
+    BankData:
+      type: object
+      properties:
+        pspId:
+          type: string
+          example: "PSPA_8192"
+          description: "PSP Bank Account Id"
+          maxLength: 100
+        accountHolderName:
+          type: string
+          example: "John"
+          description: "This is the name of the customer or company that owns the bank account"
+          maxLength: 100
+        accountNo:
+          type: string
+          example: "398922934"
+          description: "Bank Account Number"
+          maxLength: 12
+          minLength: 8
+        accountType:
+          type: string
+          example: "SAVINGS"
+          description: "Bank Account Type"
+          maxLength: 20
+        sortCode:
+          type: string
+          example: "235087"
+          description: "Bank Sort Code"
+          maxLength: 6
+        iban:
+          type: string
+          example: "NY 17 002 00128 00000012005276002"
+          description: "International Bank Account Number"
+          maxLength: 34
+        routingNumber:
+          type: string
+          example: "123456789"
+          description: "For USD accounts, this is the 9-digit routing number of the customer’s bank"
+          minLength: 9
+          maxLength: 9
+
+    CardData:
+      type: object
+      properties:
+        pspId:
+          type: string
+          example: "X903"
+          description: "PSP Card Id"
+          maxLength: 100
+        lastFourDigits:
+          type: string
+          example: 1234
+          description: "Last Four Digits of the Card"
+          maxLength: 4
+          minLength: 4
+        expiryMonth:
+          type: number
+          example: 12
+          description: "Card Expiry Month"
+          minimum: 1
+          maximum: 12
+        expiryYear:
+          type: string
+          example: 2027
+          description: "Card Expiry Year"
+          maxLength: 4
+          minLength: 4
+        bin:
+          type: string
+          example: "123456"
+          description: "Bank Identification Number"
+          maxLength: 8
+    AddressData:
+      anyOf:
+        - $ref: "#/components/schemas/FormattedAddressData"
+        - $ref: "#/components/schemas/UnformattedAddressData"
+
+    FormattedAddressData:
+      type: object
+      required:
+        - postalCode
+        - countryCode
+        - isFormatted
+      properties:
+        number:
+          type: string
+          example: "1"
+          description: "House or Building Number"
+          maxLength: 150
+        street:
+          type: string
+          example: "High Street"
+          description: "Street Name"
+          maxLength: 150
+        subBuilding:
+          type: string
+          example: "Unit 1"
+          description: "Sub Building - Apartment or Unit, for example"
+          maxLength: 150
+        town:
+          type: string
+          example: "Town"
+          description: "Town"
+          maxLength: 150
+        city:
+          type: string
+          example: "City"
+          description: "City"
+          maxLength: 150
+        county:
+          type: string
+          example: "County"
+          description: "County"
+          maxLength: 150
+        regionOrStateCode:
+          type: string
+          example: "Region"
+          description: "Region"
+          maxLength: 100
+        postalCode:
+          $ref: "#/components/schemas/PostalCodeSchema"
+        countryCode:
+          $ref: "#/components/schemas/CountryCode"
+        isFormatted:
+          type: boolean
+          example: true
+          default: true
+          description: "Is the address formatted?"
+
+    UnformattedAddressData:
+      type: object
+      required:
+        - addressLine1
+        - postalCode
+        - countryCode
+        - isFormatted
+      properties:
+        addressLine1:
+          type: string
+          example: "1"
+          description: "Address Line 1"
+          maxLength: 150
+        addressLine2:
+          type: string
+          example: "High Street"
+          description: "Address Line 2"
+          maxLength: 150
+        addressLine3:
+          type: string
+          example: "Town"
+          description: "Address Line 3"
+          maxLength: 150
+        addressLine4:
+          type: string
+          example: "City"
+          description: "Address Line 4"
+          maxLength: 150
+        addressLine5:
+          type: string
+          example: "County"
+          description: "Address Line 5"
+          maxLength: 150
+        postalCode:
+          $ref: "#/components/schemas/PostalCodeSchema"
+        countryCode:
+          $ref: "#/components/schemas/CountryCode"
+        isFormatted:
+          type: boolean
+          example: false
+          default: false
+          description: "Is the address formatted?"
+    PostalCodeSchema:
+      type: string
+      example: "AB1 2CD"
+      description: "Postal Code or ZIP Code. Where a country refers to this as ZIP code such as 90210, this can be the complete ZIP code including any local extensions, i.e ZIP+4 code used in the USA is 90210-0727"
+      maxLength: 20
+
+    PaymentData:
+      type: object
+      properties:
+        pspProfileId:
+          type: string
+          example: "bb9f74b4-26f4-4d52-8c4a-d144e06fbb22"
+          description: "PSP Profile Id"
+          maxLength: 100
+        pspSystem:
+          type: string
+          example: "PAYSAFE"
+          description: "PSP System Code"
+          maxLength: 100
+        pspToken:
+          type: string
+          example: "T49099023"
+          description: "PSP Token"
+          maxLength: 100
+        pspNetworkToken:
+          type: string
+          example: "56534523"
+          description: "PSP Network Token"
+          maxLength: 100
+    BillingProfileResponse:
+      type: object
+      properties:
+        profileId:
+          type: string
+          example: "f5bc8d57-7ad6-419e-975f-040c9ad069b1"
+          description: "Pay Supervisor Profile id"
+          maxLength: 100
+    
+    RepairReschedule:
+      type: object
+      properties:
+        serviceProviderAccountReference:
+          type: string
+          example: "44708"
+        availableDate:
+          type: string
+          format: date
+          example: "2024-08-21"
+        serviceJobType:
+          type: string
+          example: "OSR"
+        manufacturerBrandCode:
+          type: string
+          example: "WHIRL"
+        rescheduleReason:
+          type: string
+          example: "Customer away"
+        personId:
+          type: string
+          example: "12345678"
+        timeSlot:
+          $ref: '#/components/schemas/TimeSlot'
+        source:
+          $ref: '#/components/schemas/Source'
+      required:
+        - serviceProviderAccountReference
+        - availableDate
+        - serviceJobType
+        - manufacturerBrandCode
+        - rescheduleReason
+        - personId
+        - timeSlot
+        - source
+
+    TimeSlot:
+      type: object
+      properties:
+        startTime:
+          type: string
+          example: "1200"
+        length:
+          type: integer
+          format: int32
+          example: 4
+      required:
+        - startTime
+        - length
+
+    Source:
+      type: object
+      properties:
+        clientCode:
+          type: string
+          example: "WHIRL"
+        channelCode:
+          type: string
+          example: "DGCCC"
+        systemCode:
+          type: string
+          example: "ADP"
+        journeyCode:
+          type: string
+          example: "REG"
+        interactionEventCode:
+          type: string
+          example: "PECRE"
+        interactionDirection:
+          type: string
+          example: "I"
+        interactionEventDateTime:
+          type: string
+          format: date-time
+          example: "2024-05-22T14:15:22Z"
+        interactionType:
+          type: string
+          example: "CUS"
+        interactionId:
+          type: string
+          example: "bgdwgyuwoieq"
+        interactionIdSystemCode:
+          type: string
+          example: "GPC"
+        userId:
+          type: string
+          example: "BLOGGSJ"
+      required:
+        - clientCode
+        - channelCode
+        - systemCode
+        - journeyCode
+        - interactionEventCode
+        - interactionDirection
+        - interactionEventDateTime
+        - interactionType
+        - interactionId
+        - interactionIdSystemCode
+        - userId
+
+    RepairRescheduleRequestServiceBench:
+      allOf:
+        - $ref: '#/components/schemas/RepairReschedule'
+      
+    RepairRescheduleRequestAE:
+      allOf:
+        - $ref: '#/components/schemas/RepairReschedule'
+        - type: object
+          required:
+            - offerId
+          properties:
+            offerId:
+              type: string
+              example: "000223606660"
+              description: "REQUIRED. If brand is any value other than whirlpool brands. The unique identifier for the date/time slot selected of an available appointment"
+
+    RepairRescheduleResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: Successfully rescheduled
+        externalAppointmentReference:
+          type: string
+          example: SWPR2X5A25F4-1
+          description: The external RMS appointment reference.
+
+    RepairCheckAvailabilityRequest:
+      type: object
+      properties:
+        paymentType:
+          type: string
+          example: "Service Contract"
+          description: "The payment type for the appointment"
+        numberOfDatesRequested:
+          type: string
+          example: "14"
+          description: "Total number of dates availability requested"
+        merchandiseType:
+          type: string
+          example: "DISH"
+          description: "The merchandise type / applicance name"
+        merchandiseGroup:
+          type: string
+          example: "WSDR"
+          description: 'The merchandise group of the appliance'
+        source:
+          type: object
+          properties:
+            channelCode:
+              type: string
+              example: "DGMYA"
+              description: 'The code representing the channel the service request was created on'
+            clientCode:
+              type: string
+              example: "WHIRL"
+              description: 'The client the request is made for i.e Whirlpool'
+            userId:
+              type: string
+              example: "0054x000004WmOIAA0"
+              description: 'The userId of the user that made the request'
+          required:
+            - channelCode
+            - clientCode
+            - userId
+        availabilityRequestStartDate:
+          type: string
+          example: "2023-04-06"
+          description: "The date for scheduling an appointment"
+        serviceJobType:
+          type: string
+          example: "OSR"
+          description: "The service job type. Default is OSR (On Site Repair)"
+        postalCode:
+          type: string
+          example: "61704"
+          description: 'The postal code of the customer'
+        modelNumber:
+          type: string
+          example: "KDFE104DBL"
+          description: "Model number of the merchandise/appliance"
+        serialNumber:
+          type: string
+          description: "Serial number of the product/appliance"
+        manufacturerBrandCode:
+          type: string
+          example: "WHIRL"
+          description: "The brand of the item, e.g. WHIRL(Whirlpool) or SMSNG(Samsung)"
+      required:
+        - countryCode
+        - merchandiseGroup
+        - availabilityRequestStartDate
+        - postalCode
+        - merchandiseType
+        - manufacturerBrandCode
+        - source
+
+    RepairCheckAvailabilityResponse:
+      type: object
+      properties:
+        appointment:
+          type: array
+          description: "List of available dates and service provider details of multiple providers or a single provider"
+          items:
+            type: object
+            properties:
+              date:
+                type: string
+                example: "20240424"
+                description: "Available date"
+              serviceProvider:
+                type: array
+                description: "List of service providers"
+                items:
+                  type: object
+                  properties:
+                    accountReference:
+                      type: string
+                      example: "W2"
+                      description: "The service provider account reference / number"
+                    workingHours:
+                      type: array
+                      description: "List of working hours of service provider"
+                      items:
+                        type: object
+                        properties:
+                          day:
+                            type: string
+                            example: "0"
+                            description: "Day of the week i.e. 0 means first day of the week"
+                          openTime:
+                            type: string
+                            example: "0800"
+                            description: "Service provider opening time"
+                          closeTime:
+                            type: string
+                            example: "1630"
+                            description: "Service provider closing time"
+                    timeSlot:
+                      type: array
+                      description: "List of timeslots available"
+                      items:
+                        type: object
+                        properties:
+                          startTime:
+                            type: string
+                            example: "0800"
+                            description: "Slot start time"
+                          endTime:
+                            type: string
+                            example: "1700"
+                            description: "Slot end time"
+                          length:
+                            type: string
+                            example: "9"
+                            description: "Slot length"
+    RepairCheckAvailabilityResponseAE:
+      allOf:
+        - $ref: '#/components/schemas/RepairCheckAvailabilityResponse'
+        - type: object
+          properties:
+            serviceUnitNumber:
+              type: string
+              example: "0008555"
+              description: "Service unit number for specific postalcode"
+            offerId:
+              type: string
+              example: "000068732559"
+              description: "The unique identifier for the date/time slot selected of an available appointment. Used to tie the Availability request with the BookJob response."
+          required:
+            - serviceUnitNumber
+            - offerId
+            - appointment
+    RepairCheckAvailabilityResponseServiceBench:
+      allOf:
+        - $ref: '#/components/schemas/RepairCheckAvailabilityResponse'
+        - type: object
+          required:
+            - appointment
+
+    RepairScheduleRequest:
+      type: object
+      properties:
+        serviceRequestId:
+          type: string
+          description: "The ID of the service request"
+          example: '1'
+        personId: 
+          type: string
+          description: "Id of the person raising creating the appointment"
+          example: '12345678'
+        paymentType:
+          type: string
+          description: "Type of payment"
+          example: Service Contract
+        requestTimestamp:
+          type: string
+          description: "Date and time of the request"
+          example: '20210907'
+        availableDate:
+          type: string
+          description: "The selected date for booking an appointment"
+          example: '20240806'
+        serviceJobType:
+          type: string
+          description: "Selected service job type"
+          example: OSR
+        description:
+          type: string
+          description: "Reason for creating appointment"
+          example: Flame and burner damage
+        serviceProviderAccountReference:
+          type: string
+          description: "Service provider account number"
+          example: '44708'
+        timeSlot:
+          type: object
+          description: "Selected time slot"
+          required:
+            - startTime
+            - length
+          properties:
+            startTime:
+              type: string
+              description: "Service start time"
+              example: '0800'
+            length:
+              type: number
+              description: "Length of service"
+              example:  4
+        item:
+          type: object
+          required:
+            - merchandiseGroup
+            - merchandiseType
+            - manufacturerBrandCode
+            - modelNumber
+          properties:
+            merchandiseGroup:
+              type: string
+              example: CLNA
+              description: "The merchandise group code"
+            merchandiseType:
+              type: string
+              example: DISH
+              description: "The merchandise type code"
+            manufacturerBrandCode:
+              type: string
+              example: WHIRL
+              description: "The manufacturer brand code"
+            modelNumber:
+              type: string
+              description: "Model number of the product"
+              example: KDFE104DBL
+        address:
+          type: object
+          description: "Address details of customer"
+          required:
+            - city
+            - country
+            - state
+            - postalCode
+            - addressLine1
+          properties:
+            city:
+              type: string
+              description: "The city of service"
+              example: Georgia
+            country:
+              type: string
+              description: "Country"
+              example: US
+            state:
+              type: string
+              description: "State"
+              example: GA
+            postalCode:
+              type: string
+              description: "Postalcode of customer"
+              example: 11211
+            addressLine1:
+              type: string
+              description: "Address of customer"
+              example: St.RedOak
+        contact:
+          type: object
+          required:
+            - firstName
+            - surname
+            - primaryPhoneNumber
+          properties:
+            firstName:
+              type: string
+              description: "First name of the customer"
+              example: Sam
+            surname:
+              type: string
+              description: "Surname of the customer"
+              example: Test
+            primaryPhoneNumber:
+              type: string
+              description: "Primary contact number of the customer"
+              example: '05657677633'
+        source:
+          type: object
+          required:
+            - clientCode
+            - channelCode
+            - systemCode
+            - journeyCode
+            - interactionEventCode
+            - interactionDirection
+            - interactionEventDateTime
+            - interactionType
+            - interactionId
+            - interactionIdSystemCode
+            - userId
+          properties:
+            clientCode:
+              type: string
+              example: WHIRL
+              description: "The client code"
+            channelCode:
+              type: string
+              example: DGCCC
+              description: "The channel code "
+            systemCode:
+              type: string
+              description: "The system code"
+              example: ADP
+            journeyCode:
+              type: string
+              description: "The journey code"
+              example: REG
+            interactionEventCode:
+              type: string
+              description: "The interaction event code"
+              example: PECRE
+            interactionDirection:
+              type: string
+              description: "The interaction direction"
+              example: I
+            interactionEventDateTime:
+              type: string
+              description: "The interaction event date and time"
+              example: '2024-05-22T14:15:22Z'
+            interactionType:
+              type: string
+              description: "The interaction type"
+              example: CUS
+            interactionId:
+              type: string
+              description: "The interaction id"
+              example: bgdwgyuwoieq
+            interactionIdSystemCode:
+              type: string
+              description: "The interaction system code"
+              example: GPC
+            userId:
+              type: string
+              description: "The user id"
+              example: BLOGGSJ
+      required:
+        - serviceRequestId
+        - personId
+        - paymentType
+        - requestTimestamp
+        - availableDate
+        - serviceJobType
+        - description
+        - serviceProviderAccountReference
+        - timeSlot
+        - item
+        - address
+        - contact
+        - source
+
+    RepairScheduleRequestAe:
+      allOf:
+        - $ref: '#/components/schemas/RepairScheduleRequest'
+        - type: object
+          required:
+            - offerId
+            - serviceUnitNumber
+          properties:
+            item:
+              type: object
+              properties:
+                manufacturerBrandCode:
+                  example: SMSNG
+            offerId:
+              type: string
+              example: "000223606660"
+              description: "REQUIRED. If brand is any value other than whirlpool brands. The unique identifier for the date/time slot selected of an available appointment"
+            serviceUnitNumber:
+              type: string
+              example: "0008555"
+              description: "REQUIRED. If brand is any value other than whirlpool brands. serviceUnitNumber value depends on check availability API response"
+
+    RepairScheduleRequestServiceBench:
+      allOf:
+        - $ref: '#/components/schemas/RepairScheduleRequest'
+        - type: object
+          properties:
+            item:
+              type: object
+              properties:
+                manufacturerBrandCode:
+                  example: "AMANA"
+                  enum:
+                    - "WHIRL"
+                    - "AMANA"
+                    - "KHAID"
+                    - "MYTAG"
+
+    RepairScheduleRequestResponse:
+      type: object
+      properties:
+        externalRepairReference:
+          type: string
+          example: "SWPR4X5BF774"
+          description: "The external repair request reference of newly created appointment"
+        externalAppointmentReference:
+          type: string
+          example: "SWPR4X5BF774-1"
+          description: "The external appointment reference of newly created appointment"
+
+
+    RepairServiceCheckerRequest:
+      type: object
+      properties:
+        numberOfDatesRequested:
+          type: string
+          example: "30"
+          description: "The number of dates requested"
+        serviceJobType:
+          type: string
+          example: "OSR"
+          description: "The service job type. Default is OSR (On Site Repair)"
+        postalCode:
+          type: string
+          example: "61701"
+          description: 'The postal code for the repair item'
+        merchandiseType:
+          type: string
+          example: "DISH"
+          description: 'The merchandise type / applicance code'
+        merchandiseGroup:
+          type: string
+          example: "FRGZ"
+          description: 'The merchandise group code'
+        availabilityRequestStartDate:
+          type: string
+          example: "20230322"
+          description: 'The start date for checking slots for a service job'
+        manufacturerBrandCode:
+          type: string
+          example: "WHIRL"
+          description: "The brand code of the item, e.g. Whirlpool is WHIRL"
+        source:
+          type: object
+          properties:
+            channelCode:
+              type: string
+              example: "DGMYA"
+              description: 'The code representing the channel the service request was created on'
+            clientCode:
+              type: string
+              example: "WHIRL"
+              description: 'The client the request is made for i.e Whirlpool'
+            userId:
+              type: string
+              example: "0054x000004WmOIAA0"
+              description: 'The userId of the user that made the request'
+          required:
+            - channelCode
+            - clientCode
+            - userId
+      required:
+        - merchandiseGroup
+        - availabilityRequestStartDate
+        - postalCode
+        - merchandiseType
+        - serviceJobType
+        - manufacturerBrandCode
+        - source
+
+    RepairServiceCheckerResponse:
+      type: object
+      properties:
+        availableDate:
+          type: string
+          example: "20230407"
+          description: "The first available date out of requested dates"
+        availableSlots:
+          type: string
+          example: "3"
+          description: "The number of available slots for the above date"
+
+    RepairCancelRequest:
+      type: object
+      properties:
+        action:
+          type: number
+          enum:
+            - 0
+            - 1
+          example: 1
+          description: >-
+            Action Enum to determine whether to Update or Cancel Repair. 0 -
+            Update, 1 - Cancel.
+        cancellationDate:
+          type: string
+          example: '2022-01-10'
+          description: The date for the cancel request
+        cancellationReason:
+          type: string
+          example: CUSTOMERCANCEL
+          description: The reason to cancel a request
+        personId:
+          type: string
+          example: '12345678'
+          description: D&G unique identifier for a Person
+          maxLength: 100
+        source:
+          type: object
+          required:
+            - clientCode
+            - channelCode
+            - systemCode
+            - journeyCode
+            - interactionEventCode
+            - interactionEventDateTime
+            - interactionType
+            - interactionId
+            - interactionIdSystemCode
+            - userId
+          properties:
+            clientCode:
+              type: string
+              maxLength: 10
+              example: WHIRL
+              description: >-
+                A D&G code representing the client supplying the data or on
+                behalf of whom D&G is capturing this Person data in their system
+                - Please refer to the D&G reference dataset for a full list of
+                values
+            channelCode:
+              type: string
+              maxLength: 10
+              example: DGCCC
+              description: >-
+                A D&G code representing the channel supplying the data or on
+                behalf of whom D&G is capturing this Person data in their system
+                - Please refer to the D&G reference dataset for a full list of
+                values
+            systemCode:
+              type: string
+              maxLength: 10
+              example: ADP
+              description: >-
+                A D&G code representing the system supplying the data - Please
+                refer to the D&G reference dataset for a full list of values
+            journeyCode:
+              type: string
+              maxLength: 10
+              example: REG
+              description: >-
+                A D&G code representing the business journey that is supplying
+                the data
+            interactionEventCode:
+              type: string
+              maxLength: 10
+              example: COCRE
+              description: >-
+                A code to represent the actual significant interaction event -
+                Please refer to the D&G reference dataset for a full list of
+                values
+            interactionDirection:
+              type: string
+              example: I
+              description: >-
+                The initiating direction of the interaction event
+                (inbound/outbound)
+              enum:
+                - I
+                - O
+            interactionEventDateTime:
+              type: string
+              format: date-time
+              maxLength: 10
+              example: '2024-05-30 14:15:22.000Z'
+              description: The unique date and time of the interaction event
+            interactionType:
+              type: string
+              example: SYS
+              description: >-
+                A code to indicate system generated or customer interactions
+                from customer facing channels
+              enum:
+                - SYS
+                - CUS
+            interactionId:
+              type: string
+              maxLength: 100
+              example: 123ABC
+              description: >-
+                The external web session or telephony conversation id
+                identifying the interaction that triggered the event in digital
+                or telephony journeys or an artificially generated identifier
+                for automated backend processes
+            interactionIdSystemCode:
+              type: string
+              maxLength: 10
+              example: GPC
+              description: >-
+                A code to identify the system that generated or master(s) the
+                interactionId. this is different from system code which
+                represents the system that triggered the event - Please refer to
+                the D&G reference dataset for a full list of values
+            userId:
+              type: string
+              example: 005220000029lPDAAY
+              description: The userId of the user that made the request
+        manufacturerBrandCode:
+          type: string
+          example: WHIRL
+          description: 'The brand of the item, e.g. WHIRL(Whirlpool) or SMSNG(Samsung)'
+      required:
+        - action
+        - manufacturerBrandCode
+        - cancellationDate
+        - cancellationReason
+        - source
+
+    RepairUpdateRequest:
+      type: object
+      properties:
+        action:
+          type: number
+          enum:
+            - 0
+            - 1
+          example: 0
+          description: >-
+            Action Enum to determine whether to Update or Cancel Repair. 0 -
+            Update, 1 - Cancel.
+        primaryPhoneNumber:
+          type: string
+          example: '05657677633'
+          description: The primary phone number to update
+        description:
+          type: string
+          example: Flame and burner damage
+          description: The fault description
+        personId:
+          type: string
+          example: '12345678'
+          description: D&G unique identifier for a Person
+          maxLength: 100
+        source:
+          type: object
+          required:
+            - clientCode
+            - channelCode
+            - systemCode
+            - journeyCode
+            - interactionEventCode
+            - interactionEventDateTime
+            - interactionType
+            - interactionId
+            - interactionIdSystemCode
+            - userId
+          properties:
+            clientCode:
+              type: string
+              maxLength: 10
+              example: WHIRL
+              description: >-
+                A D&G code representing the client supplying the data or on
+                behalf of whom D&G is capturing this Person data in their system
+                - Please refer to the D&G reference dataset for a full list of
+                values
+            channelCode:
+              type: string
+              maxLength: 10
+              example: DGCCC
+              description: >-
+                A D&G code representing the channel supplying the data or on
+                behalf of whom D&G is capturing this Person data in their system
+                - Please refer to the D&G reference dataset for a full list of
+                values
+            systemCode:
+              type: string
+              maxLength: 10
+              example: ADP
+              description: >-
+                A D&G code representing the system supplying the data - Please
+                refer to the D&G reference dataset for a full list of values
+            journeyCode:
+              type: string
+              maxLength: 10
+              example: REG
+              description: >-
+                A D&G code representing the business journey that is supplying
+                the data
+            interactionEventCode:
+              type: string
+              maxLength: 10
+              example: COCRE
+              description: >-
+                A code to represent the actual significant interaction event -
+                Please refer to the D&G reference dataset for a full list of
+                values
+            interactionDirection:
+              type: string
+              example: I
+              description: >-
+                The initiating direction of the interaction event
+                (inbound/outbound)
+              enum:
+                - I
+                - O
+            interactionEventDateTime:
+              type: string
+              format: date-time
+              maxLength: 10
+              example: '2024-05-30 14:15:22.000Z'
+              description: The unique date and time of the interaction event
+            interactionType:
+              type: string
+              example: SYS
+              description: >-
+                A code to indicate system generated or customer interactions
+                from customer facing channels
+              enum:
+                - SYS
+                - CUS
+            interactionId:
+              type: string
+              maxLength: 100
+              example: 123ABC
+              description: >-
+                The external web session or telephony conversation id
+                identifying the interaction that triggered the event in digital
+                or telephony journeys or an artificially generated identifier
+                for automated backend processes
+            interactionIdSystemCode:
+              type: string
+              maxLength: 10
+              example: GPC
+              description: >-
+                A code to identify the system that generated or master(s) the
+                interactionId. this is different from system code which
+                represents the system that triggered the event - Please refer to
+                the D&G reference dataset for a full list of values
+            userId:
+              type: string
+              example: 005220000029lPDAAY
+              description: The userId of the user that made the request
+        manufacturerBrandCode:
+          type: string
+          example: WHIRL
+          description: 'The brand of the item, e.g. WHIRL(Whirlpool) or SMSNG(Samsung)'
+      required:
+        - action
+        - primaryPhoneNumber
+        - manufacturerBrandCode
+        - source
+
+    RepairUpdateResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: Success
+        externalAppointmentReference:
+          type: string
+          example: SWPR3X5B3B58-1
+          description: The external RMS appointment reference.
+
+    RepairCheckStatusRequest:
+      type: object
+      properties:
+        source:
+          type: object
+          required:
+            - channelCode
+            - clientCode
+          properties:
+            channelCode:
+              type: string
+              example: DGCCC
+              description: "The code representing the channel the service request was created on"
+            clientCode:
+              type: string
+              example: WHIRL
+              description: "The client the request is made for i.e Whirlpool"
+            userId:
+              type: string
+              example: 005220000029lPDAAY
+              description: "The userId of the user that made the request"
+        manufacturerBrandCode:
+          type: string
+          example: "WHIRL"
+          description: "The brand of the item, e.g. Whirlpool or Samsung"
+
+      required:
+        - source
+        - userId
+        - manufacturerBrandCode
+
+    FaultCodeResponse:
+      type: object
+      properties:
+        faultCodes:
+          type: array
+          description: 'Array of fault codes. Empty if no faultcodes returned.'
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                description: 'id of the record'
+              errorCode:
+                type: string
+              description:
+                type: string
+                description: 'Short description'
+      example:
+        faultCodes:
+          - id: "1"
+            errorCode: "Cooktop2"
+            description: "Burner not working"
+          - id: "2"
+            errorCode: "Cooktop3"
+            description: "Display control problem"
+          - id: "3"
+            errorCode: "Dryer13"
+            description: "Problem with dryer"
+          - id: "4"
+            errorCode: "Other1"
+            description: "Other"
+
+
+    DeleteClaimRequest:
+      type: object
+      properties:
+        action:
+          type: number
+          enum:
+            - 1
+          example: 1
+          description: >-
+            Action Enum to determine Cancel a Claim. 1 for Cancel.
+        cancellationDate:
+          type: string
+          example: '2022-01-10'
+          description: The date for the cancel request
+        cancellationReason:
+          type: string
+          example: CUSTOMERCANCEL
+          description: The reason to cancel a request
+        personId:
+          type: string
+          example: '12345678'
+          description: D&G unique identifier for a Person
+          maxLength: 100
+        source:
+          type: object
+          required:
+            - clientCode
+            - channelCode
+            - systemCode
+            - journeyCode
+            - interactionEventCode
+            - interactionEventDateTime
+            - interactionType
+            - interactionId
+            - interactionIdSystemCode
+            - userId
+          properties:
+            clientCode:
+              type: string
+              maxLength: 10
+              example: WHIRL
+              description: >-
+                A D&G code representing the client supplying the data or on
+                behalf of whom D&G is capturing this Person data in their system
+                - Please refer to the D&G reference dataset for a full list of
+                values
+            channelCode:
+              type: string
+              maxLength: 10
+              example: DGCCC
+              description: >-
+                A D&G code representing the channel supplying the data or on
+                behalf of whom D&G is capturing this Person data in their system
+                - Please refer to the D&G reference dataset for a full list of
+                values
+            systemCode:
+              type: string
+              maxLength: 10
+              example: ADP
+              description: >-
+                A D&G code representing the system supplying the data - Please
+                refer to the D&G reference dataset for a full list of values
+            journeyCode:
+              type: string
+              maxLength: 10
+              example: REG
+              description: >-
+                A D&G code representing the business journey that is supplying
+                the data
+            interactionEventCode:
+              type: string
+              maxLength: 10
+              example: COCRE
+              description: >-
+                A code to represent the actual significant interaction event -
+                Please refer to the D&G reference dataset for a full list of
+                values
+            interactionDirection:
+              type: string
+              example: I
+              description: >-
+                The initiating direction of the interaction event
+                (inbound/outbound)
+              enum:
+                - I
+                - O
+            interactionEventDateTime:
+              type: string
+              format: date-time
+              maxLength: 10
+              example: '2024-05-30 14:15:22.000Z'
+              description: The unique date and time of the interaction event
+            interactionType:
+              type: string
+              example: SYS
+              description: >-
+                A code to indicate system generated or customer interactions
+                from customer facing channels
+              enum:
+                - SYS
+                - CUS
+            interactionId:
+              type: string
+              maxLength: 100
+              example: 123ABC
+              description: >-
+                The external web session or telephony conversation id
+                identifying the interaction that triggered the event in digital
+                or telephony journeys or an artificially generated identifier
+                for automated backend processes
+            interactionIdSystemCode:
+              type: string
+              maxLength: 10
+              example: GPC
+              description: >-
+                A code to identify the system that generated or master(s) the
+                interactionId. this is different from system code which
+                represents the system that triggered the event - Please refer to
+                the D&G reference dataset for a full list of values
+            userId:
+              type: string
+              example: 005220000029lPDAAY
+              description: The userId of the user that made the request
+        manufacturerBrandCode:
+          type: string
+          example: WHIRL
+          description: 'The brand of the item, e.g. WHIRL(Whirlpool) or SMSNG(Samsung)'
+      required:
+        - action
+        - manufacturerBrandCode
+        - cancellationDate
+        - cancellationReason
+        - personId
+        - source
+
+    UpdateClaimResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          description: "The service request status"
+          example: Request Cancelled
+          enum: ["Request Created", "Request Created - Appointment Not Booked", "Field Call Confirmed", "Request Cancelled", "Request Closed - Repaired", "Parts Received", "Parts Ordered", "Field Call Confirmed"]
+        serviceRequestReference:
+          type: string
+          description: "The service request reference"
+          example: "1"
+        externalAppointmentReference:
+          type: string
+          description: "The external RMS appointment reference"
+          example: SWPR4X5BF881-1
+        externalRepairReference:
+          type: string
+          description: "The external RMS repair reference"
+          example: "123456789"
+        
+    GetAllClaimsResponse:
+      type: object
+      properties:
+        claim:
+          type: array
+          description: 'Array of claim object. Empty if no claims returned.'
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                description: 'id of service request record'
+              reference:
+                type: string
+                description: 'the service request reference'
+              type:
+                description: 'Type of Claim'
+                enum: ["Claim", "Annual Service", "Pay & Claim Request"]
+              status:
+                type: string
+                description: 'Service Request Status'
+                enum: ["Request Created", "Request Created - Appointment Not Booked", "Field Call Confirmed", "Request Cancelled", "Request Closed - Repaired", "Parts Received", "Parts Ordered", "Field Call Confirmed"]
+              contractReference:
+                type: string
+                example: "PLANID1234"
+              perilLocatorId:
+                type: string
+              contractLocatorId:
+                type: string
+              exposureLocatorId:
+                type: string
+              coverageCode:
+                type: string
+                example: "1"
+              raisedDate:
+                type: string
+                format: date-time
+                description: UTC Date
+              completionDate:
+                type: string
+                format: date-time
+                description: UTC Date
+              channelCode:
+                type: string
+              systemCode:
+                type: string
+      example:
+        claim:
+          - id: "1"
+            reference: "1234"
+            type: "Claim"
+            status: "Field Call Confirmed"
+            contractReference: "PLANID1234"
+            perilLocatorId: "123"
+            contractLocatorId: "1"
+            exposureLocatorId: "2"
+            coverageCode: "1"
+            raisedDate: "2009-09-01T00:00:00.000Z"
+            completionDate: ""
+            channelCode: "CSA"
+            systemCode: "GEN"
+          - id: "2"
+            reference: "123"
+            type: "Claim"
+            status: "Request Closed - Repaired"
+            contractReference: "PLANID1234"
+            perilLocatorId: "123"
+            contractLocatorId: "1"
+            exposureLocatorId: "2"
+            coverageCode: "1"
+            raisedDate: "2023-09-01T00:00:00.000Z"
+            completionDate: "2023-10-01T00:00:00.000Z"
+            channelCode: "CSA"
+            systemCode: "GEN"
+
+    RepairCheckStatusResponse:
+      type: object
+      properties:
+        externalAppointmentReference:
+          type: string
+          example: SWPR3X5B3B58-1
+        appointmentAcceptedDate:
+          type: string
+          example: 20240425
+        scheduledServiceDate:
+          type: string
+          example: 20240426
+        status:
+          type: object
+          properties:
+            serviceProvider:
+              type: string
+              example: Accepted
+            appointment:
+              type: string
+              example: Claim Accepted
+        timeslot:
+          type: object
+          properties:
+            startTime:
+              type: string
+              example: 1200
+            length:
+              type: string
+              example: 4
+            endTime:
+              type: string
+              example: 1600
+
+    RepairScheduleResponse400:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              message:
+                type: string
+                example: "serviceUnitNumber required"
+
+    RepairCheckAvailabilityResponse400:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              message:
+                type: string
+                example: "availabilityRequestStartDate required"
+
+    RepairRequestJobDownloadRequest:
+      type: object
+      properties:
+        downloadFromDate:
+          type: string
+          example: "20240203 0000"
+          description: "The date in which to download the job information from"
+        downloadToDate:
+          type: string
+          example: "20240304 0000"
+          description: "The date in which to download the job information until"
+        manufacturerBrandCode:
+          type: string
+          example: WHIRL
+          maxLength: 5
+          description: This is a D&G defined code that identifies the manufacturer brand of the item
+        source:
+          type: object
+          properties:
+            channelCode:
+              type: string
+              example: "DGMYA"
+              description: 'The code representing the channel the service request was created on'
+            clientCode:
+              type: string
+              example: "WHIRL"
+              description: 'The client the request is made for i.e Whirlpool'
+            userId:
+              type: string
+              example: "0054x000004WmOIAA0"
+              description: 'The userId of the user that made the request'
+          required:
+            - channelCode
+            - clientCode
+            - userId
+      required:
+        - source
+        - manufacturerBrandCode
+
+    RepairRequestJobDownloadResponse:
+      type: object
+      properties:
+        requests:
+          type: array
+          items:
+            type: object
+            properties:
+              creationDate:
+                type: string
+                example: SWPR2X5A5F7C-1
+              orderStatusDate:
+                type: string
+                example: "20230208"
+              requestReference:
+                type: string
+                example: "20230208"
+              requestStatus:
+                type: string
+                example: Parts Ordered
+              appointment:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    serviceDate:
+                      type: string
+                      example: "20230208"
+                    reference:
+                      type: string
+                      example: "SWPR2X5A5F7C-1"
+                    acceptedDate:
+                      type: string
+                      example: "20230208"
+                    subStatus:
+                      type: string
+                      example: "Parts Ordered"
+                    status:
+                      type: string
+                      example: "claim Accepted"
+                    completionDate:
+                      type: string
+                      example: ""
+                    rejectExplanation:
+                      type: string
+                      example: ""
+                    rejectReason:
+                      type: string
+                      example: ""
+                    rejectedDate:
+                      type: string
+                      example: ""
+                    rescheduleDate:
+                      type: string
+                      example: ""
+                    rescheduleReason:
+                      type: string
+                      example: ""
+                    serviceProvider:
+                      type: object
+                      properties:
+                        subStatus:
+                          type: string
+                          example: "Parts - Parts Ordered"
+                        status:
+                          type: string
+                          example: "Accepted"
+                    comments:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          comment:
+                            type: string
+                            example: "I have ordered parts"
+                          type:
+                            type: string
+                            example: "Public"
+                          date:
+                            type: string
+                            example: "2023-02-08T00:00:00"
+                          commentRowNumber:
+                            type: integer
+                            example: "2"
+                          user:
+                            type: object
+                            properties:
+                                accountId:
+                                  type: string
+                                  example: "frontierUAT1"
+                                serviceProviderId:
+                                  type: string
+                                  example: "1004711843"
+
+                    parts:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          description:
+                            type: string
+                            example: wire
+                          lineNumber:
+                            type: string
+                            example: "1"
+                          orderEta:
+                            type: string
+                            example: "20230210"
+                          productRowNumber:
+                            type: string
+                            example: "1"
+                          status:
+                            type: string
+                            example: Parts Ordered
+                          number:
+                            type: string
+                            example: ""
+                          receivedDate:
+                            type: string
+                            example: ""
+
+    GetClaimResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "1234"
+          description: 'ID of a Service Request'
+        reference:
+          type: string
+          example: "ABC-1234"
+          description: 'A service request Reference'
+        type:
+          type: string
+          example: "Claim"
+          description: 'Type of Service Request'
+          enum: ["Claim", "Annual Service", "Pay & Claim Request"]
+        status:
+          type: string
+          example: "Request Created"
+          description: 'Type of Service Request'
+          enum: ["Request Created", "Request Created - Appointment Not Booked", "Field Call Confirmed", "Request Cancelled", "Request Closed - Repaired", "Parts Received", "Parts Ordered", "Field Call Confirmed"]
+        contractReference:
+          type: string
+          example: "PLANID123"
+        perilLocatorId:
+          type: string
+          example: "SWX-123"
+        coverageCode:
+          type: string
+          example: "SWX"
+        contractLocatorId:
+          type: string
+          example: "14567"
+        exposureLocatorId:
+          type: string
+          example: "23456"
+        raisedDate:
+          type: string
+          example: "2009-09-01T00:00:00.000Z"
+        completionDate:
+          type: string
+          example: "2024-04-20"
+        channelCode:
+          type: string
+          example: "CSA"
+        systemCode:
+          type: string
+          example: "GEN"
+        cancellationReason:
+          type: string
+          example: "CANCELLED"
+        assessment:
+          type: object
+          properties:
+              id:
+                type: string
+                example: "1"
+              fault:
+                type: string
+                example: "Display control problem"
+                description: "The fault code recorded in the assessment"
+              notes:
+                type: string
+                example: "I cant get the display to work properly"
+                description: "The additonal notes from the client, recorded in the assessment"
+        audit:
+          type: array
+          description: "Array of Service Request Audits"
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                example: "123"
+              status:
+                type: string
+                example: "cancelled"
+              updatedDateTime:
+                type: string
+                example: "2009-09-01T00:00:00.000Z"
+        serviceFulfilment:
+          type: array
+          description: 'Array of serviceFulfilments'
+          items:
+            type: object
+            properties:
+              typeCode:
+                type: string
+                description: 'typeCode of a service fulfilment'
+                example: "CLAIM"
+              repair:
+                type: array
+                description: 'Array of Repairs'
+                items:
+                  type: object
+                  properties:
+                    status:
+                      type: string
+                      description: 'Repair status'
+                      example: "Accepted"
+                    fulfilmentId:
+                      type: string
+                      example: "2054"
+                      description: 'Foreign Key to the Service Fulfillment record'
+                    externalRepairReference:
+                      type: string
+                      description: 'Reference by external RMS system that the repair was routed through to and uniquely identifes the repair on that system'
+                      example: "SWXC-01"
+                    appointment:
+                      type: array
+                      description: 'Array of appointments'
+                      items:
+                        type: object
+                        properties:
+                          id:
+                            type: string
+                            example: "23056"
+                          date:
+                            type: string
+                            example: "2024-04-23"
+                          reference:
+                            type: string
+                            example: "EF0234"
+                          externalReference:
+                            type: string
+                            description: 'the external appointment reference'
+                            example: "ref123"
+                          status:
+                            type: string
+                            example: "Accepted"
+                          cancellationReason:
+                            type: string
+                            example: "CANCELLED"
+                          location:
+                            type: object
+                            description: 'Object of appointment location details'
+                            properties:
+                              addressLine1:
+                                type: string
+                                example: "123 Some Street"
+                              city:
+                                type: string
+                                example: "Georgia"
+                              state:
+                                type: string
+                                example: "GA"
+                              postalCode:
+                                type: string
+                                example: "30301"
+                          contact:
+                            type: object
+                            description: 'Object of contact details'
+                            properties:
+                              firstName:
+                                type: string
+                                example: "John"
+                              lastName:
+                                type: string
+                                example: "Smith"
+                          repairer:
+                            type: object
+                            description: 'Object of repairer details'
+                            properties:
+                              accountReference:
+                                type: string
+                                example: "44708"
+    
+    CreateClaimRequest:
+      type: object
+      properties:
+        contractStatusCode:
+          type: string
+          example: "N"
+          description: 'The status code of a contract'
+          enum:
+            - N:New Business
+            - R:Renewal
+            - L:Lapsed
+            - C:Cancelled
+            - S:Suspended
+        contractReference:
+          type: string
+          example: "123"
+          description: 'The contract reference / plan id'
+        contractId:
+          type: string
+          example: "1"
+          description: 'The socotra contract locator ID'
+        exposureId:
+          type: string
+          example: "1"
+          description: 'The socotra exposure locator ID'
+        perilId:
+          type: string
+          example: "1"
+          description: 'The socotra peril locator ID'
+        coverageCode:
+          type: string
+          example: "1"
+          description: 'The peril / coverage code'
+        serviceRequestType:
+          type: string
+          example: "BD"
+          description: 'Type of Service Request'
+          enum:
+            - THEFT:Theft
+            - LOSS:Loss
+            - BD:Breakdown
+            - AD:Damage Caused by Accident
+        serviceFulfilmentType:
+          type: string
+          example: "REPAIR"
+          description: 'Type of Service Fulfillment'
+          enum:
+            - REPAIR:Repair
+            - REPLACE:Replacement
+            - SPAREP:Spare Parts/Accessories
+            - CUSTPAY:Customer Payment
+        personId:
+          type: string
+          example: "12345678"
+        assessment:
+          type: object
+          required:
+            - faultCode
+          properties:
+            faultCode:
+              type: string
+              example: "Dishwasher10"
+              description: 'The faultcode relating to the claim, chosen by the client'
+            notes:
+              type: string
+              example: "Dishwasher Leaking water"
+              description: 'Notes / free text regarding the fault, written by the client / agent'
+        item:
+          type: object
+          required:
+            - manufacturerBrandCode
+            - merchandiseGroup
+            - merchandiseType
+            - modelNumber
+            - serialNumber
+            - breakdownDatetime
+          properties:
+            serialNumber:
+              type: string
+              example: "SR12345"
+              description: "Serial number of the product"
+            merchandiseGroup:
+              type: string
+              example: "WSDR"
+              description: "The merchandise group code"
+            merchandiseType:
+              type: string
+              example: "DISH"
+              description: "The merchandise type code"
+            manufacturerBrandCode:
+              type: string
+              example: "WHIRL"
+              description: "The manufacturer brand code"
+            modelNumber:
+              type: string
+              example: "KDFE104DBL"
+              description: "Model number of the product"
+            breakdownDatetime: 
+              type: string
+              format: date-time
+              example: "2024-05-22T14:15:22Z"
+              description: 'The datetime of when the item broke down'
+        appointment:
+          type: object
+          required:
+            - availableDate
+            - serviceJobType
+            - description
+            - paymentType
+            - serviceProviderAccountReference
+            - address 
+            - contact
+            - timeSlot
+          description: 'If provided, an appointment is booked as well as creating the claim'
+          properties:
+            availableDate:
+              type: string
+              format: date
+              example: "2024-08-26"
+              description: 'The date for scheduling the appointment'
+            serviceJobType:
+              type: string
+              example: "OSR"
+              description: 'Will always be “OSR” (On site repair)'
+            paymentType:
+              type: string
+              example: "Service Contract"
+            description:
+              type: string
+              example: "Leaking water"
+              description: 'The faultcode description'
+            serviceProviderAccountReference:
+              type: string
+              example: "44708"
+              description: 'The service provider account reference / number'
+            offerId:
+              type: string
+              example: "000223606660"
+              description: 'REQUIRED. If brand is any value other than whirlpool brands. The unique identifier for the date/time slot selected of an available appointment'
+            timeSlot:
+              type: object
+              required:
+                - startTime
+                - length
+              description: 'Selected time slot'
+              properties:
+                startTime:
+                  type: string
+                  example: "0800"
+                  description: 'Service start time'
+                length:
+                  type: string
+                  example: "4"
+                  description: 'Length of service'
+            address:
+              type: object
+              required:
+                - city
+                - country
+                - state
+                - postalCode
+                - addressLine1
+              properties:
+                city:
+                  type: string
+                  example: "Georgia"
+                  description: "The city of service"
+                country:
+                  type: string
+                  example: "US"
+                  description: "Country"
+                state:
+                  type: string
+                  example: "GA"
+                  description: "State"
+                postalCode:
+                  type: string
+                  example: "11211"
+                  description: "Postalcode of customer"
+                addressLine1:
+                  type: string
+                  example: "St.RedOak"
+                  description: "Address of customer"
+            contact:
+              type: object
+              required:
+                - firstName
+                - surname
+                - primaryPhoneNumber
+              properties:
+                firstName:
+                  type: string
+                  example: "Sam"
+                  description: 'First name of the customer'
+                surname:
+                  type: string
+                  example: "Test"
+                  description: 'Surname/Lastname of the customer'
+                primaryPhoneNumber:
+                  type: string
+                  example: "05657677633"
+                  description: 'Primary contact number of the customer'
+        source:
+          type: object
+          required:
+            - clientCode
+            - channelCode
+            - systemCode
+            - journeyCode
+            - interactionEventCode
+            - interactionEventDateTime
+            - interactionType
+            - interactionId
+            - interactionIdSystemCode
+            - userId
+          properties:
+            clientCode:
+              type: string
+              example: "WHIRL"
+              description: 'The code representing the channel the service request was created on'
+            channelCode:
+              type: string
+              example: "DGCCC"
+              description: 'The client the request is made for i.e Whirlpool'
+            systemCode:
+              type: string
+              example: "ADP"
+              description: >-
+                A D&G code representing the system supplying the data - Please
+                refer to the D&G reference dataset for a full list of values
+            journeyCode:
+              type: string
+              example: "REG"
+              description: 'The code representing the business journey that is supplying the data'
+            interactionEventCode:
+              type: string
+              example: "PECRE"
+              description: >-
+                A code to represent the actual significant interaction event -
+                Please refer to the D&G reference dataset for a full list of
+                values
+            interactionDirection:
+              type: string
+              example: I
+              description: >-
+                The initiating direction of the interaction event
+                (inbound/outbound)
+              enum:
+                - I
+                - O
+            interactionEventDateTime:
+              type: string
+              format: date-time
+              maxLength: 10
+              example: '2024-05-30 14:15:22.000Z'
+              description: The unique date and time of the interaction event
+            interactionType:
+              type: string
+              example: SYS
+              description: >-
+                A code to indicate system generated or customer interactions
+                from customer facing channels
+              enum:
+                - SYS
+                - CUS
+            interactionId:
+              type: string
+              maxLength: 100
+              example: 123ABC
+              description: >-
+                The external web session or telephony conversation id
+                identifying the interaction that triggered the event in digital
+                or telephony journeys or an artificially generated identifier
+                for automated backend processes
+            interactionIdSystemCode:
+              type: string
+              maxLength: 10
+              example: GPC
+              description: >-
+                A code to identify the system that generated or master(s) the
+                interactionId. this is different from system code which
+                represents the system that triggered the event - Please refer to
+                the D&G reference dataset for a full list of values
+            userId:
+              type: string
+              example: "BLOGGSJ"
+              description: 'The userId of the user that made the request'
+      required:
+        - contractStatusCode
+        - contractReference
+        - contractId
+        - exposureId
+        - perilId
+        - coverageCode
+        - serviceRequestType
+        - serviceFulfilmentType
+        - assessment
+        - item
+        - personId
+        - source
+        
+    CreateClaimResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 14
+          description: 'ID of a Service Request'
+        reference:
+          type: string
+          example: "123"
+          description: 'A service request Reference'
+        type:
+          type: string
+          example: "BD"
+          description: 'Type of Service Request'
+        status:
+          type: string
+          example: "Request Created - Appointment Booked"
+          description: 'Status of a Service Request'
+        contractReference:
+          type: string
+          example: "123"
+        coverageCode:
+          type: string
+          example: "1"
+        contractId:
+          type: string
+          example: "1"
+        exposureId:
+          type: string
+          example: "1"
+        raisedDate:
+          type: string
+          format: date-time
+          example: "2024-08-22 20:18:46.756+00"
+        channelCode:
+          type: string
+          example: "DGCCC"
+        systemCode:
+          type: string
+          example: "ADP"
+        serviceFulfilment:
+          type: object
+          properties:
+            typeCode:
+              type: string
+              example: "REPAIR"
+              description: 'typeCode of a service fulfilment'
+            reference:
+              type: string
+              example: "95d0810f-e8a9-490f-9c5c-397feb301063"
+              description: 'reference of a service fulfilment'
+            repair:
+              type: object
+              properties:
+                fulfilmentId:
+                  type: integer
+                  example: 11
+                externalReference:
+                  type: string
+                  example: "SWPS8X6ECDAE-1"
+                  description: 'The external RMS Appointment reference of newly created appointment'
+  
+    CreateCaseRequest:
+      type: object
+      required:
+        - type
+        - personId
+        - data
+      properties:
+        type:
+          type: string
+          example: "CancelPlan"
+          description: "Case Type - Please refer to the D&G reference dataset for a full list of values"
+          maxLength: 50
+        summary:
+          type: string
+          example: "Customer requested a cancellation as the cost was too much"
+          description: "A summary of the Case being raised"
+          maxLength: 150
+        note:
+          type: array
+          items:
+            type: string
+            example: "Case Note 1"
+            maxLength: 250
+            description: "An array of notes related to the Case being raised"
+          maxItems: 10
+        personId:
+          type: string
+          example: "12345678"
+          description: "D&G unique identifier for a Person"
+          maxLength: 100
+        contractId:
+          type: string
+          example: "ABC1234567"
+          maxLength: 100
+          description: "D&G unique identifier for a Contract"
+        clientCode:
+          type: string
+          example: "WHIRL"
+          maxLength: 10
+          description: "A D&G code representing the client supplying the data or on behalf of whom D&G is capturing this Person data in their system - Please refer to the D&G reference dataset for a full list of values"
+        data:
+          type: object
+          description: "The Case data in JSON format. NB. The format of the object will differ for each Case Type"
+          example: { "name": "value"}
+
+    CreateCaseResponse:
+      type: object
+      required:
+        - id
+        - type
+      properties:
+        id:
+          type: string
+          example: "12345"
+          description: Unique identifier for a Case
+        type:
+          type: string
+          example: "CancelPlan"
+          description: Case Type
+
+    ContractWithInvoiceArray:
+      type: object
+      required:
+        - id
+        - invoice
+      properties:
+        id:
+          type: string
+          example: 1-01-123-456-789
+          description: D&G Contract Unique Identifier
+        invoice:
+          type: array
+          items:
+             $ref: "#/components/schemas/FullInvoiceItem"    
+     
+    PartialInvoiceItem:
+      allOf:
+        - $ref: "#/components/schemas/InvoiceItem"
+        - type: object
+          required:
+            - type
+            - netTotalAmount
+            - billingStartDate
+            - billingEndDate
+            - dateDue
+            - status
+    
+
+    FullInvoiceItem:
+      allOf:
+        - $ref: "#/components/schemas/InvoiceItem"
+        - type: object
+          required:
+            - locatorId
+            - type
+            - netTotalAmount
+            - createdDate
+            - billingStartDate
+            - billingEndDate
+            - dateDue
+            - status
+    InvoiceItem:
+      type: object
+      properties:
+        locatorId:
+          type: string
+          example: "860ddd09-1dc4-4b35-b2cd-7109bb95aebd"
+          description: Invoice Locator Identifier (Mandatory for Generated invoices only)
+        type:
+          type: string
+          example: "newBusiness"
+          description: Invoice Type - newBusiness | endorsement | renewal | cancellation | reinstatement | installment | premiumReporting | catchUp | other
+        premium:
+          type: string
+          example: "12.00"
+          description: Premium
+          deprecated: true
+        netTotalAmount:
+          type: string
+          example: "12.00"
+          description: Net Total Amount        
+        issueDate:
+          type: string
+          example: "2023-09-06"
+          description: Issue Date (Mandatory for Future invoices)
+        createdDate:
+          type: string
+          example: "2023-09-06"
+          description: Created Date (Mandatory for Generated invoices only)
+        billingStartDate:
+          type: string
+          example: "2023-09-06"
+          description: Billing Start Date
+        billingEndDate:
+          type: string
+          example: "2023-10-06"
+          description: Billing End Date
+        dateDue:
+          type: string
+          example: "2023-09-06"
+          description: Date Due
+        datePaid:
+          type: string
+          example: "2023-09-07"
+          description: Date Paid
+        status:
+          type: string
+          example: "settled"
+          description: Status
+          enum:
+            - "outstanding"
+            - "settled"      
+            - "future"
