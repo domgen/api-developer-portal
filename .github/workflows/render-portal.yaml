@@ -18,7 +18,7 @@ env:
 jobs:
   # Calculate changes
   calculate-changes:
-    runs-on: eks-runners
+    runs-on: ubuntu-latest
     outputs:
       added: ${{ steps.changed-files.outputs.added_files }}
       modified: ${{ steps.changed-files.outputs.modified_files }}
