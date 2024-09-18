@@ -23,7 +23,7 @@ jobs:
       - name: Download OAI Spec File
         run: |
           curl --fail --silent \
-            -H "Authorization: token ${{ secrets.RELEASE_TOKEN }}" \
+            -H "Authorization: token ${{ secrets.READ_TOKEN }}" \
             -o $TMP_FILE \
             "${{ github.event.client_payload.url }}" 
 
