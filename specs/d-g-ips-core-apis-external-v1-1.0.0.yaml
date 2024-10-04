@@ -1,0 +1,5135 @@
+openapi: 3.0.0
+info:
+  description: 'Domestic And General API'
+  version: 1.0.0
+  title: D&G IPS Core APIs External V1
+  
+paths:
+  /v1/client/update:
+    get:
+      tags:
+        - Client
+      summary: Client Get
+      description: Get update for plan transactions
+      parameters:
+        - in: query
+          name: clientCode
+          schema:
+            type: string
+          allowEmptyValue: false
+          description: "Client Code"
+          example: "00165"
+        - in: query
+          name: clientGroup
+          schema:
+            type: string
+          allowEmptyValue: false
+          description: "Client Group"
+          example: "00116"
+        - in: query
+          name: fromDate
+          schema:
+            type: string
+          allowEmptyValue: false
+          description: "format: yyyy-MM-dd-HH.mm.SS.zzzzzz --- The date to retrieve data from"
+          example: "2024-01-01-00.00.00.000000"
+        - in: query
+          name: toDate
+          schema:
+            type: string
+          allowEmptyValue: false
+          description: "format: yyyy-MM-dd-HH.mm.SS.zzzzzz --- The date to retrieve data up until"
+          example: 2024-03-01-00.00.00.000000
+      responses:
+        '200':
+          description: A list of transactions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ClientGetUpdateTransactionItem'
+
+              example:
+                - transactionDate: "2024-02-01"
+                  transactionType: "CANCELLED"
+                  refundAmount: 582
+                  originalPlan:
+                    planReference: "XW70003381"
+                    planType: "M"
+                    planItem: "J3"
+                - transactionDate: "2024-02-02"
+                  transactionType: "CANCELLED"
+                  refundAmount: 228
+                  originalPlan:
+                    planReference: "XW90001725"
+                    planType: "S"
+                    planItem: "FF"
+                - transactionDate: "2024-02-03"
+                  transactionType: "DOWNGRADE"
+                  refundAmount: 348
+                  originalPlan:
+                    planReference: "XW70003378"
+                    planType: "M"
+                    planItem: "J5"
+                  newPlan:
+                    - newPlanReference: "XW70003379"
+                      newPlanType: "M"
+                      newPlanItem: "J3"
+                      babyPlan:
+                        - babyPlanReference: "XW80003660"
+                          babyPlanItem: "DW"
+                        - babyPlanReference: "XW80003661"
+                          babyPlanItem: "FF"
+                        - babyPlanReference: "XW80003662"
+                          babyPlanItem: "CK"
+                - transactionDate: "2024-02-04"
+                  transactionType: "DOWNGRADE"
+                  refundAmount: 174
+                  originalPlan:
+                    planReference: "XW70003379"
+                    planType: "M"
+                    planItem: "J3"
+                  newPlan:
+                    - newPlanReference: "XW90001724"
+                      newPlanType: "S"
+                      newPlanItem: "CK"
+                    - newPlanReference: "XW90001725"
+                      newPlanType: "S"
+                      newPlanItem: "FF"
+                - transactionDate: "2024-02-05"
+                  transactionType: "DOWNGRADE"
+                  refundAmount: 402
+                  originalPlan:
+                    planReference: "XW70003380"
+                    planType: "M"
+                    planItem: "J3"
+                  newPlan:
+                    - newPlanReference: "XW90001726"
+                      newPlanType: "S"
+                      newPlanItem: "CK"
+                - transactionDate: "2024-02-06"
+                  transactionType: "PRODUCTREPLACEMENT"
+                  refundAmount: 0
+                  originalPlan:
+                    planReference: "XW90001726"
+                    planType: "S"
+                    planItem: "CK"
+                - transactionDate: "2024-02-07"
+                  transactionType: "PRODUCTREPLACEMENT"
+                  refundAmount: 0
+                  originalPlan:
+                    planReference: "XW70003382"
+                    planType: "M"
+                    planItem: "J3"
+                  replacementPlan:
+                    - babyPlanReference: "XW80003669"
+                      babyPlanItem: "DW"
+                    - babyPlanReference: "XW80003670"
+                      babyPlanItem: "FF"
+        '400':
+          description: Bad request. Missing or invalid parameters.
+        '412':
+          description: Client not found.
+        '500':
+          description: Internal server error. Please check logs.
+
+  /v1/person:
+    get:
+      tags:
+        - Person
+      summary: Person Search
+      description: Get PERSON records matching submitted criteria
+      operationId: personSearch
+      parameters:
+        - in: query
+          name: surname
+          schema:
+            type: string
+          allowEmptyValue: true
+          description: "Person Surname"
+        - in: query
+          name: postcode
+          description: "Post Code"
+          schema:
+            type: string
+          allowEmptyValue: true
+        - in: query
+          name: address
+          schema:
+            type: string
+          allowEmptyValue: true
+          description: "Person Address Line 1"
+        - in: query
+          name: phone
+          schema:
+            type: string
+          allowEmptyValue: true
+          description: "Person phone Number"
+        - in: query
+          name: email
+          schema:
+            type: string
+          allowEmptyValue: true
+          description: "Person Email Address"
+        - in: query
+          name: offerRef
+          schema:
+            type: string
+          allowEmptyValue: true
+          description: "Offer Reference - Format 123-123-123-123"
+        - in: query
+          name: countryCode
+          schema:
+            type: string
+            enum: 
+              - "GBR"
+              - "AUS"
+              - "AUT"
+              - "BEL"
+              - "DNK"
+              - "FRA"
+              - "DEU"
+              - "IRL"
+              - "ITA"
+              - "NLD"
+              - "NZL"
+              - "POL"
+              - "PRT"
+              - "ESP"
+              - "SWE"
+          allowEmptyValue: false
+          example: "GBR"
+          description: "GBR: UNITED KINGDOM AUS: AUSTRALIA AUT: AUSTRIA BEL: BELGIUM DNK: DENMARK FRA: FRANCE DEU: GERMANY IRL: IRELAND ITA: ITALY NLD: NETHERLANDS NZL: NEW ZEALAND POL: POLAND PRT: PORTUGAL ESP: SPAIN SWE: SWEDEN"
+        - in: query
+          name: clientId
+          schema:
+            type: string
+          allowEmptyValue: true
+          description: "ClientCode 00351"
+        - in: query
+          name: clientGroup
+          schema:
+            type: string
+          allowEmptyValue: true
+          description: "ClientGroupCode 00296"
+        - in: query
+          name: contractId
+          schema:
+            type: string
+          allowEmptyValue: true
+          description: "Contract ID or Plan Number"
+        - in: query
+          name: clientReference
+          schema:
+            type: string
+          allowEmptyValue: true
+          description: "Client Reference AG50002123"
+
+      responses:
+        '200':
+          description: The request has succeeded and the resource returned
+          content:
+            application/json:
+              schema:
+               $ref: '#/components/schemas/SearchPersonResponse'
+        '404':
+          description: The requested resource does not exist
+      
+    post:
+      tags:
+        - Person
+      summary: Person Create
+      description: Create a PERSON
+      operationId: personCreate
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePersonRequest'
+      responses:
+        '200':
+          description: The request has succeeded and the resource created as a result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreatePersonResponse'
+        '400':
+          description: >-
+            Incorrect Syntax. The client should not repeat the request without
+            modifications
+            
+  /v1/person/{id}:
+    get:
+      tags:
+        - Person
+      summary: Person Get
+      description: Get a PERSON by ID
+      operationId: personGet
+      parameters:
+        - name: id
+          in: path
+          description: Person ID
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: countryCode
+          schema:
+            type: string
+            enum: 
+              - "GBR"
+              - "AUS"
+              - "AUT"
+              - "BEL"
+              - "DNK"
+              - "FRA"
+              - "DEU"
+              - "IRL"
+              - "ITA"
+              - "NLD"
+              - "NZL"
+              - "POL"
+              - "PRT"
+              - "ESP"
+              - "SWE"
+          allowEmptyValue: false
+          example: "GBR"
+          description: "GBR: UNITED KINGDOM AUS: AUSTRALIA AUT: AUSTRIA BEL: BELGIUM DNK: DENMARK FRA: FRANCE DEU: GERMANY IRL: IRELAND ITA: ITALY NLD: NETHERLANDS NZL: NEW ZEALAND POL: POLAND PRT: PORTUGAL ESP: SPAIN SWE: SWEDEN"
+        - in: query
+          name: clientId
+          schema:
+            type: string
+          allowEmptyValue: true
+          description: "ClientCode 00351"
+        - in: query
+          name: clientGroup
+          schema:
+            type: string
+          allowEmptyValue: true
+          description: "ClientGroupCode 00296"
+          
+      responses:
+        '200':
+          description: The request has succeeded and the resource returned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetPersonResponse'
+        '404':
+          description: The requested resource does not exist
+          
+    patch:
+      tags:
+        - Person
+      summary: Person Update
+      description: Update a PERSON
+      operationId: personUpdate
+      parameters:
+        - name: id
+          in: path
+          description: Person ID
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdatePersonRequest'
+      responses:
+        '200':
+          description: The request has succeeded and the resource updated as a result
+          content:
+            application/json:
+              schema:
+               $ref: '#/components/schemas/UpdatePersonResponse'
+        '400':
+          description: >-
+            Incorrect Syntax. The client should not repeat the request without
+            modifications
+        '404':
+          description: The requested resource does not exist
+          
+  /v1/item:
+      post:
+        tags:
+          - Item
+        summary: Item Create
+        description: Create a ITEM
+        operationId: itemCreate
+        requestBody:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateItemRequest'
+        responses:
+          '200':
+            description: The request has succeeded and the resource created as a result
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/CreateItemResponse'
+          '400':
+            description: >-
+              Incorrect Syntax. The client should not repeat the request without
+              modifications
+              
+  /v1/item/{id}:
+      get:
+        tags:
+          - Item
+        summary: Item Get
+        description: Get a ITEM by ID
+        operationId: itemGet
+        parameters:
+          - name: id
+            in: path
+            description: Item ID
+            required: true
+            schema:
+              type: string
+          - in: query
+            name: countryCode
+            schema:
+              type: string
+              enum: 
+              - "GBR"
+              - "AUS"
+              - "AUT"
+              - "BEL"
+              - "DNK"
+              - "FRA"
+              - "DEU"
+              - "IRL"
+              - "ITA"
+              - "NLD"
+              - "NZL"
+              - "POL"
+              - "PRT"
+              - "ESP"
+              - "SWE"
+            allowEmptyValue: false
+            example: "GBR"
+            description: "GBR: UNITED KINGDOM AUS: AUSTRALIA AUT: AUSTRIA BEL: BELGIUM DNK: DENMARK FRA: FRANCE DEU: GERMANY IRL: IRELAND ITA: ITALY NLD: NETHERLANDS NZL: NEW ZEALAND POL: POLAND PRT: PORTUGAL ESP: SPAIN SWE: SWEDEN"
+          - in: query
+            name: clientId
+            schema:
+              type: string
+            allowEmptyValue: true
+            description: "ClientCode 00351"
+          - in: query
+            name: clientGroup
+            schema:
+              type: string
+            allowEmptyValue: true
+            description: "ClientGroupCode 00296"
+            
+        responses:
+          '200':
+            description: The request has succeeded and the resource returned
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/GetItemResponse'
+          '404':
+            description: The requested resource does not exist
+            
+      patch:
+        tags:
+          - Item
+        summary: Item Update
+        description: Update a ITEM
+        operationId: itemUpdate
+        parameters:
+          - name: id
+            in: path
+            description: Item ID
+            required: true
+            schema:
+              type: string
+        requestBody:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateItemRequest'
+        responses:
+          '200':
+            description: The request has succeeded and the resource updated as a result
+          '400':
+            description: >-
+              Incorrect Syntax. The client should not repeat the request without
+              modifications
+          '404':
+            description: The requested resource does not exist
+            
+  /v1/pricing/optimised:
+      post:
+        tags:
+          - Pricing
+        summary: Pricing Optimised
+        description: Get a price and create an OFFER
+        operationId: pricingOptimised
+        requestBody:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetPriceRequest'
+        responses:
+          '200':
+            description: The request has succeeded and the OFFER created as a result
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/GetPriceResponse'
+          '400':
+            description: >-
+              Incorrect Syntax. The client should not repeat the request without
+              modifications
+
+  /v1/pricing/base-rate:
+      get:
+        tags:
+          - Pricing
+        summary: Pricing Get Rates
+        description: Get a price 
+        operationId: pricingBaseRate
+        parameters:
+          - in: query
+            name: language
+            schema:
+              type: string
+            allowEmptyValue: false
+            description: "Language"
+          - in: query
+            name: company
+            description: "Company Code"
+            schema:
+              type: string
+            allowEmptyValue: true
+          - in: query
+            name: scheme
+            description: "Scheme Code"
+            schema:
+              type: string
+            allowEmptyValue: true
+          - in: query
+            name: levelOfCover
+            schema:
+              type: string
+            allowEmptyValue: true
+            description: "Level Of Cover"
+          - in: query
+            name: requestType
+            schema:
+              type: string
+            allowEmptyValue: true
+            description: "Request Type"
+          - in: query
+            name: callSourceList
+            schema:
+              type: string
+            allowEmptyValue: true
+            description: "Call Source List, Format ABCD,EFGH"
+          - in: query
+            name: isMultiplan
+            schema:
+              type: boolean
+            allowEmptyValue: false
+            description: "Multiplan Flag"
+          - in: query
+            name: totalNoOfItems
+            schema:
+              type: number
+            allowEmptyValue: false
+            description: "No Of Items"
+          - in: query
+            name: isPR
+            schema:
+              type: boolean
+            allowEmptyValue: false
+            description: "Product Replacement Flag"
+          - in: query
+            name: item
+            schema:
+              type: string
+            allowEmptyValue: true
+            description: "ItemCode"
+          - in: query
+            name: manufacturerBrand
+            schema:
+              type: string
+            allowEmptyValue: true
+            description: "Manufacturer Brand Code"
+          - in: query
+            name: purchaseDate
+            schema:
+              type: string
+              format: date
+            allowEmptyValue: true
+            description: "Purchase Date"
+          - in: query
+            name: purchasePrice
+            schema:
+              type: number
+            allowEmptyValue: true
+            description: "Purchase Price"
+          - in: query
+            name: manufacturerGuaranteePeriod
+            schema:
+              type: number
+            allowEmptyValue: true
+            description: "Manufacturer Guarantee Period"
+          - in: query
+            name: goodsColour
+            schema:
+              type: number
+              enum:
+                - 0
+                - 1
+                - 2
+                - 3
+                - 4
+                - 5
+                - 6
+            example: 0
+            description: "0:White 1:Brown 2:Heating 3:Grey 4:Emergency 5=Vehicle 6:All"
+            allowEmptyValue: true
+          - in: query
+            name: boilerType
+            schema:
+              type: number
+              enum:
+                - 0
+                - 1
+                - 2
+              example: 0
+              description: "0:Combination(CMB) 1:Condensing(CND) 2:Conventional(CNV)"
+            allowEmptyValue: true
+            description: "Boiler Type"
+          - in: query
+            name: productClass
+            schema:
+              type: string
+            allowEmptyValue: true
+            description: "Product Class"
+          - in: query
+            name: noOfItemsWithLT
+            schema:
+              type: string
+            allowEmptyValue: true
+            description: "Number Of Items with LT"
+          - in: query
+            name: manufacturerGuaranteeLabourMonths
+            schema:
+              type: number
+            allowEmptyValue: true
+            description: "Manufacturer Guarantee Labour Months"
+          - in: query
+            name: manufacturerGuaranteePartsMonths
+            schema:
+              type: number
+            allowEmptyValue: true
+            description: "Manufacturer Guarantee Parts Months"
+          - in: query
+            name: thirdPartyGuaranteeLabourMonths
+            schema:
+              type: number
+            allowEmptyValue: true
+            description: "Third Party Guarantee Labour Months"
+          - in: query
+            name: thirdPartyGuaranteePartsMonths
+            schema:
+              type: number
+            allowEmptyValue: true
+            description: "Third Party Guarantee Parts Months"
+          - in: query
+            name: businessEvent
+            schema:
+              type: number
+              enum:
+                - 0
+                - 1
+              example: 0
+              description: "0: Business Event Code - REG = Registration 1: QUO = Quote"
+            allowEmptyValue: false
+          - in: query
+            name: countryCode
+            schema:
+              type: string
+              enum: 
+                - "GBR"
+                - "AUS"
+                - "AUT"
+                - "BEL"
+                - "DNK"
+                - "FRA"
+                - "DEU"
+                - "IRL"
+                - "ITA"
+                - "NLD"
+                - "NZL"
+                - "POL"
+                - "PRT"
+                - "ESP"
+                - "SWE"
+            allowEmptyValue: false
+            example: "GBR"
+            description: "GBR: UNITED KINGDOM AUS: AUSTRALIA AUT: AUSTRIA BEL: BELGIUM DNK: DENMARK FRA: FRANCE DEU: GERMANY IRL: IRELAND ITA: ITALY NLD: NETHERLANDS NZL: NEW ZEALAND POL: POLAND PRT: PORTUGAL ESP: SPAIN SWE: SWEDEN"
+          - in: query
+            name: clientId
+            schema:
+              type: string
+            allowEmptyValue: true
+            description: "ClientCode 00351"
+          - in: query
+            name: clientGroup
+            schema:
+              type: string
+            allowEmptyValue: true
+            description: "ClientGroupCode 00296"
+            
+        responses:
+          '200':
+            description: The request has succeeded and the OFFER created as a result
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/GetBaseRateResponse'
+          '400':
+            description: >-
+              Incorrect Syntax. The client should not repeat the request without
+              modifications
+      
+  /v1/contract/takeup-offer:
+    post:
+      tags:
+        - Contract    
+      summary: Contract TakeUpOffer
+      description: Create a CONTRACT by taking up an OFFER
+      operationId: takeUpOffer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TakeUpOfferRequest'
+      responses:
+        '200':
+          description: The request has succeeded and the resource created as a result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TakeUpOfferResponse'
+        '400':
+          description: Incorrect Syntax. The client should not repeat the request without modifications     
+
+  /v1/contract/upsell:
+    post:
+      tags:
+        - Contract    
+      summary: Contract Upsell
+      description: Create a CONTRACT by taking up an OFFER and cancel the existing plan
+      operationId: upsell
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ContractUpsellRequest'
+      responses:
+        '200':
+          description: The request has succeeded and the resource created as a result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContractUpsellResponse'
+        '400':
+          description: Incorrect Syntax. The client should not repeat the request without modifications     
+          
+  /v1/contract/{id}:
+     get:
+       tags:
+         - Contract
+       summary: Contract Get
+       description: Get a CONTRACT by ID
+       operationId: getContractById
+       parameters:
+         - name: id
+           in: path
+           description: Contract ID - Format Scheme Code + Reference. Examples, ABC1234567 or AB1234567
+           required: true
+           schema:
+             type: string
+         - in: query
+           name: countryCode
+           schema:
+             type: string
+             enum: 
+              - "GBR"
+              - "AUS"
+              - "AUT"
+              - "BEL"
+              - "DNK"
+              - "FRA"
+              - "DEU"
+              - "IRL"
+              - "ITA"
+              - "NLD"
+              - "NZL"
+              - "POL"
+              - "PRT"
+              - "ESP"
+              - "SWE"
+           allowEmptyValue: false
+           example: "GBR"
+           description: "GBR: UNITED KINGDOM AUS: AUSTRALIA AUT: AUSTRIA BEL: BELGIUM DNK: DENMARK FRA: FRANCE DEU: GERMANY IRL: IRELAND ITA: ITALY NLD: NETHERLANDS NZL: NEW ZEALAND POL: POLAND PRT: PORTUGAL ESP: SPAIN SWE: SWEDEN"
+         - in: query
+           name: clientId
+           schema:
+              type: string
+           allowEmptyValue: true
+           description: "ClientCode 00351"
+         - in: query
+           name: clientGroup
+           schema:
+              type: string
+           allowEmptyValue: true
+           description: "ClientGroupCode 00296"
+           
+       responses:
+         '200':
+           description: The request has succeeded and the resource returned
+           content:
+             application/json:
+               schema:
+                 $ref: '#/components/schemas/GetContractResponse'
+         '404':
+           description: The requested resource does not exist       
+
+     patch:
+      tags:
+          - Contract
+      summary: Contract Update
+      description: Update a CONTRACT
+      operationId: contractUpdate
+      parameters:
+        - name: id
+          in: path
+          description: Contract ID - Format Scheme Code + Reference. Examples, ABC1234567 or AB1234567
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateContractRequest'
+      responses:
+        '200':
+          description: The request has succeeded and the resource updated as a result
+        '400':
+          description: >-
+            Incorrect Syntax. The client should not repeat the request without
+            modifications
+        '404':
+          description: The requested resource does not exist
+          
+     post:
+      tags:
+          - Contract
+      summary: Contract Add New Baby Plan
+      description: Add a new Baby PLan to a Multiplan CONTRACT
+      operationId: contractAddBaby
+      parameters:
+        - name: id
+          in: path
+          description: Contract ID - Format Scheme Code + Reference. Examples, ABC1234567 or AB1234567
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddNewBabyRequest'
+      responses:
+        '200':
+          description: The request has succeeded and the resource created as a result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateContractResponse'
+        '400':
+          description: Incorrect Syntax. The client should not repeat the request without modifications  
+        '404':
+          description: The requested resource does not exist          
+          
+  /v1/contract/{id}/cancel-date:
+     get:
+       tags:
+         - Contract
+       summary: Contract Cancel Date Get
+       description: Get a CONTRACT CancelDate by ID
+       operationId: getContractCancelDateById
+       parameters:
+         - name: id
+           in: path
+           description: Contract ID - Format Scheme Code + Reference. Examples, ABC1234567 or AB1234567
+           required: true
+           schema:
+             type: string
+         - in: query
+           name: countryCode
+           schema:
+             type: string
+             enum: 
+              - "GBR"
+              - "AUS"
+              - "AUT"
+              - "BEL"
+              - "DNK"
+              - "FRA"
+              - "DEU"
+              - "IRL"
+              - "ITA"
+              - "NLD"
+              - "NZL"
+              - "POL"
+              - "PRT"
+              - "ESP"
+              - "SWE"
+           allowEmptyValue: false
+           example: "GBR"
+           description: "GBR: UNITED KINGDOM AUS: AUSTRALIA AUT: AUSTRIA BEL: BELGIUM DNK: DENMARK FRA: FRANCE DEU: GERMANY IRL: IRELAND ITA: ITALY NLD: NETHERLANDS NZL: NEW ZEALAND POL: POLAND PRT: PORTUGAL ESP: SPAIN SWE: SWEDEN"
+         - in: query
+           name: clientId
+           schema:
+              type: string
+           allowEmptyValue: true
+           description: "ClientCode 00351"
+         - in: query
+           name: clientGroup
+           schema:
+              type: string
+           allowEmptyValue: true
+           description: "ClientGroupCode 00296"
+           
+       responses:
+         '200':
+           description: The request has succeeded and the resource returned
+           content:
+             application/json:
+               schema:
+                 $ref: '#/components/schemas/GetContractCancelDateResponse'
+         '404':
+           description: The requested resource does not exist                  
+           
+  /v1/contracts:
+    get:
+      tags:
+        - Contract
+      summary: Contract Search
+      description: Get all CONTRACT records for a Customer ID
+      operationId: getAllContracts
+      parameters:
+        - in: query
+          name: id
+          schema:
+            type: string
+          allowEmptyValue: true
+          description: D&G OGC Person ID
+        - in: query
+          name: countryCode
+          schema:
+            type: string
+            enum: 
+              - "GBR"
+              - "AUS"
+              - "AUT"
+              - "BEL"
+              - "DNK"
+              - "FRA"
+              - "DEU"
+              - "IRL"
+              - "ITA"
+              - "NLD"
+              - "NZL"
+              - "POL"
+              - "PRT"
+              - "ESP"
+              - "SWE"
+          allowEmptyValue: false
+          example: "GBR"
+          description: "GBR: UNITED KINGDOM AUS: AUSTRALIA AUT: AUSTRIA BEL: BELGIUM DNK: DENMARK FRA: FRANCE DEU: GERMANY IRL: IRELAND ITA: ITALY NLD: NETHERLANDS NZL: NEW ZEALAND POL: POLAND PRT: PORTUGAL ESP: SPAIN SWE: SWEDEN"
+        - in: query
+          name: clientId
+          schema:
+            type: string
+          allowEmptyValue: true
+          description: "ClientCode 00351"
+        - in: query
+          name: clientGroup
+          schema:
+            type: string
+          allowEmptyValue: true
+          description: "ClientGroupCode 00296"
+          
+      responses:
+        '200':
+          description: The request has succeeded and the resource returned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetAllContractsResponse'
+        '404':
+          description: The requested resource does not exist        
+
+  /v1/contract:
+    post:
+      tags:
+        - Contract    
+      summary: Contract Create
+      description: Create a CONTRACT
+      operationId: createContract
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateContractRequest'
+      responses:
+        '200':
+          description: The request has succeeded and the resource created as a result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateContractResponse'
+        '400':
+          description: Incorrect Syntax. The client should not repeat the request without modifications  
+  /v1/payment/card:
+    post:
+      tags:
+        - Payment    
+      summary: Payment Card
+      description: Create a PAYMENT for CONTRACT
+      operationId: payByCardDirect
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PayByCardDirectRequest'
+      responses:
+        '200':
+          description: The request has succeeded and the resource created as a result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PayByCardDirectResponse'
+        '400':
+          description: Incorrect Syntax. The client should not repeat the request without modifications 
+  
+  /v1/payment/schedule:
+    get:
+      tags:
+        - Payment
+      summary: Payment Schedule Get
+      description: Retrieve a PAYMENT Schedule
+      operationId: getPaymentSchedule
+      parameters:
+        - in: query
+          name: company
+          schema:
+            type: string
+            maxLength: 1
+          allowEmptyValue: true
+          example: "A"
+          description: "Company Code"
+        - in: query
+          name: contractId
+          schema:
+            type: string
+            maxLength: 10
+            minLength: 9
+          allowEmptyValue: true
+          description: "Contract Id - Format Scheme (XYZ) or Scheme + Reference (XYZ12345567)"
+        - in: query
+          name: acceptanceDate
+          schema:
+            type: string
+            format: date
+          allowEmptyValue: true
+          description: "Acceptance Date - Format YYYY-MM-DD"
+        - in: query
+          name: breakdownStartDate
+          schema:
+            type: string
+            format: date
+          allowEmptyValue: true
+          description: "Breakdown Start Date - Format YYYY-MM-DD"
+        - in: query
+          name: renewalDate
+          schema:
+            type: string
+            format: date
+          allowEmptyValue: true
+          description: "Renewal Date - Format YYYY-MM-DD"   
+        - in: query
+          name: periodOfCover
+          schema:
+            type: integer
+          allowEmptyValue: true
+          description: "Period of cover (in months)"    
+        - in: query
+          name: status
+          schema:
+            type: number
+            enum:
+            - 0
+            - 1
+            example: 0
+          allowEmptyValue: true
+          description: "0: New, 1: Renewal"            
+        - in: query
+          name: paymentType
+          schema:
+            type: number
+            enum: 
+              - 0 
+              - 1
+          allowEmptyValue: true
+          example: 0
+          description: "0: Recurring 1: One-off"   
+        - in: query
+          name: paymentProfile
+          schema:
+            type: string
+          allowEmptyValue: true
+          description: "Payment Profile - Denotes the number of payments/payment frequency"      
+        - in: query
+          name: nominatedPaymentDay
+          schema:
+            type: integer
+            maximum: 28
+            minimum: 1
+          allowEmptyValue: true
+          description: "Nominated Payment Day (maximum value is 28)"             
+        - in: query
+          name: fee
+          schema:
+            type: number
+            format: float
+          description: "Fee"  
+          allowEmptyValue: true
+        - in: query
+          name: singlePayment
+          schema:
+            type: boolean
+          allowEmptyValue: true
+          description: "Single Payment - true = Suggest alternative nominated payment day to avoid duplicate payments in first month"
+        - in: query
+          name: reprint
+          schema:
+            type: number
+            enum: 
+              - 0 
+              - 1
+          allowEmptyValue: true
+          example: 0
+          description: "0: Current Period 1:Next Period"  
+        - in: query
+          name: countryCode
+          schema:
+            type: string
+            enum: 
+              - "GBR"
+              - "AUS"
+              - "AUT"
+              - "BEL"
+              - "DNK"
+              - "FRA"
+              - "DEU"
+              - "IRL"
+              - "ITA"
+              - "NLD"
+              - "NZL"
+              - "POL"
+              - "PRT"
+              - "ESP"
+              - "SWE"
+          allowEmptyValue: false
+          example: "GBR"
+          description: "GBR: UNITED KINGDOM AUS: AUSTRALIA AUT: AUSTRIA BEL: BELGIUM DNK: DENMARK FRA: FRANCE DEU: GERMANY IRL: IRELAND ITA: ITALY NLD: NETHERLANDS NZL: NEW ZEALAND POL: POLAND PRT: PORTUGAL ESP: SPAIN SWE: SWEDEN"
+        - in: query
+          name: clientId
+          schema:
+            type: string
+          allowEmptyValue: true
+          description: "ClientCode 00351"
+        - in: query
+          name: clientGroup
+          schema:
+            type: string
+          allowEmptyValue: true
+          description: "ClientGroupCode 00296"
+          
+      responses:
+        '200':
+          description: The request has succeeded and the resource returned
+          content:
+            application/json:
+              schema:
+               $ref: '#/components/schemas/GetScheduleResponse'
+        '404':
+          description: The requested resource does not exist
+
+  /v1/payment/validate-dd: 
+    get:
+      tags:
+        - Payment
+      summary: Payment ValidateDD
+      description: Validate a Direct Debit PAYMENT
+      operationId: validateDD
+      parameters:
+        - in: query
+          name: bank
+          schema:
+            type: string
+            maxLength: 10
+          allowEmptyValue: true
+          description: "Bank (not applicable for UK)"
+        - in: query
+          name: branch
+          schema:
+            type: string
+            maxLength: 10
+          allowEmptyValue: true
+          description: "Bank Sort Code (GBR - Format 123456 - no hypen) or Branch Code (Non-GBR)"
+        - in: query
+          name: accountNo
+          schema:
+            type: string
+            maxLength: 16
+          allowEmptyValue: true
+          description: "Bank Account Number"
+        - in: query
+          name: checkDigit
+          schema:
+            type: string
+          allowEmptyValue: true
+          description: "Check Digit (not applicable for UK)"
+        - in: query
+          name: iban
+          schema:
+            type: string
+          allowEmptyValue: true
+          description: "IBAN - International Bank Account Number (not applicable for UK)" 
+        - in: query
+          name: countryCode
+          schema:
+            type: string
+            enum: 
+              - "GBR"
+              - "AUS"
+              - "AUT"
+              - "BEL"
+              - "DNK"
+              - "FRA"
+              - "DEU"
+              - "IRL"
+              - "ITA"
+              - "NLD"
+              - "NZL"
+              - "POL"
+              - "PRT"
+              - "ESP"
+              - "SWE"
+          allowEmptyValue: false
+          example: "GBR"
+          description: "GBR: UNITED KINGDOM AUS: AUSTRALIA AUT: AUSTRIA BEL: BELGIUM DNK: DENMARK FRA: FRANCE DEU: GERMANY IRL: IRELAND ITA: ITALY NLD: NETHERLANDS NZL: NEW ZEALAND POL: POLAND PRT: PORTUGAL ESP: SPAIN SWE: SWEDEN"          
+        - in: query
+          name: clientId
+          schema:
+            type: string
+          allowEmptyValue: true
+          description: "ClientCode 00351"
+        - in: query
+          name: clientGroup
+          schema:
+            type: string
+          allowEmptyValue: true
+          description: "ClientGroupCode 00296"
+          
+      responses:
+        '200':
+          description: The request has succeeded and the details are valid
+        '404':
+          description: The requested resource does not exist   
+    post:
+      tags:
+        - Payment
+      summary: Payment ValidateDD
+      description: Validate a Direct Debit PAYMENT
+      operationId: validateDDPost
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ValidateDDRequest'
+          
+      responses:
+        '200':
+          description: The request has succeeded and the details are valid
+        '404':
+          description: The requested resource does not exist   
+          
+  /v1/{countryCode}/payment/validate-bank: 
+      get:
+        tags:
+          - Payment
+        summary: Payment Validate Bank
+        description: Validate Bank details
+        operationId: validateBank
+        parameters:
+          - in: path
+            name: countryCode
+            schema:
+              type: string
+              maxLength: 12
+              example: 'GBR'
+            description: "The 3 character ISO-3166 country code. Validate Bank is for GBR only at present."
+            example: GBR
+            allowEmptyValue: false
+            required: true
+          - in: query
+            name: accountNo
+            schema:
+              type: string
+              maxLength: 12
+            allowEmptyValue: true
+            description: "Bank Account Number"
+          - in: query
+            name: sortCode
+            schema:
+              type: string
+              maxLength: 10
+            allowEmptyValue: true
+            description: "Bank Sort Code (Format 123456 - no hypen)"
+            
+        responses:
+          '200':
+            description: The request has succeeded and the details are valid
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    bank: 
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          sortCode: 
+                            type: string
+                            example: '001266'
+                            description: 'The bank sortcode number'
+                          bic: 
+                            type: string
+                            example: 'CLRBGB22276'
+                            description: 'The bank SWIFT/BIC code'
+                          name: 
+                            type: string
+                            example: 'SomeBank Limited'
+                            description: 'The name of the bank'
+                          address: 
+                            type: string
+                            example: 'Borough Yards, 13 Some Lane'
+                            description: 'The address of the bank'
+                          city: 
+                            type: string
+                            example: 'London'
+                            description: 'The city the bank resides in'
+                          postCode: 
+                            type: string
+                            example: 'SE1 9PA'
+                            description: 'The postcode the bank resides in'
+                          country: 
+                            type: string
+                            example: 'GB'
+                            description: 'The country the bank resides in'
+                          phone: 
+                            type: string
+                            example: '01234782233'
+                            description: 'The phone number for the bank'
+                          fax: 
+                            type: string
+                            example: '01234782233'
+                            description: 'The fax number for the bank'
+                          email: 
+                            type: string
+                            example: 'email@bank.com'
+                            description: 'The email address for the bank'
+          
+          '412':
+              description: The requested details are invalid    
+              content:
+                application/json:
+                  schema:
+                    type: object
+                    properties:
+                      errors: 
+                        type: object
+                        example: 'Bank details are invalid'
+          '502':
+              description: Server error 
+
+  /v1/registrations:
+    get:
+      tags:
+        - Registration
+      summary: Registration Search
+      description: Get REGISTRATION records matching submitted criteria
+      operationId: getAllRegistrations
+      parameters:
+        - in: query
+          name: personId
+          schema:
+            type: string
+          allowEmptyValue: true
+          description: "D&G Person Unique Identifer"
+        - in: query
+          name: countryCode
+          schema:
+            type: string
+            enum: 
+              - "GBR"
+              - "AUS"
+              - "AUT"
+              - "BEL"
+              - "DNK"
+              - "FRA"
+              - "DEU"
+              - "IRL"
+              - "ITA"
+              - "NLD"
+              - "NZL"
+              - "POL"
+              - "PRT"
+              - "ESP"
+              - "SWE"
+          allowEmptyValue: false
+          example: "GBR"
+          description: "GBR: UNITED KINGDOM AUS: AUSTRALIA AUT: AUSTRIA BEL: BELGIUM DNK: DENMARK FRA: FRANCE DEU: GERMANY IRL: IRELAND ITA: ITALY NLD: NETHERLANDS NZL: NEW ZEALAND POL: POLAND PRT: PORTUGAL ESP: SPAIN SWE: SWEDEN"
+        - in: query
+          name: clientId
+          schema:
+            type: string
+          allowEmptyValue: true
+          description: "ClientCode 00351"
+        - in: query
+          name: clientGroup
+          schema:
+            type: string
+          allowEmptyValue: true
+          description: "ClientGroupCode 00296"
+          
+      responses:
+        '200':
+          description: The request has succeeded and the resource returned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetAllRegistrationsResponse'
+        '404':
+          description: The requested resource does not exist             
+  
+components:
+  schemas:
+    ClientGetUpdateTransactionItem:
+        type: object
+        properties:
+          transactionDate:
+            type: string
+            format: date
+          transactionType:
+            type: string
+            enum:
+            - CANCELLED
+            - DOWNGRADE 
+            - PRODUCTREPLACEMENT
+          refundAmount:
+            type: number
+          originalPlan:
+            $ref: '#/components/schemas/OriginalPlanData'
+          replacementPlan:
+            type: array
+            items:
+              $ref: '#/components/schemas/BabyPlanData'
+          newPlan:
+            type: array
+            items:
+              $ref: '#/components/schemas/NewPlanData'
+    NewPlanData:
+      type: object
+      properties:
+        newPlanReference:
+          type: string
+        newPlanType:
+          type: string
+          enum:
+          - S
+          - M
+          description: "S: Single Plan, M: Multi Plan"
+        newPlanItem:
+          type: string
+        babyPlan:
+          type: array
+          items:
+            $ref: '#/components/schemas/BabyPlanData'
+    BabyPlanData:
+      type: object
+      properties:
+        babyPlanReference:
+          type: string
+        babyPlanItem:
+          type: string
+    OriginalPlanData:
+      type: object
+      properties:
+        planReference:
+          type: string
+        planType:
+          type: string
+          enum:
+          - S
+          - M
+          description: "S: Single Plan, M: Multi Plan"
+        planItem:
+          type: string
+  
+    SearchPersonResponse:
+      type: array
+      items:
+        $ref: '#/components/schemas/PersonData'
+        
+    GetPersonResponse:
+      allOf:
+        - $ref: '#/components/schemas/ContractPersonData'
+        - $ref: '#/components/schemas/NewPersonIdData'
+ 
+    CreatePersonRequest:     
+      allOf:
+        - $ref: '#/components/schemas/SourceData'   
+        - $ref: '#/components/schemas/FullPersonData'   
+      
+    CreatePersonResponse:
+      $ref: '#/components/schemas/PersonIDData'
+      
+    UpdatePersonRequest:
+      allOf:
+        - $ref: '#/components/schemas/SourceData' 
+        - $ref: '#/components/schemas/UpdatePersonData'
+        - $ref: '#/components/schemas/NewPersonIdData' 
+        
+    UpdatePersonResponse:
+      oneOf:
+        - $ref: '#/components/schemas/PersonIDData'
+        - $ref: '#/components/schemas/NewPersonIDData'
+     
+    GetItemResponse:
+      type: array
+      items:
+        $ref: '#/components/schemas/FullItemData'
+        
+    CreateItemRequest:
+      allOf:
+        - $ref: '#/components/schemas/SourceData'
+        - $ref: '#/components/schemas/FullItemData'
+      
+    CreateItemResponse:
+        $ref: '#/components/schemas/ItemIDData'
+      
+    UpdateItemRequest:
+      allOf:
+        - $ref: '#/components/schemas/SourceData' 
+        - $ref: '#/components/schemas/UpdateItemData'
+      
+    UpdateItemResponse:
+      $ref: '#/components/schemas/ItemIDData'
+      
+    # CORE
+    
+    SourceData:
+      type: object
+      properties:
+        countryCode:
+          type: string
+          enum: 
+              - "GBR"
+              - "AUS"
+              - "AUT"
+              - "BEL"
+              - "DNK"
+              - "FRA"
+              - "DEU"
+              - "IRL"
+              - "ITA"
+              - "NLD"
+              - "NZL"
+              - "POL"
+              - "PRT"
+              - "ESP"
+              - "SWE"
+          example: "GBR"
+          description: "GBR: UNITED KINGDOM AUS: AUSTRALIA AUT: AUSTRIA BEL: BELGIUM DNK: DENMARK FRA: FRANCE DEU: GERMANY IRL: IRELAND ITA: ITALY NLD: NETHERLANDS NZL: NEW ZEALAND POL: POLAND PRT: PORTUGAL ESP: SPAIN SWE: SWEDEN" 
+        clientId: 
+          type: string
+          example: '00351'
+          description: 'ClientCode'
+        clientGroup:
+          type: string
+          example: '00296'
+          description: 'ClientGroupCode'
+        
+    
+    ClientData:
+      type: object
+      properties:
+        code: 
+          type: string
+          example: '00351'
+          description: 'ClientCode'
+        group:
+          type: string
+          example: '00296'
+          description: 'ClientGroupCode'
+          
+    AddressDataArray:
+      type: array
+      items:
+        $ref: '#/components/schemas/AddressData'
+    
+    AddressData:
+      type: object
+      required:
+        - addressCategory
+      properties:
+        addressCategory:
+          type: number
+          enum:
+          - 0
+          - 1
+          - 2
+          - 3
+          example: 0
+          description: '0: Correspondance Riskowner 1:Associated 2:Correspondance 3:Pending Confirmation' 
+        addressOverride:
+          type: boolean
+          default: false
+          description: "Address Overide"
+        addressStatus:
+          type: string
+          example: 'N'
+          description: "Address Status"
+          maxLength: 1
+        addressLine1:
+          type: string
+          example: 1 The Street
+          description: "Address Line 1"
+          maxLength: 150         
+        addressLine2:
+          type: string
+          example: The Town
+          description: "Address Line 2"
+          maxLength: 150           
+        addressLine3:
+          type: string
+          example: The City
+          description: "Address Line 3"
+          maxLength: 150           
+        addressLine4:
+          type: string
+          example: The County
+          description: "Address Line 4"
+          maxLength: 150           
+        postcode:
+          type: string
+          example: AB1 2CD
+          description: "Post Code"
+          maxLength: 20           
+        countryCode:
+          type: string
+          enum: 
+              - "GBR"
+              - "AUS"
+              - "AUT"
+              - "BEL"
+              - "DNK"
+              - "FRA"
+              - "DEU"
+              - "IRL"
+              - "ITA"
+              - "NLD"
+              - "NZL"
+              - "POL"
+              - "PRT"
+              - "ESP"
+              - "SWE"
+          example: "GBR"
+          description: "GBR: UNITED KINGDOM AUS: AUSTRALIA AUT: AUSTRIA BEL: BELGIUM DNK: DENMARK FRA: FRANCE DEU: GERMANY IRL: IRELAND ITA: ITALY NLD: NETHERLANDS NZL: NEW ZEALAND POL: POLAND PRT: PORTUGAL ESP: SPAIN SWE: SWEDEN" 
+          
+    AddressDetailsDataArray:
+      type: array
+      items:
+        $ref: '#/components/schemas/AddressDetailsData'
+
+    AddressDetails2DataArray:
+      type: array
+      items:
+        $ref: '#/components/schemas/AddressDetails2Data'        
+
+    AddressDetailsData:
+      type: object
+      required:
+        - addressLine1
+        - postcode
+        - countryCode
+      properties:
+        type:
+          type: number
+          enum:
+          - 0
+          - 1
+          - 2
+          - 3
+          example: 0
+          description: '0: Correspondance Riskowner 1:Associated 2:Correspondance 3:Pending Confirmation' 
+        addressLine1:
+          type: string
+          example: 1 The Street
+          description: "Address Line 1"
+          maxLength: 150         
+        addressLine2:
+          type: string
+          example: The Town
+          description: "Address Line 2"
+          maxLength: 150           
+        addressLine3:
+          type: string
+          example: The City
+          description: "Address Line 3"
+          maxLength: 150           
+        addressLine4:
+          type: string
+          example: The County
+          description: "Address Line 4"
+          maxLength: 150           
+        postcode:
+          type: string
+          example: AB1 2CD
+          description: "Post Code"
+          maxLength: 20           
+        countryCode:
+          type: string
+          enum: 
+              - "GBR"
+              - "AUS"
+              - "AUT"
+              - "BEL"
+              - "DNK"
+              - "FRA"
+              - "DEU"
+              - "IRL"
+              - "ITA"
+              - "NLD"
+              - "NZL"
+              - "POL"
+              - "PRT"
+              - "ESP"
+              - "SWE"
+          example: "GBR"
+          description: "GBR: UNITED KINGDOM AUS: AUSTRALIA AUT: AUSTRIA BEL: BELGIUM DNK: DENMARK FRA: FRANCE DEU: GERMANY IRL: IRELAND ITA: ITALY NLD: NETHERLANDS NZL: NEW ZEALAND POL: POLAND PRT: PORTUGAL ESP: SPAIN SWE: SWEDEN"    
+
+    AddressDetails2Data:
+      type: object
+      required:
+        - addressLine1
+        - postcode
+        - countryCode
+      properties:
+        addressCategory:
+          type: number
+          enum:
+          - 0
+          - 1
+          - 2
+          - 3
+          example: 0
+          description: '0: Correspondance Riskowner 1:Associated 2:Correspondance 3:Pending Confirmation' 
+        addressLine1:
+          type: string
+          example: 1 The Street
+          description: "Address Line 1"
+          maxLength: 150         
+        addressLine2:
+          type: string
+          example: The Town
+          description: "Address Line 2"
+          maxLength: 150           
+        addressLine3:
+          type: string
+          example: The City
+          description: "Address Line 3"
+          maxLength: 150           
+        addressLine4:
+          type: string
+          example: The County
+          description: "Address Line 4"
+          maxLength: 150           
+        postcode:
+          type: string
+          example: AB1 2CD
+          description: "Post Code"
+          maxLength: 20           
+        countryCode:
+          type: string
+          enum: 
+              - "GBR"
+              - "AUS"
+              - "AUT"
+              - "BEL"
+              - "DNK"
+              - "FRA"
+              - "DEU"
+              - "IRL"
+              - "ITA"
+              - "NLD"
+              - "NZL"
+              - "POL"
+              - "PRT"
+              - "ESP"
+              - "SWE"
+          example: "GBR"
+          description: "GBR: UNITED KINGDOM AUS: AUSTRALIA AUT: AUSTRIA BEL: BELGIUM DNK: DENMARK FRA: FRANCE DEU: GERMANY IRL: IRELAND ITA: ITALY NLD: NETHERLANDS NZL: NEW ZEALAND POL: POLAND PRT: PORTUGAL ESP: SPAIN SWE: SWEDEN"    
+
+    PhoneNumberDataArray:
+      type: array
+      items:
+       $ref: '#/components/schemas/PhoneNumberData'
+
+    PhoneNumberData:
+      type: object
+      properties:
+        type:
+          type: number
+          enum:
+          - 0
+          - 1
+          - 2
+          example: 0
+          description: '0: Home or Other 1:Mobile or Personal 2: Work or Professional'
+        value:
+          type: string
+          example: '123456789'
+          description: "Mobile phone Number"
+          maxLength: 100
+        preferred:
+          type: boolean
+
+
+    EmailData:
+      type: object
+      properties:
+        email:
+              $ref: '#/components/schemas/EmailAddressDataArray'           
+        docSendPreference:
+          type: number
+          enum:
+          - 0
+          - 1
+          - 2
+          example: 0
+          description: '0: Primary 1:Home 2:Work' 
+          
+    EmailAddressDataArray:
+      type: array
+      items:
+       $ref: '#/components/schemas/EmailAddressData'
+
+    EmailAddressData:
+      type: object
+      properties:
+        type:
+          type: number
+          enum:
+          - 0
+          - 1
+          - 2
+          - 3
+          example: 0
+          description: '0: Primary 1: Home 2: Work 3: DocSend'
+        value:
+          type: string
+          example: 'a.a@a.com'
+          description: "Email Address"
+          maxLength: 100    
+        isValid:
+          type: boolean
+          example: true
+        preferred: 
+          type: boolean
+          example: true
+
+          
+    DisabilityDataArray:
+      type: array
+      items:
+        type: string
+        example: BL
+        maxLength: 2
+        description: "Disability Code" 
+      maxItems: 6
+      description: "Array of Disability Codes - BL = Blind, DF = Deaf, LD = Learning Difficulties, ND = No Disability, PB = Partially Blind, PD = Partially Deaf, SI = Speech Impairment" 
+      
+    VulnerabilityDataArray:
+      type: array
+      items:
+        type: string
+        example: '001'
+        maxLength: 3
+        description: "Vulnerability Code" 
+      maxItems: 6
+      description: "Array of Vulnerability Codes" 
+      
+    # PERSON
+    
+    FullPersonData:
+      allOf:
+        - $ref: '#/components/schemas/PersonDetailsData'
+        - type: object
+          properties:
+            id:
+              type: string
+              example: '1234567'
+              readOnly: true
+              description: "D&G Person Unique Identifer"
+              maxLength: 60   
+            phone:
+              $ref: '#/components/schemas/PhoneNumberDataArray'
+            email:
+              $ref: '#/components/schemas/EmailAddressDataArray'
+            address:
+              $ref: '#/components/schemas/AddressDataArray'
+            disability:
+              $ref: '#/components/schemas/DisabilityDataArray'
+            vulnerability:
+              $ref: '#/components/schemas/VulnerabilityDataArray'
+            marketing:
+              $ref: '#/components/schemas/MarketingDataArray'
+
+    UpdatePersonData:
+      allOf:
+        - type: object
+          properties:
+            id:
+              type: string
+              example: '1234567'
+              readOnly: true
+              description: "D&G Person Unique Identifer"
+              maxLength: 60   
+            phone:
+              $ref: '#/components/schemas/PhoneNumberDataArray'
+            email:
+              $ref: '#/components/schemas/EmailAddressDataArray'
+            marketing:
+              $ref: '#/components/schemas/MarketingDataArray'
+              
+    PersonData:
+      allOf:
+        - $ref: '#/components/schemas/PersonDetailsData'
+        - type: object
+          properties:
+            id:
+              type: string
+              example: '1234567'
+              readOnly: true
+            phone:
+              $ref: '#/components/schemas/PhoneNumberDataArray'
+            email:
+              $ref: '#/components/schemas/EmailAddressDataArray' 
+            address:
+              $ref: '#/components/schemas/AddressDetails2Data'
+              
+    PersonDetailsData:
+      type: object
+      required:
+        - title
+        - surname
+      properties:
+        initial:
+          type: string
+          example: J
+          description: Initial
+          maxLength: 1
+        firstName:
+          type: string
+          example: John
+          description: Person First Name
+          maxLength: 40       
+        surname:
+          type: string
+          example: Smith
+          description: Person Surname
+          maxLength: 40              
+        preferredName:
+          type: string
+          example: John
+          description: Preferred Name
+          maxLength: 40              
+        title:
+          type: string
+          example: Mr
+          description: Person Title
+          maxLength: 10   
+        gender:
+          type: number
+          enum:
+            - 1
+            - 2
+            - 3
+          example: 1
+          description: "1: Male 2: Female 3: Mixed"
+        maritalStatus:
+          type: number
+          enum:
+            - 0
+            - 1
+            - 2
+            - 3
+            - 4
+            - 5
+            - 6
+          example: 1
+          description: "0: Married 1: Single 2: Widowed 3: Divorced 4: Separated 5: Civil Partnership 6: Living Together"
+        dob:
+          type: string
+          format: date-time
+          example: '2000-01-01'
+          description: "Date of Birth - Format YYYY-MM-DD"
+        language:
+          type: string
+          example: eng
+          description: "Preferred Language - 3 ISO"
+          maxLength: 3              
+        status:
+          type: number
+          enum:
+            - 0
+            - 1
+            - 2
+          example: 0
+          description: "0: Prospect 1: Customer 2: Previous Customer"
+        contactMethod:
+          type: number
+          enum:
+            - 0
+            - 1
+            - 2
+          example: 0
+          description: '0: Email 1: Post 2: Both'
+        docSendPreference:
+          type: boolean  
+          
+    UpdatePersonDetailsData:
+      type: object
+      properties:
+        initial:
+          type: string
+          example: J
+          description: Initial
+          maxLength: 1
+        firstName:
+          type: string
+          example: John
+          description: Person First Name
+          maxLength: 40       
+        surname:
+          type: string
+          example: Smith
+          description: Person Surname
+          maxLength: 40              
+        preferredName:
+          type: string
+          example: John
+          description: Preferred Name
+          maxLength: 40              
+        title:
+          type: string
+          example: Mr
+          description: Person Title
+          maxLength: 10   
+        gender:
+          type: string
+          enum:
+            - "1"
+            - "2"
+            - "3"
+          example: "1 - Male, 2 = Female, 3 = Mixed"
+          maxLength: 1
+        maritalStatus:
+          type: number
+          enum:
+            - 0
+            - 1
+            - 2
+            - 3
+            - 4
+            - 5
+            - 6
+          example: 1
+          description: "Marital Status - 0 = Married, 1 = Single, 2 = Widowed, 3 = Divorced, 4 = Separated, 5 = Civil Partnership, 6 = Living Together"       
+        dob:
+          type: string
+          format: date-time
+          example: '2000-01-01'
+          description: "Date of Birth - Format YYYY-MM-DD"
+        language:
+          type: string
+          example: eng
+          description: "Preferred Language - 3 ISO"
+          maxLength: 3              
+        nationalIdCategoryCode:
+          type: string
+          example: 'NIF'
+          description: "National Id Category Code"
+          maxLength: 3            
+        nationalIdentifier:
+          type: string
+          example: '987654321'
+          description: "National Identifier"
+          maxLength: 40            
+        status:
+          type: number
+          enum:
+            - 0
+            - 1
+            - 2
+          example: 1
+          description: "Person Status - 0 = Prospect, 1 = Customer, 2 = Previous Customer"
+        contactMethod:
+          type: number
+          enum:
+            - 0
+            - 1
+            - 2
+          example: 0
+          description: '0: Email 1: Post 2: Both'
+          
+    PersonIDData:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          type: string
+          example: '12345678'
+          description: "D&G Person Unique Identifer"
+          maxLength: 60          
+        personToken:
+          type: string
+          example: '000000904052ENG00000'
+          deprecated: true
+          description: "D&G Customer Token"
+          maxLength: 20          
+
+    NewPersonIDData:
+      type: object
+      required:
+        - newPersonId
+      properties:
+        newPersonId:
+          type: string
+          example: '12345678'
+          description: "D&G Person Unique Identifer"
+          maxLength: 60    
+        personToken:
+          type: string
+          example: '000000904052ENG00000'
+          deprecated: true
+          description: "D&G Customer Token"
+          maxLength: 20                  
+          
+    MarketingDataArray:
+      type: array
+      items:
+        $ref: '#/components/schemas/MarketingData'
+      maxItems: 4
+      
+    MarketingData:
+      type: object
+      properties:
+        type:
+          type: number
+          enum:
+            - 0
+            - 1
+            - 2
+            - 3
+          example: 2
+          description: '0: Post 1: Email 2: Phone 3: SMS'
+        optIn:
+          type: boolean
+          description: "true = Allow"
+          
+    # ITEM
+    
+    FullItemData:
+      allOf:
+        - $ref: '#/components/schemas/ItemDetailsData'
+        - type: object
+          properties:
+            id:
+              type: string
+              example: '1234567'
+              readOnly: true
+              description: "D&G Item Unique Identifer"
+              maxLength: 60   
+            itemUrn:
+              $ref: "#/components/schemas/UrnData"
+            otherId:
+              $ref: '#/components/schemas/OtherIdsDataArray'
+            guarantee:
+              $ref: '#/components/schemas/CoverDataArray'
+            purchase:
+              $ref: '#/components/schemas/PurchaseData'
+            address:
+              $ref: '#/components/schemas/AddressDetailsData'
+            person:
+              $ref: '#/components/schemas/PersonOwnerDataArray'
+    
+    UrnData:
+      type: object
+      properties:
+        applianceToken:
+          type: array
+          items:
+            example: ['PLN:CM60049816', 'PLN:CM60049817']
+        clientUrn:
+          type: array
+          items:
+            example: ["DGN:9485", "DGN:9484"]
+              
+    UpdateItemData:
+      type: object
+      properties:
+        model:
+          $ref: '#/components/schemas/ModelNumberData'
+        serialNumber:
+          type: string
+          example: SERIAL12345
+          description: "Serial Number"
+          maxLength: 50          
+        otherId:
+          $ref: '#/components/schemas/OtherIdsDataArray'
+             
+              
+    ItemIDData:
+      type: object
+      required:
+        - itemId
+      properties:
+        id:
+          type: string
+          example: '123456789'
+          description: "D&G Item Unique Identifer"
+          maxLength: 60  
+        token:
+          type: string
+          example: 'ABC1234567'
+          deprecated: true
+          description: "D&G Appliance Token - Format Scheme Code + Reference"
+          maxLength: 60  
+          
+    ItemDetailsData:
+      type: object
+      required:
+        - item
+        - manufacturerBrand
+        - goodsColour
+        - operationalStatus
+      properties:
+        item:
+          type: string
+          example: AW
+          description: "Item Code"
+          maxLength: 2 
+        itemDescription:
+          type: string
+          example: Washing Machine
+          readOnly: true
+          description: "Item Code Description"
+          maxLength: 100 
+        manufacturerBrand:
+          type: string
+          example: BOSC
+          description: "Manufacturer Brand Code"
+          maxLength: 4 
+        manufacturerBrandDescription:
+          type: string
+          example: Bosch
+          readOnly: true
+          description: "Manufacturer Brand Code Description"
+          maxLength: 100
+        categoryCode:
+          type: number
+          enum:
+            - 0
+            - 1
+            - 2
+            - 3
+            - 4
+            - 5
+            - 6
+          example: 0
+          description: "0:White 1:Brown 2:Heating 3:Grey 4:Emergency 5=Vehicle 6:All"
+        model:
+              $ref: '#/components/schemas/ModelNumberData'
+        serialNumber:
+          type: string
+          example: SERIAL12345
+          description: "Serial Number"
+          maxLength: 50
+        status:
+          type: number
+          enum:
+            - 0
+            - 1
+          example: 0
+          description: "0:Good Working Order 1:Not Working"
+        agent:
+          type: string
+          example: '12345'
+          description: "Agent Number"
+          maxLength: 5
+        branch:
+          type: string
+          example: '01'
+          description: "Branch Number"
+          maxLength: 2
+        lastServiceDate:
+          type: string
+          format: date-time
+          description: "Last Service Date and Time - Format YYYY-MM-DDThh:mm:ss.sssZ"
+        isItemOwned:
+          type: boolean  
+          description: "Is item Owned - true or false"
+ 
+    ModelNumberData:
+      type: object
+      properties:
+        number:
+          type: string
+          example: MODEL12345
+          description: "Model Number"
+          maxLength: 50
+        isValid:
+          type: boolean
+          readOnly: true
+          description: "Model Number Status - true: VALID false: INVALID"
+  
+    OtherIdsDataArray:
+      type: array
+      items:
+        $ref: '#/components/schemas/OtherIdData'
+      maxItems: 5
+      
+    OtherIdData:
+      type: object
+      required:
+        - type
+        - id
+        - catgeoryCode
+      properties:
+        type:
+          type: number
+          enum:
+          - 0
+          - 1
+          - 2
+          - 3
+          - 4
+          example: 0
+          description: '0: Id1 1:Id2 2: Id3 3:ModelId1 4:ModelId2'
+        id:
+          type: string
+          example: '12345678901234567890'
+          description: 'Other Id value'
+        category:
+         type: string
+         example: IMEI
+         description: 'Other Id Category Code - Some examples are IMEI - Mobile IMEI Number, CSHREF - Cash Reference, ORDNO - Order Number, SSN - Sky Subscriber Number, DELD - Delivery Date, ...'
+ 
+    CoverDataArray:
+      type: array
+      items:
+        $ref: '#/components/schemas/CoverData'
+      maxItems: 5
+      
+    CoverData:
+      type: object
+      required:
+        - type
+        - period
+      properties:
+        type:
+          type: number
+          enum:
+          - 0
+          - 1
+          - 2
+          - 3
+          example: 0
+          description: '0: Labour 1: Parts 2: ThirdPartyLabour 3: ThirdPartyParts'
+        period:
+          type: integer
+          example: '12'
+          
+    PurchaseData:
+      type: object
+      required:
+        - price
+        - date
+        - currency
+      properties:
+        price:
+          type: number
+          example: '199.00'
+          format: float
+          description: "Purchase Price"
+        currency:
+          type: string
+          enum:
+          - "GBP"
+          - "EUR"
+          - "DKK"
+          - "PLN"
+          - "SEK"
+          - "AUD"
+          - "NZD"
+          example: GBP
+          description: "Purchase Price Currency Code E.g. GBP"
+          maxLength: 3
+        date:
+          type: string
+          format: date-time
+          description: "Purchase Date and Time - Format YYYY-MM-DDThh:mm:ss.sssZ"
+        recommendedPrice:
+          type: number
+          example: '199.00'
+          format: float
+          description: "Recommended Purchase Price"
+        recommendedPriceCurrency:
+          type: string
+          enum:
+          - "GBP"
+          - "EUR"
+          - "DKK"
+          - "PLN"
+          - "SEK"
+          - "AUD"
+          - "NZD"
+          example: GBP
+          description: "Recommended Purchase Price Currency Code E.g. GBP"
+          maxLength: 3
+        retailer:
+          type: string
+          example: ''
+          description: "Purchase Retailer"
+          maxLength: 255
+
+    PersonOwnerDataArray:
+      type: array
+      items:
+        $ref: '#/components/schemas/PersonOwnerData'
+      maxItems: 2
+      
+    PersonOwnerData:
+      type: object
+      required:
+        - type
+        - id
+      properties:
+        type:
+          type: number
+          enum:
+          - 0
+          - 1
+          example: 0
+          description: '0: Owner 1: User'
+        id:
+          type: string
+          example: '12345'
+          description: "D&G Person Unique Identifer"
+          maxLength: 60  
+        previousId:
+          type: string
+          example: '67890'
+          description: "Previous D&G Person Unique Identifer"
+          maxLength: 60  
+          
+    # PRICING
+          
+    GetPriceRequest:
+      allOf:
+        - $ref: '#/components/schemas/SourceData' 
+        - $ref: '#/components/schemas/GetPriceData'
+        
+    GetPriceData:      
+      type: object
+      required:
+        - personId
+        - rating
+        - items
+      properties:
+        personId:
+          type: string
+          description: "D&G Person Unique Identifer"
+          maxLength: 60 
+        agentId:
+          type: string
+          description: "Person Identifer for Agent"
+          maxLength: 60 
+        rating:
+          $ref: '#/components/schemas/RatingData'
+        multiplan:
+          $ref: '#/components/schemas/MultiplanData'
+        item:
+          type: array
+          description: "List of Items"
+          items:
+            $ref: '#/components/schemas/ItemIdData'
+            
+    #PRICING RESPONSE
+     
+    GetPriceResponse:
+      type: array
+      #required:
+      items:
+          $ref: "#/components/schemas/RateData"   
+    
+    GetBaseRateResponse:
+      type: array
+      #required:
+      items:
+          $ref: "#/components/schemas/BaseRateData"      
+          
+    RatingData:
+      type: object
+      description: "Rating data"
+      required:
+        - businessEvent
+      properties:
+        priceType:
+          type: number
+          enum:
+            - 0
+            - 1
+          example: 0
+          description: "0: New Business 1: New Business RequestType"
+        isMultiPlan:
+          type: boolean
+          description: "Is Multiplan - true or false (default false)"
+          default: false
+        numberOfItems:
+          type: integer
+          example: 1
+          description: "Number of items"
+          default: 1
+        businessEvent:
+          type: number
+          enum:
+            - 0
+            - 1
+          example: 0
+          description: "0: Business Event Code - REG = Registration 1: QUO = Quote"
+        callSource:
+          $ref: '#/components/schemas/CallSourceRatingArray'
+          description: "List of Call Sources"
+        requestType:
+          type: string
+          example: "RPL"
+          description: "Request Type - RPL = Product Replacement NB. Either Call Source or Request Type required"
+          maxLength: 3 
+        multiplanItemBasket:
+          $ref: '#/components/schemas/MultiplanItemBasketData'
+          
+    CallSourceRatingArray:
+      type: array
+      description: "List of Call Sources - Either Call Source or Request Type required"
+      items:
+        type: string
+        example: ABCD
+        maxLength: 4
+      maxItems: 10
+        
+    MultiplanItemBasketData:
+      type: object
+      description: "Multiplan Item Basket information"
+      properties:
+        productClass:
+          type: string
+          example: RPL
+          description: "Product Class"
+          maxLength: 3 
+        numberOfItemsWithLT:
+          type: integer
+          example: 1
+          description: "Number of Items with Loss and Theft"
+          maxLength: 3
+        callType:
+          type: string
+          example: IB
+          description: "Call Type - NB. Either Call Type or Call Type Scenario is required"
+          maxLength: 10
+        callTypeScenario:
+          type: number
+          enum:
+            - 0
+            - 1
+          example: RETENTION UP_DOWN_GRADE
+          description: "0:UP_DOWN_GRADE 1: RETENTION. Call Type Scenario - NB. Either Call Type or Call Type Scenario is required"
+          
+    MultiplanData:
+      type: object
+      description: "Multiplan data - Mandatory when isMultiplan = true"
+      required:
+        - categoryCode
+      properties:
+        categoryCode:
+          type: number
+          enum:
+            - 0
+            - 1
+            - 2
+            - 3
+            - 4
+            - 5
+            - 6
+          example: 0
+          description: "0:White 1:Brown 2:Heating 3:Grey 4:Emergency 5=Vehicle 6:All"
+
+    ItemIdData:
+      type: object
+      maxItems: 9
+      minItems: 1
+      description: "List of Item Ids"
+      required:
+        - itemId
+      properties:
+        id:
+          type: string
+          example: "123456789"
+          description: "D&G Item Unique Identifier"
+          maxLength: 60          
+          
+    RateData:
+      type: object
+      properties:
+        offerContract:
+          $ref: '#/components/schemas/CallSourceData'
+        offer:
+          $ref: '#/components/schemas/OfferData'
+
+    BaseRateData:
+      type: object
+      properties:
+        offerContract:
+          $ref: '#/components/schemas/BaseRateCallSourceData'
+        offer:
+          $ref: '#/components/schemas/BaseRateOfferData'
+
+    BaseRateCallSourceData:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/CallSourceData'  
+      properties:
+        product: 
+          $ref: '#/components/schemas/ProductData'
+        company:
+          type: string
+          example: A
+          description: "Company Code"
+          maxLength: 1
+        scheme:
+          type: string
+          example: ABC
+          description: "Scheme Code"
+          maxLength: 3
+        telRegMakerCode:
+          type: string
+          example: ABCD
+          description: "Telephone Registration Maker Code"
+          maxLength: 4
+        agent:
+          type: string
+          example: 02314
+          description: "Agent Number"
+          maxLength: 5
+        branch:
+          type: string
+          example: A
+          description: "Branch Number"
+          maxLength: 12
+          
+    CallSourceData:
+      type: object
+      required:
+        - callSource
+      properties:
+        item:
+          type: string
+          example: AW
+          description: "Item Code"
+          maxLength: 2 
+        itemDescription:
+          type: string
+          example: Washing Machine
+          description: "Item Code Description"
+          maxLength: 100 
+        numberOfItems:
+          type: integer
+          example: '1'
+          description: "Number of Items"
+        coverType:
+          type: string
+          example: GOLD
+          description: "Cover Type"
+        breakdownStartDate:
+          type: string
+          format: date
+          description: "Breakdown Start date - Format YYYY-MM-DD"
+          
+    OfferData:
+      type: object
+      required:
+        - reference
+        - key
+        - pricingKey
+      properties:
+        ref:
+          type: string
+          example: 362-000-001-999
+          description: "Offer Reference - Format 123-123-123-123"
+          maxLength: 20 
+        key:
+          type: number
+          example: '1234567'
+          description: "Offer Key"
+          maxLength: 60
+        pricingKey:
+          type: number
+          example: '1234567'
+          description: "Offer Pricing Key"
+          maxLength: 60
+        periodOfCover:
+          type: integer
+          example: '12'
+          description: "Period Of Cover (in months)"
+        levelOfCover:
+          type: integer
+          example: '999'
+          description: "Level Of Cover"
+        fee:
+          type: number
+          example: '199.00'
+          description: "Fee"
+        waitDays:
+          type: number
+          example: '30'
+          description: "Wait Days"
+        paymentType:
+          type: number
+          enum:
+          - 0
+          - 1
+          example: 0
+          description: "0: Payment Type Recurring 1: One-off"
+          maxLength: 1
+        paymentProfile:
+          type: string
+          example: P
+          description: "Payment Profile - Denotes the number of payments/payment frequency"
+          maxLength: 1
+        preferredPayment:
+          type: boolean
+          example: true
+          description: "If true, this recurring payment option is the preferred option"
+        cashPaymentType:
+          type: string
+          example: '12345'
+          description: "Cash Payment Type"
+        numberOfPayments:
+          type: integer
+          example: '12'
+          description: "Number of Payments"
+        paymentFrequency:
+          type: integer
+          example: '12'
+          description: "Payment Frequency"
+        firstPayment:
+          type: number
+          example: '10.00'
+          description: "First Payment"
+        subsequentPayment:
+          type: number
+          example: '10.00'
+          description: "Subsequent Payment"
+        excessAmount:
+          type: number
+          example: '100.00'
+          description: "Excess Amount"
+
+    BaseRateOfferData:
+      type: object
+      properties:
+        periodOfCover:
+          type: integer
+          example: '12'
+          description: "Period Of Cover (in months)"
+        fee:
+          type: number
+          example: '199.00'
+          description: "Fee"
+        waitDays:
+          type: number
+          example: '30'
+          description: "Wait Days"
+        wicType:
+          type: string
+          example: A
+          description: "WIC Type"
+          maxLength: 1
+        multiplan:
+          $ref: '#/components/schemas/BaseRateMultiplanData'
+        paymentType:
+          type: number
+          enum:
+          - 0
+          - 1
+          example: 0
+          description: "0: Payment Type Recurring 1: One-off"
+          maxLength: 1
+        paymentProfile:
+          type: string
+          example: P
+          description: "Payment Profile - Denotes the number of payments/payment frequency"
+          maxLength: 1
+        preferredPayment:
+          type: boolean
+          example: true
+          description: "If true, this recurring payment option is the preferred option"
+        cashPaymentType:
+          type: string
+          example: '12345'
+          description: "Cash Payment Type"
+        numberOfPayments:
+          type: integer
+          example: '12'
+          description: "Number of Payments"
+        paymentFrequency:
+          type: integer
+          example: '12'
+          description: "Payment Frequency"
+        firstPayment:
+          type: number
+          example: '10.00'
+          description: "First Payment"
+        subsequentPayment:
+          type: number
+          example: '10.00'
+          description: "Subsequent Payment"
+        excessAmount:
+          type: number
+          example: '100.00'
+          description: "Excess Amount"
+        numberOfFreePayments:
+          type: number
+          example: '1'
+          description: "Number of Free Payments"
+        ipmPeriodOfCover:
+          type: number
+          example: '12'
+          description: "Period Of Cover"
+        ipmNumberOfPayments:
+          type: number
+          example: '12'
+          description: "Number Of Payments"
+        ipmTotalFee:
+          type: number
+          example: '100.00'
+          description: "Fee for IPM plans"
+
+    ProductData:
+      type: object
+      properties:
+        description:
+          type: string
+          example: "" 
+          description: "Product Description"
+          maxLength: 60
+        category:
+          type: string
+          example: ""
+          description: "Product Category"
+          maxLength: 3
+        categoryDesc:
+          type: string
+          example: ""
+          description: "Product Category Description"
+          maxLength: 60
+        type:
+          type: string
+          example: ""
+          description: "Product Type"
+          maxLength: 3
+        typeDesc:
+          type: string
+          example: ""
+          description: "Product Type Description"
+          maxLength: 60
+        variance:
+          type: string
+          example: ""
+          description: "Product Variance"
+          maxLength: 3
+        varianceDesc:
+          type: string
+          example: ""
+          description: "Product Variance Description"
+          maxLength: 60
+        paymentTerm:
+          type: string
+          example: ""  
+          description: "Payment Term"
+          maxLength: 3
+        paymentTermDesc:
+          type: string
+          example: ""
+          description: "Payment Term Description"
+          maxLength: 60
+        contractType:
+          type: string
+          example: ""
+          description: "Contract Type"
+          maxLength: 3
+        contractTypeDesc:
+          type: string
+          example: ""
+          description: "Contract Type Description"
+          maxLength: 60
+
+    ProductData1:
+      type: object
+      properties:
+        description:
+          type: string
+          example: "" 
+          description: "Product Description"
+          maxLength: 60
+          deprecated: true
+        category:
+          type: string
+          example: ""
+          description: "Product Category"
+          maxLength: 3
+          deprecated: true
+        categoryDesc:
+          type: string
+          example: ""
+          description: "Product Category Description"
+          maxLength: 60
+          deprecated: true
+        type:
+          type: string
+          example: ""
+          description: "Product Type"
+          maxLength: 30
+        typeDesc:
+          type: string
+          example: ""
+          description: "Product Type Description"
+          maxLength: 60
+          deprecated: true
+        variance:
+          type: string
+          example: ""
+          description: "Product Variance"
+          maxLength: 3
+          deprecated: true
+        varianceDesc:
+          type: string
+          example: ""
+          description: "Product Variance Description"
+          maxLength: 60
+          deprecated: true
+        paymentTerm:
+          type: string
+          example: ""  
+          description: "Payment Term"
+          maxLength: 30
+        paymentTermDesc:
+          type: string
+          example: ""
+          description: "Payment Term Description"
+          maxLength: 60
+          deprecated: true
+        contractType:
+          type: string
+          example: ""
+          description: "Contract Type"
+          maxLength: 3
+          deprecated: true
+        contractTypeDesc:
+          type: string
+          example: ""
+          description: "Contract Type Description"
+          maxLength: 60     
+          deprecated: true    
+        propositionCoverCategory:
+          type: string
+          example: ""
+          description: "Proposition Cover Category"
+          maxLength: 30                     
+
+    BaseRateMultiplanData:
+      type: object
+      properties:
+        type:
+          type: number
+          enum:
+            - 0
+            - 1
+            - 2
+          example: 0
+          description: "0:Header(H) 1:Plan(P) 2:Single(S)"
+        warranty: 
+          type: number
+          enum:
+            - 0
+            - 1
+            - 2
+            - 3
+          example: 0
+          description: "0:In warranty(I) 1:Out of warranty(O) 2:Single(S) 3:Mixed in and out of warranty(M)"
+
+
+ # PAYMENT REQUEST/RESPONSE
+
+    PayByCardDirectRequest:
+      allOf:
+       - $ref: '#/components/schemas/SourceData' 
+       - $ref: '#/components/schemas/PaymentDataReq'
+       
+    PayByCardDirectResponse:
+      $ref: '#/components/schemas/PaymentDataResp'
+      
+    GetScheduleResponse:
+      $ref: '#/components/schemas/GetScheduleResp'      
+      
+    ValidateDDRequest:
+      type: object
+      required:
+        - countryCode
+      properties:
+        bank:
+          type: string
+          maxLength: 10
+          description: "Bank (not applicable for UK)"
+        branch:
+          type: string
+          maxLength: 10
+          description: "Bank Sort Code (GBR - Format 123456 - no hypen) or Branch Code (Non-GBR)"
+        accountNo:
+          type: string
+          maxLength: 16
+          description: "Bank Account Number"
+        checkDigit:
+          type: string
+          description: "Check Digit (not applicable for UK)"
+        iban:
+          type: string
+          description: "IBAN - International Bank Account Number (not applicable for UK)" 
+        countryCode:
+          type: string
+          enum: 
+            - "GBR"
+            - "AUS"
+            - "AUT"
+            - "BEL"
+            - "DNK"
+            - "FRA"
+            - "DEU"
+            - "IRL"
+            - "ITA"
+            - "NLD"
+            - "NZL"
+            - "POL"
+            - "PRT"
+            - "ESP"
+            - "SWE"
+          example: "GBR"
+          description: "GBR: UNITED KINGDOM AUS: AUSTRALIA AUT: AUSTRIA BEL: BELGIUM DNK: DENMARK FRA: FRANCE DEU: GERMANY IRL: IRELAND ITA: ITALY NLD: NETHERLANDS NZL: NEW ZEALAND POL: POLAND PRT: PORTUGAL ESP: SPAIN SWE: SWEDEN"          
+        clientId:
+          type: string
+          description: "ClientCode 00351"
+        clientGroup:
+          type: string
+          description: "ClientGroupCode 00296"
+    
+    
+   # PAYMENT DATA
+
+    PaymentDataReq:
+      type: object
+      required:
+        - company
+        - contractId
+        - amount
+        - currency
+        - description
+        - name
+        - transaction
+      properties:
+        company:
+          type: string
+          example: "A"
+          maxLength: 1
+          description: "D&G Company Code"
+        contractId:
+          type: string
+          example: "ABC"
+          maxLength: 3
+          minLength: 2
+          description: "D&G Contract"
+        clientReference:
+          type: string
+          example: "1234567890"
+          maxLength: 15
+          description: "External Client Plan Reference"          
+        amount:
+          type: number
+          format: float
+          example: "59.00"
+          description: "Fee to be collected"  
+        currency:
+          type: string
+          enum:
+          - "GBP"
+          - "EUR"
+          - "DKK"
+          - "PLN"
+          - "SEK"
+          - "AUD"
+          - "NZD"
+          example: GBP
+          description: "Purchase Price Currency Code E.g. GBP"
+          maxLength: 3 
+        description:
+          type: string
+          maxLength: 500
+          example: "Warranty Cover for ...."
+          description: "Description Of payment"  
+        name:
+          type: string
+          maxLength: 200
+          example: "MR JOE BLOGGS"
+          description: "Customer Name as shown on the card"  
+        phone:
+          type: string
+          maxLength: 20
+          example: "07989564873S"
+          description: "Mobile phone number for Customer"
+        email:
+          type: string
+          maxLength: 100
+          example: "test.test@test.com"
+          description: "Email Adress for Customer"        
+        address:
+          $ref: "#/components/schemas/AddressDetailsData" 
+        creditCard:
+          $ref: "#/components/schemas/CardDetailsData"       
+        transaction:
+          type: array
+          items:
+            $ref: "#/components/schemas/TransactionData"
+        # clientId: 
+        #   type: string
+        #   example: '00351'
+        #   description: 'ClientCode'
+        # clientGroup:
+        #   type: string
+        #   example: '00296'
+        #   description: 'ClientGroupCode'
+ 
+    TransactionData:
+      type: object
+      properties:
+        source:
+          type: number
+          enum:
+          - 0
+          example: 0
+          description: "0: Web"       
+        type:
+          type: number
+          enum:
+          - 0
+          - 1
+          example: 0
+          description: "0: Web (Customer present) 1: Moto (Customer not present)" 
+          
+    PaymentDataResp:
+      type: object
+      required:
+        - token
+        - status
+      properties:
+        token:
+          type: string
+          example: "UKIMGDD3V20021900009"
+          maxLength: 200
+          description: "Payment token"
+        status:
+          type: string
+          example: "AUTHORISED"
+          maxLength: 100
+          description: "Payment Authorisation Status"
+        
+  
+    CardDetailsData:
+      type: object
+      required:
+        - type
+        - category
+        - number
+        - expiryMonth
+        - expiryYear
+      properties:
+        type:
+          type: number
+          enum: 
+            - 0
+            - 1
+            - 2
+            - 3
+            - 4
+          example: 0
+          description: "0: Visa 1: Mastercard 2: Solo 3: Maestro 4: Switch" 
+        category:
+          type: number
+          enum:
+            - 0
+            - 1
+          example: 0
+          description: "Card Type 0: Credit Card 1: Debit Card" 
+        number:
+          type: string
+          maxLength: 50
+          example: "1234123412341234"
+          description: "Long credit Card Number" 
+        startMonth:
+          type: string
+          maxLength: 2
+          example: "10"
+          description: "Month - Format MM" 
+        startYear:
+          type: string
+          maxLength: 4
+          example: "2025"
+          description: "Year - Format YYYY" 
+        expiryMonth:
+          type: string
+          maxLength: 2
+          example: "10"
+          description: "Month - Format MM" 
+        expiryYear:
+          type: string
+          maxLength: 4
+          example: "2025"
+          description: "Year - Format YYYY"           
+        verbalAuth:
+          type: boolean
+          description: "Verbal Authentication - true or false"
+        continuousAuth:
+          type: boolean
+          description: "Continuous Authentication - true or false"  
+        issueNo:
+          type: string
+          maxLength: 2
+          example: "2"
+          description: "Issue Number" 
+        cv2:
+          type: string
+          maxLength: 3
+          example: "2025"
+          description: "CV2 - Last 3 digits on the back of the card"        
+          
+  #  SessionData:
+  #    type: object
+  #    properties:
+  #      ipAddress:
+  #        type: string
+  #        maxLength: 50
+  #        example: "123.123.123.123"
+  #        description: "IP Address - Format 123.123.123.123" 
+  #      id:
+  #        type: string
+  #        maxLength: 50
+  #       example: "0215ui8ib1"
+  #        description: "Session Id e.g. 0215ui8ib1"        
+
+    GetScheduleResp:
+      type: object
+      required:
+        - collection
+      properties:
+        singlePaymentDay:
+          type: integer
+          example: 1
+          maximum: 28
+          minimum: 1
+          description: "Suggested Single Payment Day - To avoid double collection in first month"
+        collection:
+          type: array
+          items:
+            $ref: "#/components/schemas/PayScheduleData" 
+        adjustedDateFlag:
+          type: boolean
+          description: "Adjusted Date Flag"
+        latePaymentFlag:
+          type: boolean
+          description: "Late Payment Flag"
+        cost:
+          $ref: "#/components/schemas/PayScheduleCostData"                
+ 
+ 
+    PayScheduleCostData:
+      type: object
+      required:
+        - number
+        - date
+      properties:     
+        perDay:
+          type: number
+          format: float
+          example: 15.34
+          description: "Cost Per Day"
+        perMonth:
+          type: number
+          format: float
+          example: 15.34
+          description: "Cost Per Month"  
+        
+    PayScheduleData:
+      type: object
+      required:
+        - number
+        - date
+        - amount
+      properties:
+        number:
+          type: integer
+          example: 1
+          description: "Collection Number"
+        date:
+          type: string
+          format: date
+          description: "Collection Date - Format YYYY-MM-DD"     
+        amount:
+          type: number
+          format: float
+          example: 15.34
+          description: "Collection Amount"              
+              
+          
+          
+    # CONTRACT REQUEST/RESPONSE
+
+    GetContractResponse:
+      $ref: "#/components/schemas/ContractDetailsData"  
+
+
+    CreateContractRequest:
+      allOf:
+        - $ref: '#/components/schemas/SourceData' 
+        - $ref: '#/components/schemas/CreateContractDetailsData'
+       
+    CreateContractResponse:
+      $ref: "#/components/schemas/CreateContractResponseData"
+      
+    TakeUpOfferRequest:
+      allOf:
+        - $ref: '#/components/schemas/SourceData'
+        - $ref: '#/components/schemas/TakeUpProspectRequestData'
+       
+    TakeUpOfferResponse:
+      $ref: "#/components/schemas/TakeUpProspectResponseData"      
+    
+    ContractUpsellRequest:
+      allOf:
+        - $ref: '#/components/schemas/SourceData'
+        - $ref: '#/components/schemas/TakeUpProspectRequestData'
+        - $ref: '#/components/schemas/CancelPlan'
+        
+    ContractUpsellResponse:
+      $ref: "#/components/schemas/TakeUpProspectResponseData"
+      
+    GetAllContractsResponse: 
+      allOf:
+        - $ref: '#/components/schemas/PlanDataArray'
+    #    - $ref: '#/components/schemas/NewPersonIdData'
+    
+    AddNewBabyRequest:
+      allOf:
+        - $ref: '#/components/schemas/SourceData' 
+        - $ref: '#/components/schemas/AddNewBabyData'    
+    
+    GetContractCancelDateResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: "Plan Cancelled"
+          description: "Plan Cancel Status"
+          maxLength: 100
+        date:
+          type: string
+          format: date
+          example: "2023-02-03"
+          description: "Plan Cancel Date"
+          maxLength: 10
+ 
+    # CONTRACT DATA
+    ContractDetailsData:
+      type: object
+      required:
+        - contract
+      properties:
+        company:
+          type: string
+          example: "D"
+          description: "D&G Company Code"
+          maxLength: 1
+        id:
+          type: string
+          example: "ABC1234567"
+          description: "D&G Contract Id" 
+          maxLength: 10
+#        contract:
+#          $ref: "#/components/schemas/ContractData" 
+#        plan:
+#          $ref: "#/components/schemas/PlanData"               
+#        payment:
+#          $ref: "#/components/schemas/PaymentData"
+        category:
+          type: number
+          enum:
+            - 0
+            - 1
+          example: 0
+          description: '0: Single 1: MulitplanPlan'
+        multiplan:
+          $ref: "#/components/schemas/MultiplanContractData"
+        phase:
+          type: number
+          enum:
+            - 0
+            - 1
+          example: "0"
+          description: "0: NewBusiness 1: Post Renewal"
+        status:
+          type: number
+          enum:
+            - 0
+            - 1
+            - 2
+            - 3
+            - 4
+            - 5
+            - 6
+          example: "0"
+          description: "0: New Business  1: Renewal 2: Lapsed 3: 4: Await Delivery 5: Error, 6: Pending" 
+        statusMovedDate:
+            type: string
+            format: date
+            description: "Status Moved Date - Format YYYY-MM-DD" 
+        paymentStatusDescription:
+          type: string
+          example: ""
+          maxLength: 10
+          description: "Payment Status Description - Pending, Error, Cancelled, Lapsed, Due, Paid"
+        acceptanceDate:
+          type: string
+          format: date
+          description: "Acceptance Date - Format YYYY-MM-DD" 
+        renewalDate:
+            type: string
+            format: date
+            description: "Renewal Date - Format YYYY-MM-DD" 
+        fee:
+          type: number
+          example: 10.15
+          format: float
+          description: "Fee" 
+        excessAmount:
+            type: number
+            example: 10.15
+            format: float
+            description: "Excess Amount" 
+        serviceFee:
+          type: number
+          example: "10.15"
+          format: float
+          description: "Service Fee"
+        totalFee:
+          type: number
+          example: "10.15"
+          format: float
+          description: "Total Fee"
+        grossFee:
+            type: number
+            example: "10.15" 
+            format: float
+            description: "Gross Fee"
+        cancelReason:
+          $ref: '#/components/schemas/CancelReason'
+        coverDetails:
+          type: array
+          items: 
+            $ref: '#/components/schemas/CoverDetails'
+        skip:
+          $ref: '#/components/schemas/ContractDataArray'
+        clientReferences:
+          type: array
+          items: 
+            $ref: '#/components/schemas/ClientReference'  
+        person:
+          $ref: "#/components/schemas/ContractPersonData"  
+        riskOwner:
+          $ref: "#/components/schemas/RiskOwner" 
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ContractItem'
+  
+    CancelReason:
+      type: object
+      properties:
+        code:
+          type: string
+          example: "1"
+          maxLength: 1
+          description: "Cancel Reason Code"
+        description:
+          type: string
+          example: ""
+          maxLength: 50
+          description: "Cancel Reason Description"
+
+    CancelPlan:
+      type: object
+      properties:
+        cancel:
+          description: "Contract to be cancelled, if applicable"
+          $ref: "#/components/schemas/Plan"
+
+    NewPersonIdData:
+      type: object
+      properties:
+        newPersonId:
+          type: string
+          example: "1234567"
+          maxLength: 60
+          description: "latest OGC Id for id supplied"
+          
+    MultiplanContractData:
+      type: object
+      properties:
+        code:
+          type: string
+          example: "J3"
+          maxLength: 2
+          description: "Multiplan code"
+        size:
+          type: number
+          example: 3
+          description: "Current size of Multiplan"
+        max:
+          type: number
+          example: 3
+          description: "Maximun size of Multiplan"
+          
+    ContractPersonData:
+      allOf:
+        - $ref: '#/components/schemas/FullPersonData'
+      properties:
+        id:
+          type: string
+          example: GEN:12345
+          description: "OGC Id"
+        personToken:
+          type: string
+          example: 00000000000012345
+          description: "Scheme Id"
+    
+    TakeUpProspectRequestData:   
+      type: object
+      required:
+        - offer
+        - ref
+        - key
+        - pricingKey
+        - payment
+      properties:
+        offer:
+          $ref: "#/components/schemas/OfferIdData"
+        agentId:
+          type: string
+          description: "Person Identifer for Agent"
+          maxLength: 60    
+        payment:
+          oneOf: 
+            - $ref: '#/components/schemas/DDDetailsData' 
+            - $ref: '#/components/schemas/TokenDetailsData' 
+        sendMethod:
+          type: number
+          enum:
+            - 0
+            - 1
+            - 2
+          example: 0
+          description: "0: Email, 1: Post, 2: Both"
+ 
+    OfferIdData:   
+      type: object
+      properties:
+        ref:
+          type: string
+          example: 362-000-001-999
+          description: "Offer Reference - Format 123-123-123-123"
+          maxLength: 20 
+        key:
+          type: number
+          example: '12345'
+          description: "Offer Key"
+          maxLength: 60
+        pricingKey:
+          type: number
+          example: '12345'
+          description: "Offer Pricing Key"
+          maxLength: 60  
+          
+    TakeUpProspectResponseData:   
+      type: object
+      properties:
+        contracts:
+          type: array
+          items:
+            $ref: "#/components/schemas/PlanDetails"     
+            
+    PlanDetails:   
+      type: object
+      required:
+        - id
+      properties:
+        company:
+          type: string
+          example: "A"
+          maxLength: 1
+          description: "D&G Company Code"
+        id:
+          type: string
+          example: "ABC1234567"
+          maxLength: 10
+          description: "D&G Contract"
+        type:
+          type: number
+          enum:
+          - 0
+          - 1
+          - 2
+          example: 0
+          description: "Contract Type 0: Single 1: Header 2: Baby"
+          maxLength: 1
+        breakdownStartDate:
+          type: string
+          format: date
+          description: "Breakdown Start Date - Format YYYY-MM-DD"
+        renewalDate:
+          type: string
+          format: date
+          description: "Renewal Date - Format YYYY-MM-DD"
+
+    CreateContractDetailsData:
+      type: object
+      required:
+        - company
+        - id
+        - fee
+        - agent
+        - branch
+        - sendMethod
+        - person
+        - items
+        - payment
+      properties:
+        agentId:
+          type: string
+          description: "Person Identifer for Agent"
+          maxLength: 60 
+        company:
+          type: string
+          example: "A"
+          maxLength: 1
+          description: "D&G Company Code"
+        id:
+          type: string
+          example: "ABC"
+          maxLength: 10
+          minLength: 2
+          description: "D&G Contract Id - Format Scheme (XYZ) or Scheme + Reference (XYZ12345567)"
+        multiplan:
+          $ref: "#/components/schemas/MultiplanContractData1" 
+        fee:
+          type: number
+          example: 10.15
+          format: float
+          description: "Annual fee for IPMs, full term fee for Term plans"
+        agent:
+          type: string
+          example: "12345"
+          maxLength: 5
+          description: "Agent Number"
+        branch:
+          type: string
+          example: "01"
+          maxLength: 2
+          description: "Branch Code"
+        sendMethod:
+          type: number
+          enum:
+            - 0
+            - 1
+            - 2
+          example: 0
+          description: "0: Email, 1: Post, 2: Both"  
+        autoRenewalOptOut:
+          type: boolean
+          description: "Auto DD Renewal Opt Out - true or false"     
+        offerRef:
+          type: string
+          example: "123-123-123-123"
+          maxLength: 15
+          description: "Offer Reference - Format 123-123-123-123" 
+        person:
+          description: "Person details"
+          $ref: "#/components/schemas/FullPersonData"  
+        riskOwner:
+          description: "Risk Owner details - if different from Person above"
+          $ref: "#/components/schemas/RiskOwner"    
+        items:
+          type: array
+          description: "List of Items"
+          maxItems: 10
+          minItems: 1
+          items:
+            $ref: "#/components/schemas/ContractItem1"
+        payment:
+          description: "Payment details"
+          $ref: "#/components/schemas/PaymentDataWithCash" 
+        cancel:
+          description: "Contract to be cancelled, if applicable"
+          $ref: "#/components/schemas/Plan"
+        loyalty:
+          description: "Loyalty Card details"
+          $ref: "#/components/schemas/Loyalty" 
+            
+#    CreateContractDetailsData:
+#      type: object
+#      required:
+#        - company
+#        - scheme
+#      properties:
+#        company:
+#          type: string
+#          example: "A"
+#          maxLength: 1
+#          description: "D&G Company Code"
+#        scheme:
+#          type: string
+#          example: "ABC"
+#          maxLength: 3
+#          minLength: 2
+#          description: "D&G Scheme Code"
+#        offerReference:
+#          type: string
+#          example: "123-123-123-123"
+#          maxLength: 15
+#          description: "Offer Reference -  Format 123-123-123-123"
+#        contract:
+#          $ref: "#/components/schemas/ContractData" 
+#        plan:
+#          $ref: "#/components/schemas/PlanData1"    
+#        customer:
+#          $ref: "#/components/schemas/FullPersonData"  
+#        riskOwner:
+#          $ref: "#/components/schemas/RiskOwner"    
+#        itemList:
+#          type: array
+#          items:
+#            $ref: '#/components/schemas/ContractItem'            
+#        rates:
+#          $ref: "#/components/schemas/RatesData"
+#        payment:
+#          $ref: "#/components/schemas/PaymentData" 
+#        cancel:
+#          $ref: "#/components/schemas/Plan"
+#        loyalty:
+#          $ref: "#/components/schemas/Loyalty"
+    
+    PlanData1:
+      type: object
+      #required:
+      properties:
+        multiplan:
+          $ref: "#/components/schemas/MultiplanContractData1" 
+        clientReferenceNumber:
+          type: string
+          example: ""
+          maxLength: 15
+          description: "Client Reference Number"
+        clientAgentReference:
+          type: string
+          example: ""
+          maxLength: 20
+          description: "Client Agent Reference"
+        fee:
+          type: number
+          example: 10.15
+          format: float
+          description: "Fee"
+        # fsaMessageType:
+        #   type: string
+        #   example: ""
+        #   maxLength: 1
+        #   description: "FSA Message Type"
+        # additionalMessageText:
+        #   type: string
+        #   example: ""
+        #   maxLength: 1
+        #   description: "Additional Message Text"
+        # batchNumber:
+        #   type: string
+        #   example: ""
+        #   maxLength: 15
+        #   description: "Batch Number"
+        agent:
+          type: string
+          example: ""
+          maxLength: 5
+          description: "Agent Number"
+        branch:
+          type: string
+          example: ""
+          maxLength: 2
+          description: "Branch Code"
+        sendMethod:
+          type: number
+          enum:
+            - 0
+            - 1
+            - 2
+          example: 0
+          description: "0: Email, 1: Post, 2: Both"
+
+    # RatesData:
+    #   type: object
+    #   #required:
+    #   properties:
+    #     levelOfCover:
+    #       type: string
+    #       maxLength: 3
+    #       description: ""
+    #     itemCode:
+    #       type: string
+    #       example: "AW"
+    #       maxLength: 2
+    #       description: "Item code"
+    #     paymentProfile:
+    #       type: string
+    #       example: P
+    #       description: "Payment Profile - Denotes the number of payments/payment frequency"
+    #       maxLength: 1
+    #     periodOfCover:
+    #       type: string
+    #       example: "12" 
+    #       maxLength: 3
+    #       description: "Period Of Cover (in months)"
+    #     serviceFee:
+    #       type: number
+    #       example: "10.15"
+    #       format: float
+    #       description: "Service Fee"
+    #     price:
+    #       type: number
+    #       example: "10.15"
+    #       format: float
+    #       description: "Price"
+    #     nettFee:
+    #       type: number
+    #       example: "10.15"
+    #       format: float
+    #       description: "Nett Fee"
+    #     grossFee:
+    #         type: number
+    #         example: "10.15" 
+    #         format: float
+    #         description: "Gross Fee"
+    #     totalPrice:
+    #         type: number
+    #         example: "10.15" 
+    #         format: float
+    #         description: "Total Price"
+    #     insPremTax:
+    #         type: number
+    #         example: "10.15" 
+    #         format: float
+    #         description: "Insurance Premium Tax"
+    #     sumInsured:
+    #         type: number
+    #         example: "10.15" 
+    #         format: float
+    #         description: "Sum Insured"
+    #     excessValue:
+    #         type: number
+    #         example: "10.15" 
+    #         format: float
+    #         description: "Excess Value"
+    #     clientMargin:
+    #         type: number
+    #         example: "10.15" 
+    #         format: float
+    #         description: "Client Margin"
+    #     manuMargin:
+    #         type: number
+    #         example: "10.15" 
+    #         format: float
+    #         description: "Manufacturer Margin"
+    #     procurement:
+    #         type: number
+    #         example: "10.15" 
+    #         format: float
+    #         description: "Procurement"
+    #     underWrtPremium:
+    #         type: number
+    #         example: "10.15" 
+    #         format: float
+    #         description: "Underwriters Premium"
+    #     iptTaxRate:
+    #         type: number
+    #         example: "10.15" 
+    #         format: float
+    #         description: "IPT Tax Rate"
+    #     priceBand:
+    #         type: number
+    #         example: "10.15" 
+    #         format: float
+    #         description: "Price Band"
+    #     retroMargin:
+    #         type: number
+    #         example: "10.15" 
+    #         format: float
+    #         description: "Retro Margin"
+    #     retraOvr:
+    #         type: number
+    #         example: "10.15" 
+    #         format: float
+    #         description: "Retra Override"
+    #     manuOvr:
+    #         type: number
+    #         example: "10.15" 
+    #         format: float
+    #         description: "Manufacturer Override"
+    #     salesStaffInc:
+    #         type: number
+    #         example: "10.15" 
+    #         format: float
+    #         description: "Sales Staff Incentive"
+    #     coverCode:
+    #       type: string
+    #       example: "1"
+    #       maxLength: 1
+    #       description: "Cover Code"
+    #     exclusionCode:
+    #       type: string
+    #       example: ""
+    #       maxLength: 1
+    #       description: "Exclusion Code"
+    #     underwriter:
+    #       type: string
+    #       example: ""
+    #       maxLength: 2
+    #       description: "Underwriter"
+    #     reserveCode:
+    #       type: string
+    #       example: ""
+    #       maxLength: 1
+    #       description: "Reserve Code"
+    #     reservePeriodOfCover:
+    #       type: string
+    #       example: "12"
+    #       maxLength: 3
+    #       description: "Reserve Period of Cover"
+    #     reserveManufacturerGuarantee:
+    #       type: string
+    #       example: ""
+    #       maxLength: 3
+    #       description: "Reserve Manufacturer Guarantee"
+          
+          
+    Loyalty:
+      type: object
+      required:
+        - category
+        - number
+      properties:
+        category:
+          type: string
+          maxLength: 4
+          example: "NECT"
+          description: "Loyalty Category - NECT = Nectar"          
+        number:
+          type: string
+          maxLength: 50
+          example: "1234567890"
+          description: "Loyalty Card Number"  
+
+    CreateContractResponseData:
+      type: object
+      properties:
+        contracts:
+          type: array
+          items:
+            $ref: "#/components/schemas/PlanDetails"                   
+
+    # CreateContractResponseData:
+    #   type: object
+    #   required:
+    #     - EID
+    #   properties:
+    #     contract:
+    #       $ref: "#/components/schemas/Plan"
+    #     breakDownStartDate:
+    #       type: string
+    #       format: date
+    #       description: "Breakdown Start Date - Format YYYY-MM-DD"
+    #     renewalDate:
+    #         type: string
+    #         format: date
+    #         description: "Renewal Date - Format YYYY-MM-DD"
+    #     planType:
+    #       type: string
+    #       example: ""
+    #       maxLength: 1
+    #       description: 'Plan Type'
+    #     babyPlans:
+    #       type: array
+    #       items:
+    #         $ref: "#/components/schemas/Plan"
+
+    ContractItem:
+      type: object
+      #required:
+      properties:
+        contractItem:
+          $ref: "#/components/schemas/SchemeItemData" 
+        item:
+          $ref: "#/components/schemas/FullItemData"  
+
+    ContractItem1:
+      type: object
+      required:
+        - item
+      properties:
+        contractItem:
+          $ref: "#/components/schemas/SchemeItemData1" 
+        item:
+          $ref: "#/components/schemas/FullItemData4"             
+  
+    SchemeItemData:
+      type: object
+      properties:
+        company:
+          type: string
+          example: "A"
+          description: "D&G Company Code"
+          maxLength: 1
+        contractId:
+          type: string
+          example: "ABC"    
+          description: "D&G Contract"
+          maxLength: 10
+        periodOfCover:
+          type: string
+          example: "12" 
+          maxLength: 3
+          description: "Period Of Cover"
+        yearOfManufacture:
+          type: string
+          example: "2022" 
+          maxLength: 4
+          description: "Year of Manufacture - Format YYYY"
+#        boilerType:
+#          type: string
+#          example: 'CMB'
+#          description: "Boiler Type - CMB = Combination, CNV = Conventional, CND = Condensing"
+#          maxLength: 10 
+#        extendedCoverPeriod:
+#          type: string
+#          example: "12"  
+#          maxLength: 3
+#          description: "Extended Cover Period"
+#        extendedCoverPeriodFee:
+#          type: number
+#          example: "12.30" 
+#          format: float
+#          description: "Extended Cover Period Fee"
+#        nettFlag:
+#          type: string
+#          example: "" 
+#          maxLength: 1
+#          description: "Nett Flag"
+#        callSource:
+#          type: string
+#          example: "ABCD"  
+#          maxLength: 4
+#          description: "Call Source"
+        breakDownStartDate:
+          type: string
+          example: "12-12-2022" 
+          format: date
+        trueBreakDownStartDate:
+          type: string
+          example: "12-12-2022" 
+          format: date
+          description: "Breakdown Start Date - Format YYYY-MM-DD"
+        type:
+          type: string
+          enum: 
+          - 0
+          - 1
+          example: "Plan Type - 0 : Single, 1 : Mulitplan"
+        renewalStopped:
+          type: string
+          example: ""  
+          maxLength: 2
+          description: "Renewal Stopped"
+        externalAgent:
+          type: string
+          example: ""  
+          maxLength: 15
+          description: "External Agent"
+#       unprotectedMessageExists:
+#          type: boolean
+#          description: "Unprotected Message Exists - true or false"
+#        clientGroup:
+#          $ref: "#/components/schemas/ClientGroup"
+#        status:
+#          type: number
+#          enum:
+#          - 0
+#          - 1
+#          - 2
+#          - 3
+#          example: 0
+#          description: "0: New Business 1: Renewal 2: Lapsed 3: Cancelled"
+        agent:
+          type: array
+          items:
+           $ref: "#/components/schemas/Agent" 
+        repair:
+          $ref: "#/components/schemas/Repair"
+        skip:
+          $ref: "#/components/schemas/ContractDataArray"
+
+#    ClientGroup:
+#      type: object
+#      properties:
+#        code:
+#          type: string
+#          example: ""  
+#          maxLength: 5
+#          description: "Client Group Code"
+#        codedescription:
+#          type: string
+#          example: ""  
+#          maxLength: 30
+#          description: "Client Group Code Description"
+#        account:
+#          type: string
+#          example: ""  
+#          maxLength: 5
+#          description: "Client Group Account"
+#        accountDescription:
+#          type: string
+#          example: ""  
+#          maxLength: 40
+#          description: "Client Group Account Description"     
+
+    Agent:
+      type: object
+      properties:
+        type:
+          type: number
+          enum:
+           - 0
+           - 1
+          example: 0
+          description: "0: Selling 1: Repair"    
+        agent:
+          type: string
+          example: ""
+          maxLength: 5
+          description: "Agent Number"
+        branch:
+          type: string
+          example: ""
+          maxLength: 4
+          description: "BRanch Code"
+        checkDigit:
+          type: string
+          example: ""
+          maxLength: 2
+          description: "Agent Check Digit"
+        name:
+          type: string
+          example: ""
+          maxLength: 35
+          description: "Agent Name"
+          
+    Repair:
+      type: object
+      properties:
+        coverCode:
+          type: string
+          example: ""
+          maxLength: 1
+          description: "Cover Code"
+        exclusionCode:
+          type: string
+          example: ""
+          maxLength: 1
+          description: "Exclusion Code"
+        repairThisPeriod:
+          type: number
+          example: 2
+          maxLength: 2
+          description: "Number of Repairs This Period"
+        amount:
+          type: number
+          example: "20.25"
+          format: float
+          description: "Repair Amount"
+        amountSettled:
+          type: number
+          example: "20.25"
+          format: float
+          description: "Amount Settled"
+            
+    CoverDetails:
+      type: object
+      properties:
+        ruleType:
+          type: string
+          example: ""
+          maxLength: 12
+          description: "Cover Rule Type"
+        code:
+          type: string
+          example: "1"
+          maxLength: 1
+          description: "Cover Code"
+
+
+    ContractDataArray:
+      type: array
+      items:
+        $ref: '#/components/schemas/ContractData'
+        
+    ContractData:
+      allOf:
+        - type: object
+          properties:
+            type:
+              type: number
+              enum:
+              - 0
+              - 1
+              - 2
+              example: 0
+              description: "0: Header 1: SkipFrom 2:SkipTo"
+        - $ref: '#/components/schemas/ContractIDData'
+        
+    ContractIDData:
+      type: object
+      required:
+        - id
+      properties:
+        company:
+          type: string
+          example: "A"
+          maxLength: 1
+          description: "D&G Company Code"
+        id:
+          type: string
+          example: "XYZ1234567"
+          maxLength: 10
+          description: "D&G ContractId"
+
+    Plan:
+      type: object
+      required:
+        - contractId
+      properties:
+        company:
+          type: string
+          example: "A"
+          maxLength: 1
+          description: "D&G Company Code"
+        contractId:
+          type: string
+          example: "XYZ1234567"
+          maxLength: 10
+          description: "D&G Contract"
+          
+    ClientReference:
+      type: object
+      properties:
+        company:
+          type: string
+          example: "A"
+          maxLength: 1
+          description: "D&G Company Code"
+        contractId:
+          type: string
+          example: "XYZ1234567"
+          maxLength: 10
+          description: "D&G Contract"
+        referenceCode:
+          type: string 
+          example: IMEI
+          maxLength: 6
+          description: "Reference Code"
+        referenceValue:
+          type: string           
+          maxLength: 50
+          description: "Reference Value"
+          
+    PaymentData:
+      type: object
+      required:
+        - type
+        - profile
+        - details
+      properties:
+        type:
+          type: number
+          enum: 
+            - 0 
+            - 1
+          description: "Payment Type - 0: Recurring 1: One-off"   
+        profile:
+          type: string
+          example: "P"
+          maxLength: 1
+          description: "Payment Profile - Denotes the number of payments/payment frequency"
+        details:
+          oneOf: 
+            - $ref: '#/components/schemas/DDDetailsData' 
+            - $ref: '#/components/schemas/TokenDetailsData'       
+#        directDebitAmount:
+#          type: number
+#          example: '29.00'
+#          format: float
+#          description: "Direct Debit Amount"
+#        planType:
+#          type: string
+#          example: ""
+#          description: "Plan Type"
+    
+    PaymentDataWithCash:
+      type: object
+      required:
+        - type
+        - profile
+        - details
+      properties:
+        type:
+          type: number
+          enum: 
+            - 0 
+            - 1
+          description: "Payment Type - 0: Recurring 1: One-off"   
+        profile:
+          type: string
+          example: "P"
+          maxLength: 1
+          description: "Payment Profile - Denotes the number of payments/payment frequency"
+        details:
+          oneOf: 
+            - $ref: '#/components/schemas/DDDetailsData' 
+            - $ref: '#/components/schemas/TokenDetailsData'  
+            - $ref: '#/components/schemas/CashDetailsData'  
+            - $ref: '#/components/schemas/RecurringCCDetailsData' 
+
+    CCDetailsData:
+      type: object
+      writeOnly: true
+      required:
+        - cardType
+        - cardNumber
+        - expiryDate
+        - name
+        - cvc
+      properties:
+        cardType:
+          type: number
+          enum: 
+            - 0
+            - 1
+            - 2
+            - 3
+            - 4
+          example: 0
+          description: "0: Visa 1: Mastercard 2: Solo 3: Maestro 4: Switch" 
+        cardNumber:
+          type: string
+          example: "1234123412341234"  
+          maxLength: 30
+          description: "Card Number"
+        expiryDate:
+          type: string
+          example: "0424"
+          description: "Expiry Date - Format MMYY"
+          maxLength: 4
+        name:
+          type: string
+          example: "Mr Joe Bloggs"
+          maxLength: 200
+          description: "Name on Card"
+        verbalAuthentication:
+          type: boolean
+          description: "Verbal Authentication - true or false"
+        continuousAuthentication:
+          type: boolean
+          description: "Continuous Authentication - true or false"
+  #      issueNumber:
+  #        type: string
+  #        maxLength: 5
+        cvc: 
+          type: string
+          maxLength: 3
+          description: "Card Verification Code - 3 digits on the back of the card"
+          
+
+    DDDetailsData:
+      type: object
+      writeOnly: true
+      required:
+        - sortCode
+        - accountNumber
+        - source
+        - name
+      properties:
+        bank:
+          type: string
+          example: "HSBC"
+          maxLength: 100
+          description: "Bank Name"
+        sortCode:
+          type: string
+          example: "123456"
+          maxLength: 10
+          description: "Bank Sort Code"
+        accountNumber:
+          type: string
+          example: "1234567" 
+          maxLength: 12
+          description: "Bank Account Number"
+        checkDigit:
+          type: string
+          example: ""
+          maxLength: 2
+          description: "Check Digit"
+        name:
+          type: string
+          example: "Mr J Bloggs"
+          maxLength: 200
+          description: "Account Name"
+        source:
+          type: number
+          enum:
+          - 0
+          - 1
+          - 2
+          description: "DD Source - 0 : Internet, 1 : Paper mandate, 2 : Telephone"
+        IBAN:
+          type: string
+          example: "DE89370400440532013000"
+          maxLength: 40
+          description: "IBAN - International Bank Account Number"
+        nominatedPaymentDay:
+          type: integer
+          example: "1"
+          maximum: 28
+          description: "Nominated Payment Day"
+          
+    TokenDetailsData:
+      type: object
+      writeOnly: true
+      required:
+        - token
+      properties:
+        token:
+          type: string
+          example: "123456789"
+          maximum: 20
+          description: "Payment token"
+
+    CashDetailsData:
+      type: object
+      writeOnly: true
+      required:
+        - cashReference
+      properties:
+        cashReference:
+          type: string
+          example: "123456789"
+          maximum: 20
+          description: "Cash Reference"
+
+    RecurringCCDetailsData:
+      type: object
+      writeOnly: true
+      required:
+        - token
+        - ccType
+        - cardNumber
+        - expiryDate
+      properties:
+        token:
+          type: string
+          example: "123456789"
+          description: "Payment token / GGOrderNumber"
+        ccType:
+          type: string
+          example: "MC"
+          maximum: 20
+          description: "The credit card type e.g. MC - MasterCard"
+        cardNumber:
+          type: string
+          example: "1005"
+          maximum: 20
+          description: "The card number"
+        expiryDate:
+          type: string
+          example: "0129"
+          maximum: 20
+          description: "The card expiry date (MMYY)"
+
+    DDPaymentToken:
+      type: object
+      writeOnly: true
+      required:
+        - token
+        - source 
+        - nom
+      properties:  
+        token:
+          type: string
+          example: "1234123412341234"  
+          maxLength: 200
+          description: "Payment Token" 
+        source:
+          type: string
+          example: "I"
+          maxLength: 1
+          description: "I - Internet, P - Paper mandate, T - Phone, W - Web, O - Outbound"          
+        nominatedPaymentDay:
+          type: integer
+          example: "1"
+          maximum: 28
+          description: "Nominated Payment Day"       
+          
+    PaymentToken:
+      type: object
+      writeOnly: true
+      required:
+        - token
+      properties:
+        token:
+          type: string
+          example: "123456789"
+          maximum: 20
+          description: "Payment Token" 
+        cardType:
+          type: number
+          enum: 
+            - 0
+            - 1
+            - 2
+            - 3
+            - 4
+          example: 0
+          description: "Card Type - 0: Visa 1: Mastercard 2: Solo 3: Maestro 4: Switch"    
+        cardNumberLastFour:
+          type: string
+          example: "1234"  
+          maxLength: 4
+          description: "Card Number - Last four digits only"
+        expiryDate:
+          type: string
+          example: "0424"
+          description: "Expiry Date - Format MMYY"
+          maxLength: 4          
+        nominatedPaymentDay:
+          type: integer
+          example: "1"
+          maximum: 28
+          description: "Nominated Payment Day"           
+
+    RiskOwner:
+      allOf:
+        - $ref: '#/components/schemas/ContractPersonData'
+      properties:
+        riskOwnerToken:
+          type: string
+          example: "1234567"
+          description: "D&G Risk Owner Person Identifer"
+          maxLength: 60 
+        
+    PlanDataArray:
+      type: array
+      items:
+        $ref: '#/components/schemas/PlanData'      
+          
+    PlanData:
+      type: object
+      required:
+        - contract
+      properties:
+        contract:
+          $ref: '#/components/schemas/PlanDetailData'
+        product:
+          $ref: '#/components/schemas/ProductData1'
+          
+      
+    PlanDetailData:
+      type: object
+      required:
+      - status
+      properties:
+        company:
+          type: string
+          example: "A"
+          maxLength: 1
+          description: "D&G Company Code"
+        id:
+          type: string
+          example: "XYZ1234567"
+          maxLength: 10
+          description: "D&G Contract Code"
+        type:
+          type: string
+          example: ""
+          maxLength: 1
+          description: 'Plan Type'
+          deprecated: true
+        item:
+          type: string
+          example: "AW"
+          maxLength: 2
+          description: "Item code"
+        itemDescription:
+          type: string
+          example: "Washing Machine"
+          maxLength: 100
+          description: "Item Code Description"  
+          readOnly: true 
+        manufacturerBrand:
+          type: string
+          example: "BOSC"
+          description: "Manufacturer Brand Code" 
+          maxLength: 4
+        manufacturerBrandDescription:
+          type: string
+          example: "Bosch"  
+          readOnly: true  
+          description: "Manufacturer Brand Code description" 
+          maxLength: 100
+        model:
+          $ref: '#/components/schemas/ModelNumberData'
+        status:
+          type: number
+          enum:
+            - 0
+            - 1
+            - 2
+            - 3
+            - 4
+            - 5
+            - 6
+          example: "0"
+          description: "0: New Business  1: Renewal 2: Lapsed 3: 4: Await Delivery 5: Error, 6: Pending" 
+        statusDescription:
+          type: string
+          example: ""
+          maxLength: 40
+          description: "Plan Status Description"
+        paymentStatusDescription:
+          type: string
+          example: ""
+          maxLength: 10
+          description: "Payment Status Description - Pending, Error, Cancelled, Lapsed, Due, Paid"      
+          deprecated: true   
+        excessFlag:
+          type: boolean
+          description: "Excess Flag - true or false"  
+        planSchemeType:
+          type: string
+          example: "R"
+          maxLength: 1
+          description: "Plan Scheme Type - R = Repair, P = Point of sale, I = In the box"  
+          deprecated: true
+        planPhase:
+          type: string
+          example: "NB"
+          maxLength: 2
+          description: "Plan Phase - NB = New Business, PR = Post Renewal"  
+          deprecated: true
+        renewalDate:
+          type: string
+          format: date
+          description: "Renewal Date - Format YYYY-MM-DD"
+        unprotectedMessageExists:
+          type: boolean
+          description: "Unprotected Message Exists - true or false "
+          deprecated: true
+        paymentIssueFlag:
+          type: boolean
+          example: ""
+          description: "Payment Issue Flag - true or false"
+          deprecated: true
+        directDebitAmount:
+          type: number
+          example: '29.00'
+          format: float 
+          description: "Direct Debit Amount"
+          deprecated: true
+        ddPaymentFrequency:
+          type: string
+          example: ""
+          maxLength: 30
+          description: "Direct Debit Payment Frequency"   
+          deprecated: true
+        stopRenewalFlag:
+          type: string
+          example: ""
+          maxLength: 2
+          description: "Stop Renewal Flag"  
+          deprecated: true
+        noRenewal:
+          type: string
+          example: ""
+          maxLength: 4
+          description: "No Renewal Code"           
+        multiplanApplianceCode:
+          type: string
+          example: "U1"
+          maxLength: 2
+          description: "Multiplan Appliance Code"
+        claimsThisPeriod:
+          type: number
+          example: 2
+          maxLength: 2
+          description: "Number of Claims This Period"
+          deprecated: true
+        claimAmount:
+          type: number
+          example: "20.25"
+          format: float  
+          description: "Claim Amount"
+          deprecated: true
+        personToken:
+          type: string
+          example: '123456789'
+          maxLength: 20
+          description: "D&G Customer Token"
+          deprecated: true
+        skip:
+          $ref: '#/components/schemas/ContractDataArray'
+          deprecated: true
+        breakdownStartDate:
+          type: string
+          format: date   
+          description: "Breakdown Start Date - Format YYYY-MM-DD"
+        trueBreakdownStartDate:
+          type: string
+          format: date    
+          description: "True Breakdown Start Date - Format YYYY-MM-DD"
+          deprecated: true
+        purchaseDate:
+          type: string
+          format: date             
+          description: "Purchase Date - Format YYYY-MM-DD"
+
+
+   # REGISTRATION RESPONSE
+       
+    GetAllRegistrationsResponse:
+      $ref: "#/components/schemas/GetAllRegDataResp"
+          
+          
+    GetAllRegDataResp:
+      type: object
+      properties:
+        offer:
+          type: array
+          items: 
+            $ref: "#/components/schemas/OfferData2" 
+          description: "Array of Offers"
+        registration:
+          type: array
+          items: 
+            $ref: "#/components/schemas/FullItemData3" 
+          description: "Array of Registration Items"
+        
+  
+    OfferData2:
+      type: object
+      required:
+        - offerRef
+        - personId
+        - itemId
+        - item
+        - manufacturerBrand
+      properties:
+        ref:
+          type: string
+          maxLength: 15
+          example: "123-123-123-123"
+          description: "Offer reference - Format 123-123-123-123" 
+        personId:
+          type: string
+          example: "1234567890"
+          description: "D&G Person Unique Identifer"
+          maxLength: 60           
+        itemId:
+          type: string
+          example: '1234567'
+          description: "D&G Item Unique Identifer"
+          maxLength: 60           
+        item:
+          type: string
+          example: AW
+          description: "Item Code"
+          maxLength: 2  
+        manufacturerBrand:
+          type: string
+          example: BOSC
+          description: "Manufacturer Brand Code"
+          maxLength: 4 
+        itemCount:
+          type: number
+          example: 1
+          description: "Number of items" 
+        status:
+          type: number
+          enum:
+          - 0
+          - 1
+          - 2
+          - 3
+          example: 0
+          description: "Offer Status 0: Active 1: Cancelled 2: Accepted, 3: Expired" 
+        expiryDate:
+          type: string
+          format: date
+          description: "Offer Expiry Date - Format YYYY-MM-DD"         
+        updateDate:
+          type: string
+          format: date
+          description: "Offer Update Date - Format YYYY-MM-DD"  
+        dateMailed:
+          type: string
+          format: date
+          description: "Date Offer Mailed - Format YYYY-MM-DD"    
+        effectiveDate:
+          type: string
+          format: date
+          description: "Offer Effective Date - Format YYYY-MM-DD"  
+        breakdownStartDate:
+          type: string
+          format: date
+          description: "Breakdown Start Date - Format YYYY-MM-DD"         
+        excessFlag:
+          type: boolean
+          description: "Excess Flag - true or false" 
+        category:
+          type: number
+          enum:
+          - 0
+          - 1
+          example: 0
+          description: "Offer Category 0 = Rated, 1 = Non Rated"
+        company:
+          type: string
+          example: "A"
+          maxLength: 1
+          description: "D&G Company Code"
+        scheme:
+          type: string
+          example: "ABC"
+          maxLength: 3
+          minLength: 2
+          description: "D&G Scheme Code"         
+          
+    FullItemData3:
+      allOf:
+        - $ref: '#/components/schemas/ItemDetailsData'
+        - type: object
+          properties:
+            id:
+              type: string
+              example: '1234567'
+              description: "D&G Item Unique Identifer"
+              maxLength: 60  
+            guarantee:
+              $ref: '#/components/schemas/CoverDataArray'
+            purchase:
+              $ref: '#/components/schemas/PurchaseData'
+            address:
+              $ref: '#/components/schemas/AddressDetailsData'     
+
+
+    SchemeItemData1:
+      type: object
+      properties:
+        periodOfCover:
+          type: string
+          example: "12" 
+          maxLength: 3
+          description: "Period Of Cover"
+        yearOfManufacture:
+          type: string
+          example: "2022" 
+          maxLength: 4
+          description: "Year of Manufacture - Format YYYY"        
+        boilerType:
+          type: string
+          example: 'CMB'
+          description: "Boiler Type - CMB = Combination, CNV = Conventional, CND = Condensing"
+          maxLength: 10   
+        extendedCover:
+          $ref: '#/components/schemas/ExtendedCover' 
+        callSource:
+          type: string
+          example: "ABCD"  
+          maxLength: 4
+          description: "Call Source" 
+    
+    ExtendedCover:
+      type: object
+      properties:
+        extendedCoverPeriod:
+          type: string
+          example: "12"  
+          maxLength: 3
+          description: "Extended Cover Period"
+        extendedCoverPeriodFee:
+          type: number
+          example: "12.30" 
+          format: float
+          description: "Extended Cover Period Fee"            
+
+    FullItemData4:
+      allOf:
+        - $ref: '#/components/schemas/ItemDetailsData'
+        - type: object
+          properties:
+            id:
+              type: string
+              example: '1234567'
+              readOnly: true
+              description: "D&G Item Unique Identifer"
+              maxLength: 60               
+            otherId:
+              $ref: '#/components/schemas/OtherIdsDataArray'
+            guarantee:
+              $ref: '#/components/schemas/CoverDataArray'
+            purchase:
+              $ref: '#/components/schemas/PurchaseData'
+            address:
+              $ref: '#/components/schemas/AddressDetailsData'  
+
+    MultiplanContractData1:
+      type: object
+      properties:
+        code:
+          type: string
+          example: "J3"
+          maxLength: 2
+          description: "Multiplan code"
+        size:
+          type: number
+          example: 3
+          description: "Current size of Multiplan"   
+          
+    Reference:
+      type: object
+      description: Reference type and value
+      required:
+      - type
+      - value
+      properties:
+        type:
+          type: number
+          enum:
+          - 0
+          - 1
+          example: 0
+          description: "0:Client, 1:Client Agent"
+        value:
+          type: string
+          example: Reference
+          description: "Reference Value"     
+      
+    CancellationReqData:
+      type: object
+      required:
+      - company
+      - reason
+      properties:
+        company:
+          type: string
+          example: A
+          description: "Company Code"
+          maxLength: 1
+        reason:
+          type: string
+          example: 'N'
+          description: "Cancellation Reason Code"
+          maxLength: 1
+        date:
+          type: string
+          example: '2023-07-26'
+          description: "Cancellation Date - Format YYYY-MM-DD"     
+        receievedDate:
+          type: string
+          example: '2023-07-26'
+          description: "Cancellation Received Date - Format YYYY-MM-DD"             
+        source:
+          type: number
+          enum:
+          - 0
+          - 1
+          - 2
+          - 3
+          - 4
+          - 5
+          example: 0
+          description: "Cancellation Source - 0: Bank, 1: Email, 2: White Mail, 3: Recall, 4: Telephone, 5: Write off"
+        type:
+          type: string
+          example: '1'
+          description: "Cancellation Type - accepted only from a list of trusted users"
+          maxLength: 1          
+        correspondance:
+          type: number
+          enum:
+          - 0
+          - 1
+          - 2
+          example: 0
+          description: "Correspondance Code - 0: Email , 1: Letter, 2: Not requiured"      
+        priority:
+          type: boolean
+          description: "Cancellation Priority - true or false"                 
+          
+    UpdateContractRequest:
+      allOf:
+        - $ref: '#/components/schemas/SourceData' 
+      oneOf:
+        - $ref: '#/components/schemas/UpdateContractData'
+        - $ref: '#/components/schemas/CancellationReqData' 
+        - $ref: '#/components/schemas/AmendNominatedPaymentDate'
+        
+    UpdateContractData:
+      type: object
+      required:
+      - deliveryDate
+      properties:
+        company:
+          type: string
+          example: A
+          description: "Company Code"
+          maxLength: 1      
+        deliveryDate:
+          type: string
+          example: '2023-07-26'
+          description: "Delivery Date - Format YYYY-MM-DD - NB. The Delivery Date must be in the future"  
+    AmendNominatedPaymentDate:
+      type: object
+      required:
+      - confirm
+      - newNominatedPaymentDay
+      - companyCode
+      properties:
+        confirm:
+          type: boolean
+          example: true
+          description: " true - Confirm, and commit Nominated Payment Day (NPD) if validation is passed. Change schedule. Return revised payment schedule. false - Return proposed schedule, without making any changes"
+        newNominatedPaymentDay:
+          type: number
+          example: 22
+          minumum: 1
+          maximum: 28
+          description: "Valid values should be between 1-28"
+        companyCode:
+          type: string
+          description: "Company Code"
+          example: 'D'
+          minumum: 1
+        recollectPayment:
+          type: number
+          example: 1
+          enum:
+          - 1
+          - 2
+          description: "Valid values are '1' - If final payment goes beyond renewal date, create double payment at next collection. '2'- If final payment goes beyond renewal date, create extra payment in x days. If no option is passed, and a final payment would go beyond renewal date service should return an error denoting as ” Last Collection is going beyond Renewal date please select Option 1 or 2.If no option is passed, and final payment would NOT go beyond renewal date. Service should return a revised schedule"  
+          
+    AddNewBabyData:
+      type: object
+      required:
+        - company
+        - items
+      properties:
+        company:
+          type: string
+          example: "A"
+          maxLength: 1
+          description: "D&G Company Code"
+        items:
+          type: array
+          description: "List of Items"
+          maxItems: 10
+          minItems: 1
+          items:
+            $ref: "#/components/schemas/FullItemData"
