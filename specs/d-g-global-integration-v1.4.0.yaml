@@ -2,7 +2,7 @@ openapi: 3.0.3
 info:
   title: D&G Global Integration
   description: This spec defines the API for the D&G Global Integration Service
-  version: v1.3.10
+  version: v1.4.0
 servers:
   - url: 'https://prod-sandbox.api.dg-click-integrations.com/{version}'
     description: Sandbox environment for testing before going live
