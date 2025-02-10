@@ -1,0 +1,84 @@
+name: Update Index
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+env:
+  BUILD_ARGS: --theme.openapi.theme.typography.code.fontFamily='monospace' --theme.openapi.theme.typography.headings.fontFamily='Roboto,sans-serif' --theme.openapi.theme.typography.fontFamily='Roboto,sans-serif'
+
+jobs:
+  # Update the index page
+  update-index:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Pull changes
+        run: git pull --all
+      - name: Install yq
+        uses: dcarbone/install-yq-action@v1.1.1
+      - name: Build Template Data file
+        run: |
+          first="true"
+          echo "{\"apis\":[" > template-list.json
+          
+          for file in `ls -1tr specs/*.yaml`; do
+            base_filename=$(basename $file .yaml)
+            title=$(yq '.info.title // ""' $file | jq -Rsa . | sed -e 's/\\n"/"/g')
+            description=$(yq '.info.description // "..."' $file | jq -Rsa . | sed -e 's/\\n"/"/g')
+            version=$(yq '.info.version // "0.0.0"' $file)
+            href="/${base_filename}"
+            
+            file_ts=$(stat -c '%Y' $file)
+            file_day=$(date -d "@$file_ts"  '+%d')
+            case $file_day in
+                1?) file_day=${file_day}th ;;
+                *1) file_day=${file_day}st ;;
+                *2) file_day=${file_day}nd ;;
+                *3) file_day=${file_day}rd ;;
+                *)  file_day=${file_day}th ;;
+            esac
+            file_date="$file_day "$(date -d "@$file_ts" '+%b %Y')
+            if [ "$first" != "true" ] ; then
+              comma=","
+            else
+              comma=""
+              first="false"
+            fi;
+            echo "  $comma{\"title\":$title,\"description\":$description,\"version\":\"$version\",\"href\":\"$href\",\"date\":\"${file_date}\"}" >> template-list.json  
+          done
+          echo "]}" >> template-list.json
+          
+          jq '.apis | group_by(.title) | map({key: .[0].href | split("/")| .[1] | split("-") | .[0:-1] | join("-"), value: {"title": .[0].title, "description": .[0].description, "href": .[0].href | split("/")| .[1] | split("-") | .[0:-1] | join("-"), "date": .[0].date, "versions": map(.version) | sort_by(values) | reverse }}) | {"apis": map(.value) }' template-list.json > template-data.json
+          cat template-data.json
+      - name: Render Template
+        uses: cuchi/jinja2-action@v1.3.0
+        with:
+          template: tmpl/index.html
+          output_file: pages/index.html
+          data_file: template-data.json
+          data_format: json
+      - name: Check in any changes
+        uses: EndBug/add-and-commit@v9
+        with:
+          add: pages/index.html
+          default_author: github_actions
+          pull: '-q'
+          fetch: true
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: pages/
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4 
