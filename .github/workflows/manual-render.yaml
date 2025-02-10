@@ -1,4 +1,4 @@
-name: Update Index
+name: Manual render Portal
 
 on:
   workflow_dispatch:
