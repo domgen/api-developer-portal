@@ -1,7 +1,6 @@
 name: Render Portal
 
 on:
-  workflow_dispatch:
   push:
     branches:
       - main
