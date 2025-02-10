@@ -180,7 +180,7 @@ jobs:
           jq '.apis | group_by(.title) | map({key: .[0].href | split("/")| .[1] | split("-") | .[0:-1] | join("-"), value: {"title": .[0].title, "description": .[0].description, "href": .[0].href | split("/")| .[1] | split("-") | .[0:-1] | join("-"), "date": .[0].date, "versions": map(.version) | sort_by(values) | reverse }}) | {"apis": map(.value) }' template-list.json > template-data.json
           cat template-data.json
       - name: Render Template
-        uses: cuchi/jinja2-action@v1.2.2
+        uses: cuchi/jinja2-action@v1.3.0
         with:
           template: tmpl/index.html
           output_file: pages/index.html
