@@ -124,7 +124,9 @@ paths:
                 PriceBandRangeUnauthorizedExample:
                   summary: Price band range unauthorized error example
                   value:
-                    message: Appliance price does not fall within SKU price band range
+                    message: >-
+                      appliancePrice (50199) does not fall within SKU price band
+                      range (CW22002)
         '401':
           description: Status 401 Response
           content:
@@ -267,7 +269,9 @@ paths:
                 PriceBandRangeUnauthorizedExample:
                   summary: Price band range unauthorized error example
                   value:
-                    message: Appliance price does not fall within SKU price band range
+                    message: >-
+                      appliancePrice (50199) does not fall within SKU price band
+                      range (CW22002)
         '401':
           description: Status 401 Response
           content:
@@ -353,7 +357,9 @@ paths:
                 PriceBandRangeUnauthorizedExample:
                   summary: Price band range unauthorized error example
                   value:
-                    message: Appliance price does not fall within SKU price band range
+                    message: >-
+                      appliancePrice (50199) does not fall within SKU price band
+                      range (CW22002)
         '401':
           description: Status 401 Response
           content:
@@ -734,8 +740,8 @@ paths:
             schema:
               $ref: '#/components/schemas/ITBTouchPointRequest'
       responses:
-        '201':
-          description: Status 201 Response
+        '200':
+          description: Status 200 Response
           content:
             application/json:
               schema:
@@ -767,7 +773,9 @@ paths:
                 PriceBandRangeUnauthorizedExample:
                   summary: Price band range unauthorized error example
                   value:
-                    message: Appliance price does not fall within SKU price band range
+                    message: >-
+                      appliancePrice (50199) does not fall within SKU price band
+                      range (CW22002)
         '401':
           description: Status 401 Response
           content:
@@ -780,12 +788,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ForbiddenError'
-        '404':
-          description: Status 404 Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/NotFoundError'
         '500':
           description: Status 500 Response
           content:
@@ -2529,7 +2531,7 @@ components:
         message:
           type: string
           default: >-
-            Appliance price (50199) does not fall within SKU price band range
+            appliancePrice (50199) does not fall within SKU price band range
             (CW22002)
     Success:
       required:
