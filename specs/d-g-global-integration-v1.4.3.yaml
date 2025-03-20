@@ -460,9 +460,7 @@ paths:
                 $ref: '#/components/schemas/InternalError'
   /itb/appliance/delivery:
     patch:
-      summary: >-
-        Confirm the delivery date of of a specific line item; must be today’s
-        date.
+      summary: Confirm the delivery date of of a specific line item.
       parameters:
         - in: header
           name: X-Request-Id
@@ -1209,6 +1207,13 @@ components:
                         subject to renewal (YYYY-MM-DD) - this should be the
                         same as the header plan.
     ITBCreateRequest:
+      properties:
+        ItbId:
+          type: string
+          description: >-
+            Leave undefined, unless provided an itbId from the opt-in iframe
+            flow.
+          example: a1a3287f-1596-4bfe-83ab-44e0c36658c6
       allOf:
         - $ref: '#/components/schemas/ITBPurchaseDetails'
         - $ref: '#/components/schemas/ITBApplianceDetails'
@@ -1858,9 +1863,8 @@ components:
           type: string
           format: date
           description: >
-            The date of delivery in YYYY-mm-dd format; must be today’s date and
-            the update will result in the customer’s plan being activated
-            immediately
+            The date of delivery in YYYY-mm-dd format; the update will result in
+            the customer’s plan being activated this date.
         imei:
           allOf:
             - $ref: '#/components/schemas/imei'
@@ -2194,7 +2198,7 @@ components:
             - MODAL
     ITBTouchPointResponse:
       properties:
-        trackingId:
+        ItbId:
           type: string
           description: a tracking id for the opt-in journey.
           example: a1a3287f-1596-4bfe-83ab-44e0c36658c6
