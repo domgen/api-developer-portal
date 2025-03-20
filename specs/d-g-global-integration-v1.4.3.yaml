@@ -1864,7 +1864,7 @@ components:
           format: date
           description: >
             The date of delivery in YYYY-mm-dd format; the update will result in
-            the customer’s plan being activated this date.
+            the customer’s plan being activated on this date.
         imei:
           allOf:
             - $ref: '#/components/schemas/imei'
