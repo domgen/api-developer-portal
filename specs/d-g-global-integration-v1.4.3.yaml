@@ -1208,7 +1208,7 @@ components:
                         same as the header plan.
     ITBCreateRequest:
       properties:
-        ItbId:
+        itbId:
           type: string
           description: >-
             Leave undefined, unless provided an itbId from the opt-in iframe
@@ -1228,6 +1228,13 @@ components:
         - appliancesPurchased
         - email
     ITBTermCreateRequest:
+      properties:
+        itbId:
+          type: string
+          description: >-
+            Leave undefined, unless provided an itbId from the opt-in iframe
+            flow.
+          example: a1a3287f-1596-4bfe-83ab-44e0c36658c6
       allOf:
         - $ref: '#/components/schemas/ITBTermPurchaseDetails'
         - $ref: '#/components/schemas/ITBApplianceDetails'
@@ -1437,26 +1444,19 @@ components:
         - type: object
           description: >-
             Expanded fields (fields provided if the 'expandFields' input is
-            true)
+            true) these fields can be useful for performing validations.
           properties:
             firstName:
               type: string
               example: John
             lastName:
               type: string
-              example: Smith
-            addressLine1:
+              example: S
+              description: The first letter of the surname
+            postcodeOutCode:
               type: string
-              example: 1 Street
-            addressLine2:
-              type: string
-              example: Some Town
-            addressLine3:
-              type: string
-              example: Some City
-            postcode:
-              type: string
-              example: AA00 0AA
+              example: AA00
+              description: The out code of the postcode (up to the subdistrict)
             countryCode:
               type: string
               example: GBR
@@ -2198,7 +2198,7 @@ components:
             - MODAL
     ITBTouchPointResponse:
       properties:
-        ItbId:
+        itbId:
           type: string
           description: a tracking id for the opt-in journey.
           example: a1a3287f-1596-4bfe-83ab-44e0c36658c6
