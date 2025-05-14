@@ -1,0 +1,2821 @@
+openapi: 3.0.3
+info:
+  title: D&G Global Integration
+  description: This spec defines the API for the D&G Global Integration Service
+  version: v1.4.5
+servers:
+  - url: 'https://prod-sandbox.api.dg-click-integrations.com/{version}'
+    description: Sandbox environment for testing before going live
+    variables:
+      version:
+        default: v1
+        enum:
+          - v1
+  - url: 'https://api.dg-click-integrations.com/{version}'
+    description: Live production environment
+    variables:
+      version:
+        default: v1
+        enum:
+          - v1
+security:
+  - BearerAuth:
+      - read
+      - write
+paths:
+  /oauth2/token:
+    servers:
+      - url: >-
+          https://prod-sandbox-regauth-client.auth.eu-west-1.amazoncognito.com/oauth2/token
+        description: Prod Sandbox Environment OAuth Endpoint
+      - url: >-
+          https://prod-regauth-client.auth.eu-west-1.amazoncognito.com/oauth2/token
+        description: Production Environment OAuth Endpoint
+    post:
+      summary: Endpoint to handle oauth2 token generation for clients and admins
+      security:
+        - BearerAuth:
+            - read
+      tags:
+        - oauth2
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                grant_type:
+                  type: string
+                  example: client_credentials
+                  description: 'We only support grant_type: client_credentials'
+                client_id:
+                  type: string
+                  example: 6mhtijs5hsdqjquinrvlntjm9e
+                client_secret:
+                  type: string
+                  example: 1ik270j5m8jrngbvvi1p60ag4qs5rlh6ok4kkkj8gqarvfdc35r
+      responses:
+        '200':
+          description: Status 200 Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CognitoSuccess'
+        '400':
+          description: Status 400 Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CognitoFailure'
+  /itb:
+    post:
+      summary: >-
+        post customer and product information for users who have expressed an
+        interest in purchasing a warranty
+      parameters:
+        - in: header
+          name: X-Request-Id
+          required: true
+          description: uuidv4 string to identify the individual request
+          schema:
+            $ref: '#/components/schemas/X-Request-Id'
+      security:
+        - BearerAuth:
+            - read
+            - write
+      tags:
+        - itb
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ITBCreateRequest'
+      responses:
+        '201':
+          description: Status 201 Response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ITBCreateResponse'
+        '400':
+          description: Status 400 Response
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/ValidationError'
+                  - $ref: '#/components/schemas/priceBandRangeUnauthorizedError'
+              examples:
+                ValidationErrorExample:
+                  summary: Validation error example
+                  value:
+                    message: validation error
+                    validationError:
+                      - code: too small
+                        minimum: 1
+                        type: string
+                        inclusive: true
+                        message: String must contain at least 1 character(s)
+                        path:
+                          - appliancesPurchased
+                          - 0
+                          - applianceBrand
+                PriceBandRangeUnauthorizedExample:
+                  summary: Price band range unauthorized error example
+                  value:
+                    message: >-
+                      appliancePrice (50199) does not fall within SKU price band
+                      range (CW22002)
+        '401':
+          description: Status 401 Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedError'
+        '403':
+          description: Status 403 Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenError'
+        '404':
+          description: Status 404 Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundError'
+        '500':
+          description: Status 500 Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+  /itb/ofd:
+    post:
+      summary: >
+        registers a declined offer; this is used to capture when a qualifying
+        appliance has been paid for without having an associated policy added
+      parameters:
+        - in: header
+          name: X-Request-Id
+          required: true
+          description: uuidv4 string to identify the individual request
+          schema:
+            $ref: '#/components/schemas/X-Request-Id'
+      security:
+        - BearerAuth:
+            - read
+            - write
+      tags:
+        - itb
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OFDCreateRequest'
+      responses:
+        '201':
+          description: Status 201 Response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/OFDCreateResponse'
+        '400':
+          description: Status 400 Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+        '401':
+          description: Status 401 Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedError'
+        '403':
+          description: Status 403 Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenError'
+        '404':
+          description: Status 404 Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundError'
+        '500':
+          description: Status 500 Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+  /itb/term:
+    post:
+      summary: >-
+        post customer and product information for users who have expressed an
+        interest in purchasing a term plan
+      parameters:
+        - in: header
+          name: X-Request-Id
+          required: true
+          description: uuidv4 string to identify the individual request
+          schema:
+            $ref: '#/components/schemas/X-Request-Id'
+      security:
+        - BearerAuth:
+            - read
+            - write
+      tags:
+        - itb
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ITBTermCreateRequest'
+      responses:
+        '201':
+          description: Status 201 Response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ITBTermPlanResponse'
+        '400':
+          description: Status 400 Response
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/ValidationError'
+                  - $ref: '#/components/schemas/priceBandRangeUnauthorizedError'
+              examples:
+                ValidationErrorExample:
+                  summary: Validation error example
+                  value:
+                    message: validation error
+                    validationError:
+                      - code: too small
+                        minimum: 1
+                        type: string
+                        inclusive: true
+                        message: String must contain at least 1 character(s)
+                        path:
+                          - appliancesPurchased
+                          - 0
+                          - applianceBrand
+                PriceBandRangeUnauthorizedExample:
+                  summary: Price band range unauthorized error example
+                  value:
+                    message: >-
+                      appliancePrice (50199) does not fall within SKU price band
+                      range (CW22002)
+        '401':
+          description: Status 401 Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedError'
+        '403':
+          description: Status 403 Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenError'
+        '404':
+          description: Status 404 Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundError'
+        '500':
+          description: Status 500 Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PartialError'
+  /itb/multiplan/term:
+    post:
+      summary: >-
+        post customer and product information for users who have expressed an
+        interest in purchasing a multiplan term
+      parameters:
+        - in: header
+          name: X-Request-Id
+          required: true
+          description: uuidv4 string to identify the individual request
+          schema:
+            $ref: '#/components/schemas/X-Request-Id'
+      security:
+        - BearerAuth:
+            - read
+            - write
+      tags:
+        - itb
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ITBMultiPlanTermCreateRequest'
+      responses:
+        '201':
+          description: Status 201 Response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ITBMultiplanTermPlanResponse'
+                  - type: object
+                    properties:
+                      message:
+                        example: processing term multiplan
+        '400':
+          description: Status 400 Response
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/ValidationError'
+                  - $ref: '#/components/schemas/priceBandRangeUnauthorizedError'
+              examples:
+                ValidationErrorExample:
+                  summary: Validation error example
+                  value:
+                    message: validation error
+                    validationError:
+                      - code: too small
+                        minimum: 1
+                        type: string
+                        inclusive: true
+                        message: String must contain at least 1 character(s)
+                        path:
+                          - appliancesPurchased
+                          - 0
+                          - applianceBrand
+                PriceBandRangeUnauthorizedExample:
+                  summary: Price band range unauthorized error example
+                  value:
+                    message: >-
+                      appliancePrice (50199) does not fall within SKU price band
+                      range (CW22002)
+        '401':
+          description: Status 401 Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedError'
+        '403':
+          description: Status 403 Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenError'
+        '404':
+          description: Status 404 Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundError'
+        '500':
+          description: Status 500 Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PartialErrorMultiplan'
+  /itb/appliance/cancel:
+    patch:
+      summary: request cancellation of a policy created for a specific line item
+      parameters:
+        - in: header
+          name: X-Request-Id
+          required: true
+          description: uuidv4 string to identify the individual request
+          schema:
+            $ref: '#/components/schemas/X-Request-Id'
+      security:
+        - BearerAuth:
+            - read
+            - write
+      tags:
+        - itb
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ITBCancelPolicyRequest'
+      responses:
+        '202':
+          description: Status 202 Response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Accepted'
+                  - properties:
+                      message:
+                        type: string
+                        example: Contract cancel request received
+        '400':
+          description: Status 400 Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorLineItem'
+        '401':
+          description: Status 401 Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedError'
+        '403':
+          description: Status 403 Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenError'
+        '404':
+          description: |
+            Status 404 Response: lineItem not found, reasonCode not found
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/NotFoundError'
+                properties:
+                  message:
+                    default: lineItem not found
+        '410':
+          description: Status 410 Response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Gone'
+                properties:
+                  message:
+                    default: contract already cancelled
+        '500':
+          description: Status 500 Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+  /itb/appliance/delivery:
+    patch:
+      summary: Confirm the delivery date of of a specific line item.
+      parameters:
+        - in: header
+          name: X-Request-Id
+          required: true
+          description: uuidv4 string to identify the individual request
+          schema:
+            $ref: '#/components/schemas/X-Request-Id'
+      security:
+        - BearerAuth:
+            - read
+            - write
+      tags:
+        - itb
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ITBDeliveryUpdateRequest'
+      responses:
+        '202':
+          description: Status 202 Response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Accepted'
+        '400':
+          description: Status 400 Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorLineItem'
+        '401':
+          description: Status 401 Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedError'
+        '403':
+          description: Status 403 Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenError'
+        '404':
+          description: |
+            Status 404 Response: lineItem not found
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/NotFoundError'
+                properties:
+                  message:
+                    default: lineItem not found
+        '410':
+          description: Status 410 Response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Gone'
+                properties:
+                  message:
+                    default: contract has been cancelled
+        '500':
+          description: Status 500 Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+  /itb/appliance/imei:
+    patch:
+      summary: update the IMEI number associated with a specific line item
+      parameters:
+        - in: header
+          name: X-Request-Id
+          required: true
+          description: uuidv4 string to identify the individual request
+          schema:
+            $ref: '#/components/schemas/X-Request-Id'
+      security:
+        - BearerAuth:
+            - read
+            - write
+      tags:
+        - itb
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ITBIMEIUpdateRequest'
+      responses:
+        '202':
+          description: Status 202 Response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Accepted'
+        '400':
+          description: Status 400 Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorLineItem'
+        '401':
+          description: Status 401 Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedError'
+        '403':
+          description: Status 403 Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenError'
+        '404':
+          description: |
+            Status 404 Response: lineItem not found
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ValidationErrorLineItem'
+                properties:
+                  message:
+                    default: lineItem not found
+        '410':
+          description: Status 410 Response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Gone'
+                properties:
+                  message:
+                    default: contract has been cancelled
+        '500':
+          description: Status 500 Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+  /itb/contract/status:
+    get:
+      summary: >-
+        retrieve the current contract status. You will need to either provide a
+        lineItemId or contractNumber
+      parameters:
+        - in: query
+          name: lineItemId
+          example: ITB10001-101
+          schema:
+            type: string
+          description: uuid linked to a particular line item
+        - in: query
+          name: contractNumber
+          example: DG0001
+          schema:
+            type: string
+          description: Contract number
+        - in: query
+          name: expandFields
+          example: true
+          schema:
+            type: boolean
+          description: >-
+            (optional - defaults to false) If set to true then the endpoint will
+            return an expanded response that includes further contract details
+      security:
+        - BearerAuth:
+            - read
+      tags:
+        - itb
+      responses:
+        '200':
+          description: Status 200 Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ITBGetContractStatusResponse'
+        '400':
+          description: Status 400 Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorLineItem'
+        '401':
+          description: Status 401 Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedError'
+        '403':
+          description: Status 403 Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenError'
+        '404':
+          description: Status 404 Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundError'
+        '500':
+          description: Status 500 Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+  /itb/approved-policy-updates:
+    get:
+      summary: >-
+        retrieves all APPROVED policy updates (cancellations, downgrades and
+        replacements) for a given date range. For example from 2024-01-01-00.00
+        to 2024-01-02-00.00 would return 24 hours worth of data. Note the date
+        range is based on when the change was approved by Domestic & General as
+        opposed to the transactionDate which is when the update action was
+        originally requested.
+      parameters:
+        - in: query
+          name: approvedFromDate
+          example: 2024-01-01-00.00
+          schema:
+            type: string
+            pattern: >-
+              /([12]\d{3}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01]))-(0[0-9]|1[0-9]|2[0-3]).([0-5][0-9])/
+          description: >-
+            From Date as YYYY-MM-dd-hh.mm (exclusive) - captures all updates
+            that were approved after this date and time
+        - in: query
+          name: approvedToDate
+          example: 2024-01-02-00.00
+          schema:
+            type: string
+            pattern: >-
+              /([12]\d{3}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01]))-(0[0-9]|1[0-9]|2[0-3]).([0-5][0-9])/
+          description: >-
+            To Date as YYYY-MM-dd-hh.mm (inclusive) - captures all updates that
+            were approved at or before this date and time
+      security:
+        - BearerAuth:
+            - read
+      tags:
+        - itb
+      responses:
+        '200':
+          description: Status 200 Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ITBGetPolicyUpdateResponse'
+  /itb/touchpoint:
+    post:
+      summary: generates the opt-in iframe url to display the opt-in step
+      parameters:
+        - in: header
+          name: X-Request-Id
+          required: true
+          description: uuidv4 string to identify the individual request
+          schema:
+            $ref: '#/components/schemas/X-Request-Id'
+      security:
+        - BearerAuth:
+            - read
+            - write
+      tags:
+        - itb
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ITBTouchPointRequest'
+      responses:
+        '200':
+          description: Status 200 Response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ITBTouchPointResponse'
+        '400':
+          description: Status 400 Response
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/ValidationError'
+                  - $ref: '#/components/schemas/priceBandRangeUnauthorizedError'
+              examples:
+                ValidationErrorExample:
+                  summary: Validation error example
+                  value:
+                    message: validation error
+                    validationError:
+                      - code: too small
+                        minimum: 1
+                        type: string
+                        inclusive: true
+                        message: String must contain at least 1 character(s)
+                        path:
+                          - appliancesPurchased
+                          - 0
+                          - applianceBrand
+                PriceBandRangeUnauthorizedExample:
+                  summary: Price band range unauthorized error example
+                  value:
+                    message: >-
+                      appliancePrice (50199) does not fall within SKU price band
+                      range (CW22002)
+        '401':
+          description: Status 401 Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedError'
+        '403':
+          description: Status 403 Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenError'
+        '500':
+          description: Status 500 Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+  /reg/retailer/sku:
+    post:
+      summary: Insert/Update the sku inventory for a given retailer
+      parameters:
+        - in: header
+          name: X-Request-Id
+          description: uuidv4 string to identify the individual request
+          schema:
+            $ref: '#/components/schemas/RegAuthX-Request-Id'
+      security:
+        - BearerAuth:
+            - read
+            - write
+      tags:
+        - reg
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostSku'
+      responses:
+        '201':
+          description: Status 201 Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+        '400':
+          description: Status 400 Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RegAuthValidationError'
+        '401':
+          description: Status 401 Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedError'
+        '403':
+          description: Status 403 Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenError'
+        '404':
+          description: Status 404 Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundError'
+        '500':
+          description: Status 500 Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+    get:
+      summary: Retrieve a sku to appliance mapping for a given retailer
+      parameters:
+        - in: header
+          name: X-Request-Id
+          description: uuidv4 string to identify the individual request
+          schema:
+            $ref: '#/components/schemas/RegAuthX-Request-Id'
+        - in: query
+          name: sku
+          schema:
+            type: string
+            example: 12345678
+          required: true
+          description: The sku for a given sku to appliance mapping
+      security:
+        - BearerAuth:
+            - read
+            - write
+      tags:
+        - reg
+      responses:
+        '200':
+          description: Status 200 Response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SkuMap'
+                  - type: object
+                    properties:
+                      version:
+                        type: number
+                        description: The version of the retailer's sku inventory
+        '400':
+          description: Status 400 Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RegAuthValidationError'
+        '401':
+          description: Status 401 Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedError'
+        '403':
+          description: Status 403 Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenError'
+        '404':
+          description: Status 404 Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundError'
+        '500':
+          description: Status 500 Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+components:
+  schemas:
+    uuid:
+      type: string
+      pattern: >-
+        ^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$
+      example: 96113c99-304f-44f2-b3a2-4a3f301ce148
+    X-Request-Id:
+      allOf:
+        - $ref: '#/components/schemas/uuid'
+      example: c73bcdcc-2669-4bf6-81d3-e4ae73fb11fd
+    itbId:
+      allOf:
+        - $ref: '#/components/schemas/uuid'
+      example: c73bcdcc-2669-4bf6-81d3-e4ae73fb11fd
+      description: The Id of the ITB record
+    lineItemId:
+      type: string
+      minimum: 1
+      maximum: 64
+      example: ITB10001-101
+      description: >-
+        The Id of the individual line item within the purchase. This id is used
+        when updating or retrieving information around an individual policy in
+        follow-up API calls after the initial ITB has been registered.
+    imei:
+      type: string
+      example: 354136767721578
+      minimum: 15
+      maximum: 15
+      description: >-
+        The IMEI (International Mobile Equipment Identity) number; the unique
+        15-digit serial number for identifying a mobile device.
+    TimestampedEntity:
+      properties:
+        createdAt:
+          type: string
+          example: 'YYYY-MM-DDThh:mm:ss.SSSZ'
+        updatedAt:
+          type: string
+          example: 'YYYY-MM-DDThh:mm:ss.SSSZ'
+    ITBResponse:
+      required:
+        - message
+        - data
+      properties:
+        message:
+          type: string
+          example: ok
+        data:
+          type: object
+          required:
+            - purchase
+            - appliances
+          properties:
+            purchase:
+              type: object
+              allOf:
+                - $ref: '#/components/schemas/ITBPurchaseResponse'
+                - $ref: '#/components/schemas/TimestampedEntity'
+                - type: object
+                  properties:
+                    appliances:
+                      type: array
+                      minimum: 1
+                      maximum: 90
+                      items:
+                        type: object
+                        allOf:
+                          - $ref: '#/components/schemas/ITBApplianceDetails'
+                          - $ref: '#/components/schemas/TimestampedEntity'
+                        required:
+                          - applianceBrand
+                          - applianceType
+                          - createdAt
+                          - updatedAt
+              required:
+                - createdAt
+                - updatedAt
+    ITBCreateResponse:
+      properties:
+        itbId:
+          $ref: '#/components/schemas/itbId'
+        paymentEmbedUrl:
+          type: string
+          description: >-
+            a secured URL that can be used to display a payment form within an
+            IFrame
+          example: >-
+            https://secure.dg-click-integrations.com/ddi?reference=e7116591-3906-41be-be1d-31bf635daded
+        paymentRedirectUrl:
+          type: string
+          description: >-
+            a secured URL that can be used to redirect to a payment page hosted
+            by Domestic and general. You can append '&redirect={your redirect
+            URL}' to the end to have the page redirect once the form has been
+            submitted.
+          example: >-
+            https://secure.dg-click-integrations.com/ddi-page?reference=e7116591-3906-41be-be1d-31bf635daded
+    ITBTermPlanResponse:
+      required:
+        - itbId
+        - message
+        - policies
+      properties:
+        message:
+          type: string
+          default: processing term plan
+        itbId:
+          allOf:
+            - $ref: '#/components/schemas/uuid'
+        appliances:
+          type: array
+          required:
+            - status
+            - reason
+            - index
+            - premium
+            - appliancePrice
+            - lineItemId
+            - sku
+          items:
+            type: object
+            properties:
+              index:
+                type: number
+                description: >-
+                  The index of the appliance in regards to the index that it was
+                  passed in the request body; this is here in case no lineItemId
+                  was passed as another way to link the appliance from our
+                  system with yours for partial refund (or other) purposes.
+              premium:
+                type: number
+                example: 6000
+                description: >-
+                  The premium associated with the appliance; returned here to
+                  help with partial refund logic.
+              appliancePrice:
+                type: number
+                example: 100200
+                description: >-
+                  The appliance price associated with the appliance; returned
+                  here to help with partial refund logic.
+              lineItemId:
+                type: string
+                example: purchase-101-item-001
+              sku:
+                type: number
+                example: DNG10001
+                description: >-
+                  The SKU associated with the appliance; returned here to help
+                  with partial refund logic.
+              contractNumber:
+                type: number
+                example: 2Z50000005
+                description: >-
+                  The number for the DnG policy that has been created for the
+                  specified appliance.
+              breakdownStartDate:
+                type: string
+                example: '2026-01-01T00:00:00.000Z'
+                description: The date from which breakdown cover begins (YYYY-MM-DD).
+              renewalDate:
+                type: string
+                example: '2028-01-01T00:00:00.000Z'
+                description: >-
+                  The date when the current policy would be subject to renewal
+                  (YYYY-MM-DD).
+    ITBMultiplanTermPlanResponse:
+      required:
+        - itbId
+        - message
+        - policies
+      properties:
+        message:
+          type: string
+          default: processing term multiplan
+        itbId:
+          allOf:
+            - $ref: '#/components/schemas/uuid'
+        policies:
+          type: array
+          description: Array of all processed multiplan policies.
+          items:
+            type: object
+            required:
+              - status
+              - reason
+              - index
+              - premium
+              - appliancePrice
+              - lineItemId
+              - sku
+            properties:
+              index:
+                type: number
+                description: >-
+                  The index of the multiplan in regards to the index that it was
+                  passed in the request body; this is here in case no lineItemId
+                  was passed at the policy level as another way to link the
+                  multiplan from our system with yours for partial refund (or
+                  other) purposes.
+              premium:
+                type: number
+                example: 6000
+                description: >-
+                  The premium associated with the multiplan; returned here to
+                  help with partial refund logic.
+              appliancePrice:
+                type: number
+                example: 100200
+                description: >-
+                  The price associated with the multiplan; returned here to help
+                  with partial refund logic.
+              lineItemId:
+                type: string
+                example: purchase-101-item-001
+              sku:
+                type: number
+                example: DNG10001
+                description: >-
+                  The SKU associated with the multiplan; returned here to help
+                  with partial refund logic.
+              contractNumber:
+                type: number
+                example: 2Z50000005
+                description: >
+                  The number for the DnG policy that has been created for the
+                  specified multiplan. Note: this is what is referred to as the
+                  header plan policy number; each successfully created multiplan
+                  will have a 'header' plan which represents the full multiplan
+                  contract and then each appliance within that multiplan will
+                  have its own 'baby' plan with a unique contract number for it.
+                  The baby plans sit underneath the header plan. When dealing
+                  with the grouping of items as a single 'multiplan' entity the
+                  header plan (the one provided here) is the one used.
+              breakdownStartDate:
+                type: string
+                example: '2026-01-01T00:00:00.000Z'
+                description: >-
+                  The date from which breakdown cover begins for the header plan
+                  (YYYY-MM-DD).
+              renewalDate:
+                type: string
+                example: '2028-01-01T00:00:00.000Z'
+                description: >-
+                  The date when the current header plan policy would be subject
+                  to renewal (YYYY-MM-DD).
+              appliances:
+                type: array
+                items:
+                  type: object
+                  required:
+                    - index
+                    - lineItemId
+                    - contractNumber
+                  properties:
+                    index:
+                      type: number
+                      description: >-
+                        The index of the appliance in regards to the index that
+                        it was passed in the request body; this is here in case
+                        no lineItemId was passed as another way to link the
+                        appliance from our system with yours for partial refund
+                        (or other) purposes.
+                    applianceLineItemId:
+                      type: string
+                      example: purchase-101-item-001
+                      description: >-
+                        This relates to the applianceLineItemId that was passed
+                        in to the request.
+                    contractNumber:
+                      type: number
+                      example: 2Z50000005
+                      description: >-
+                        The number for the DnG policy that has been created for
+                        the specified appliance (the baby plan); this will only
+                        appear if the policy creation for this particular
+                        appliance was successful.
+                    breakdownStartDate:
+                      type: string
+                      example: '2026-01-01T00:00:00.000Z'
+                      description: >-
+                        The date from which breakdown cover begins for the baby
+                        plan (YYYY-MM-DD) - this should be the same as the
+                        header plan.
+                    renewalDate:
+                      type: string
+                      example: '2028-01-01T00:00:00.000Z'
+                      description: >-
+                        The date when the current baby plan policy would be
+                        subject to renewal (YYYY-MM-DD) - this should be the
+                        same as the header plan.
+    ITBCreateRequest:
+      properties:
+        itbId:
+          type: string
+          description: >-
+            Leave undefined, unless provided an itbId from the opt-in iframe
+            flow.
+          example: a1a3287f-1596-4bfe-83ab-44e0c36658c6
+      allOf:
+        - $ref: '#/components/schemas/ITBPurchaseDetails'
+        - $ref: '#/components/schemas/ITBApplianceDetails'
+        - $ref: '#/components/schemas/ITBOrderDetails'
+      required:
+        - title
+        - lastName
+        - addressLine1
+        - city
+        - postalCode
+        - country
+        - appliancesPurchased
+        - email
+    ITBTermCreateRequest:
+      properties:
+        itbId:
+          type: string
+          description: >-
+            Leave undefined, unless provided an itbId from the opt-in iframe
+            flow.
+          example: a1a3287f-1596-4bfe-83ab-44e0c36658c6
+      allOf:
+        - $ref: '#/components/schemas/ITBTermPurchaseDetails'
+        - $ref: '#/components/schemas/ITBApplianceDetails'
+        - $ref: '#/components/schemas/ITBOrderDetails'
+      required:
+        - title
+        - lastName
+        - addressLine1
+        - cashReference
+        - city
+        - postalCode
+        - country
+        - appliancesPurchased
+        - email
+    ITBMultiPlanTermCreateRequest:
+      allOf:
+        - $ref: '#/components/schemas/ITBMultiPlanTermPurchaseDetails'
+        - $ref: '#/components/schemas/ITBOrderDetails'
+      required:
+        - title
+        - lastName
+        - addressLine1
+        - cashReference
+        - city
+        - postalCode
+        - country
+        - policiesPurchased
+        - email
+    OFDCreateRequest:
+      allOf:
+        - $ref: '#/components/schemas/OFDApplianceDetails'
+        - properties:
+            orderNumber:
+              type: string
+              example: ITB10001
+              maximum: 200
+              minimum: 1
+            channel:
+              type: string
+              example: telesales
+              minimum: 1
+              maximum: 50
+              description: >-
+                A description of the sales channel through which this sale is
+                being made, for example “telesales”. The value to be used here
+                will be advised by Domestic & General.
+            agentId:
+              type: string
+              example: SALESAGENT0001
+              minimum: 1
+              maximum: 50
+              description: >-
+                For agent-advised sales, a unique identifier for the agent
+                leading the sale.
+            storeId:
+              type: string
+              example: STORE0001
+              minimum: 1
+              maximum: 50
+              description: >-
+                For in-person sales, a unique identifier for the store in which
+                the sale is taking place.
+      required:
+        - appliancesPurchased
+    OFDCreateResponse:
+      properties:
+        message:
+          type: string
+          example: Declined offer registered successfully
+    ITBCreateDDIRequest:
+      properties:
+        itbId:
+          allOf:
+            - $ref: '#/components/schemas/itbId'
+        accountHolderFullName:
+          description: The full name associated with the bank account in question
+          type: string
+          minimum: 1
+          maximum: 200
+          example: Joe Bloggs
+        accountNumber:
+          type: string
+          minimum: 8
+          maximum: 8
+          pattern: '^[0-9]{8,8}$'
+        sortCode:
+          type: string
+          minimum: 6
+          maximum: 6
+          pattern: '^[0-9]{6,6}$'
+        preferredBillingDay:
+          type: integer
+          minimum: 1
+          maximum: 28
+        postDocuments:
+          type: boolean
+          description: >-
+            If true then paper copies of policy documents are posted to the
+            customer
+          example: false
+          default: false
+      required:
+        - retailerId
+        - itbId
+        - accountHolderFullName
+        - accountNumber
+        - sortCode
+        - preferredBillingDay
+    ITBUpdateRequest:
+      allOf:
+        - $ref: '#/components/schemas/ITBUpdateDetails'
+      required:
+        - ITBId
+        - addressLine1
+        - city
+        - lastName
+        - postalCode
+        - title
+    GenerateNewLinkRequest:
+      properties:
+        ITBId:
+          allOf:
+            - $ref: '#/components/schemas/itbId'
+      required:
+        - ITBId
+    GenerateNewLinkResponse:
+      properties:
+        message:
+          type: string
+          default: link created
+    ITBGetPolicyUpdateResponse:
+      type: object
+      properties:
+        results:
+          type: array
+          items:
+            type: object
+            properties:
+              transactionDate:
+                type: string
+              transactionType:
+                type: string
+                enum:
+                  - CANCELLED
+                  - DOWNGRADE
+                  - PRODUCT REPLACEMENT
+              refundAmount:
+                type: number
+              originalPlan:
+                type: object
+                properties:
+                  planReference:
+                    type: string
+                  planType:
+                    type: string
+                    enum:
+                      - S
+                      - M
+                  planItem:
+                    type: string
+              replacementPlan:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    babyPlanReference:
+                      type: string
+                    babyPlanItem:
+                      type: string
+              newPlan:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    newPlanReference:
+                      type: string
+                    newPlanType:
+                      type: string
+                      enum:
+                        - S
+                        - M
+                    newPlanItem:
+                      type: string
+                    babyPlan:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          babyPlanReference:
+                            type: string
+                          babyPlanItem:
+                            type: string
+    ITBGetContractStatusResponse:
+      properties:
+        contractNumber:
+          type: string
+          example: ZGJ0001131
+        contractStatus:
+          type: string
+          enum:
+            - Active
+            - Cancelled
+            - Lapsed
+            - Error
+            - Pending
+      oneOf:
+        - type: object
+          description: >-
+            Expanded fields (fields provided if the 'expandFields' input is
+            true) these fields can be useful for performing validations.
+          properties:
+            firstName:
+              type: string
+              example: John
+            lastName:
+              type: string
+              example: S
+              description: The first letter of the surname
+            postcodeOutCode:
+              type: string
+              example: AA00
+              description: The out code of the postcode (up to the subdistrict)
+            countryCode:
+              type: string
+              example: GBR
+            acceptanceDate:
+              type: string
+              example: '2023-10-31T00:00:00.000Z'
+            renewalDate:
+              type: string
+              example: '2024-10-31T00:00:00.000Z'
+            itemCode:
+              type: string
+              example: CN
+              description: The code of the item/appliance associated with the contract
+            itemDescription:
+              type: string
+              example: MOBILE PHONE
+              description: >-
+                The description of the item/appliance associated with the
+                contract
+            appliancesPurchased:
+              type: array
+              items:
+                type: object
+                properties:
+                  contractNumber:
+                    type: string
+                    example: ZGJ0001131
+                  contractStatus:
+                    type: string
+                    enum:
+                      - Active
+                      - Cancelled
+                      - Lapsed
+                      - Error
+                      - Pending
+                  itemCode:
+                    type: string
+                    example: CN
+                    description: >-
+                      The code of the item/appliance associated with the
+                      contract
+                  itemDescription:
+                    type: string
+                    example: MOBILE PHONE
+    ITBPurchaseDetails:
+      properties:
+        addressLine1:
+          type: string
+          example: 1 The Street
+          minimum: 1
+          maximum: 150
+        addressLine2:
+          type: string
+          example: Newtown
+          minimum: 1
+          maximum: 150
+        city:
+          type: string
+          example: Big City
+          minimum: 1
+          maximum: 150
+        country:
+          type: string
+          description: The 3 letter ISO 3166-1 Alpha2 country code
+          example: GBR
+          enum:
+            - GBR
+          minimum: 3
+          maximum: 3
+        email:
+          type: string
+          example: test@test.com
+          maximum: 100
+          format: email
+          pattern: >-
+            ^[a-zA-Z0-9]{1}[a-zA-Z0-9.+-_]*@[a-zA-Z0-9]{1}[a-zA-Z0-9.-]*[a-zA-Z0-9]{1}[.][a-zA-Z]{2,}$
+        firstName:
+          type: string
+          example: Joe
+          minimum: 1
+          maximum: 40
+        lastName:
+          type: string
+          example: Bloggs
+          minimum: 1
+          maximum: 40
+        mobile:
+          type: string
+          example: '+447777123456'
+          minimum: 9
+          maximum: 15
+          pattern: ^\+?\d+$
+        postalCode:
+          type: string
+          example: W1 1AB
+          description: Zip/Postal code
+          maximum: 20
+          pattern: '^[a-zA-Z]{1,2}[0-9]{1,2}[a-zA-Z]?\s?[0-9][a-zA-Z]{2}$'
+        region:
+          type: string
+          minimum: 1
+          maximum: 150
+          example: Wessex
+          description: Region / State / Province
+        title:
+          type: string
+          example: Mr
+          minimum: 1
+          maximum: 10
+        channel:
+          type: string
+          example: telesales
+          minimum: 1
+          maximum: 50
+          description: >-
+            A description of the sales channel through which this sale is being
+            made, for example “telesales”. The value to be used here will be
+            advised by Domestic & General.
+        agentId:
+          type: string
+          example: SALESAGENT0001
+          minimum: 1
+          maximum: 50
+          description: >-
+            For agent-advised sales, a unique identifier for the agent leading
+            the sale.
+        storeId:
+          type: string
+          example: STORE0001
+          minimum: 1
+          maximum: 50
+          description: >-
+            For in-person sales, a unique identifier for the store in which the
+            sale is taking place.
+    ITBPurchaseResponse:
+      properties:
+        addressLine1:
+          type: string
+          example: 1 The Street
+          minimum: 1
+          maximum: 150
+        addressLine2:
+          type: string
+          example: Newtown
+          minimum: 1
+          maximum: 150
+        city:
+          type: string
+          example: Big City
+          minimum: 1
+          maximum: 150
+        country:
+          type: string
+          description: The 3 letter ISO 3166-1 Alpha2 country code
+          example: GBR
+          enum:
+            - GBR
+          minimum: 3
+          maximum: 3
+        email:
+          type: string
+          example: test@test.com
+          maximum: 100
+          format: email
+          pattern: >-
+            ^[a-zA-Z0-9]{1}[a-zA-Z0-9.+-_]*@[a-zA-Z0-9]{1}[a-zA-Z0-9.-]*[a-zA-Z0-9]{1}[.][a-zA-Z]{2,}$
+        firstName:
+          type: string
+          example: Joe
+          minimum: 1
+          maximum: 40
+        lastName:
+          type: string
+          example: Bloggs
+          minimum: 1
+          maximum: 40
+        postalCode:
+          type: string
+          example: W1 1AB
+          description: Zip/Postal code
+          maximum: 20
+          pattern: '^[a-zA-Z]{1,2}[0-9]{1,2}[a-zA-Z]?\s?[0-9][a-zA-Z]{2}$'
+        title:
+          type: string
+          example: Mr
+          minimum: 1
+          maximum: 10
+    ITBTermPurchaseDetails:
+      properties:
+        addressLine1:
+          type: string
+          example: 1 The Street
+          minimum: 1
+          maximum: 150
+        addressLine2:
+          type: string
+          example: Newtown
+          minimum: 1
+          maximum: 150
+        cashReference:
+          type: string
+          example: cash12345
+          minimum: 1
+          maximum: 200
+        city:
+          type: string
+          example: Big City
+          minimum: 1
+          maximum: 150
+        country:
+          type: string
+          description: The 3 letter ISO 3166-1 Alpha2 country code
+          example: GBR
+          enum:
+            - GBR
+          minimum: 3
+          maximum: 3
+        email:
+          type: string
+          example: test@test.com
+          maximum: 100
+          format: email
+          pattern: >-
+            ^[a-zA-Z0-9]{1}[a-zA-Z0-9.+-_]*@[a-zA-Z0-9]{1}[a-zA-Z0-9.-]*[a-zA-Z0-9]{1}[.][a-zA-Z]{2,}$
+        firstName:
+          type: string
+          example: Joe
+          minimum: 1
+          maximum: 40
+        lastName:
+          type: string
+          example: Bloggs
+          minimum: 1
+          maximum: 40
+        mobile:
+          type: string
+          example: '+447777123456'
+          minimum: 9
+          maximum: 15
+          pattern: ^\+?\d+$
+        postalCode:
+          type: string
+          example: W1 1AB
+          description: Zip/Postal code
+          maximum: 20
+          pattern: '^[a-zA-Z]{1,2}[0-9]{1,2}[a-zA-Z]?\s?[0-9][a-zA-Z]{2}$'
+        region:
+          type: string
+          minimum: 1
+          maximum: 150
+          example: Wessex
+          description: Region / State / Province
+        title:
+          type: string
+          example: Mr
+          minimum: 1
+          maximum: 10
+        channel:
+          type: string
+          example: telesales
+          minimum: 1
+          maximum: 50
+          description: >-
+            A description of the sales channel through which this sale is being
+            made, for example “telesales”. The value to be used here will be
+            advised by Domestic & General.
+        agentId:
+          type: string
+          example: SALESAGENT0001
+          minimum: 1
+          maximum: 50
+          description: >-
+            For agent-advised sales, a unique identifier for the agent leading
+            the sale.
+        storeId:
+          type: string
+          example: STORE0001
+          minimum: 1
+          maximum: 50
+          description: >-
+            For in-person sales, a unique identifier for the store in which the
+            sale is taking place.
+        postDocuments:
+          type: boolean
+          description: >-
+            If true then paper copies of policy documents are posted to the
+            customer
+          example: false
+          default: false
+    ITBMultiPlanTermPurchaseDetails:
+      required:
+        - policiesPurchased
+      allOf:
+        - $ref: '#/components/schemas/ITBTermPurchaseDetails'
+      properties:
+        policiesPurchased:
+          type: array
+          minimum: 1
+          maximum: 90
+          items:
+            type: object
+            required:
+              - appliancesPurchased
+              - premium
+              - sku
+            properties:
+              premium:
+                type: number
+                example: 30555
+                minimum: 1
+                maximum: 999999999999999
+                description: >-
+                  the full price of the warranty plan. note - amounts should be
+                  passed in lowest currency denomination
+              sku:
+                type: string
+                example: CW22002
+                maximum: 50
+                minimum: 1
+              lineItemId:
+                allOf:
+                  - $ref: '#/components/schemas/lineItemId'
+              appliancesPurchased:
+                type: array
+                minimum: 1
+                maximum: 90
+                items:
+                  type: object
+                  allOf:
+                    - $ref: '#/components/schemas/ITBMultiPlanAppliance'
+                    - properties:
+                        applianceCode:
+                          type: string
+                          example: FF
+                          description: FF for fridge freezer etc
+                          maximum: 2
+                          minimum: 2
+                  required:
+                    - appliancePrice
+                    - applianceBrand
+                    - applianceCode
+    ITBUpdateDetails:
+      properties:
+        itbId:
+          allOf:
+            - $ref: '#/components/schemas/itbId'
+        addressLine1:
+          type: string
+          example: 1 The Street
+          minimum: 1
+          maximum: 150
+        addressLine2:
+          type: string
+          example: Newtown
+          minimum: 1
+          maximum: 150
+        city:
+          type: string
+          example: Big City
+          minimum: 1
+          maximum: 150
+        firstName:
+          type: string
+          example: Joe
+          minimum: 1
+          maximum: 40
+        lastName:
+          type: string
+          example: Bloggs
+          minimum: 1
+          maximum: 40
+        postalCode:
+          type: string
+          example: W1 1AB
+          description: Zip/Postal code
+          maximum: 20
+          pattern: '^[a-zA-Z]{1,2}[0-9]{1,2}[a-zA-Z]?\s?[0-9][a-zA-Z]{2}$'
+        region:
+          type: string
+          minimum: 1
+          maximum: 150
+          example: Wessex
+          description: Region / State / Province
+        title:
+          type: string
+          example: Mr
+          minimum: 1
+          maximum: 10
+    ITBDeliveryUpdateRequest:
+      description: >
+        You are able to pass in optional fields to notify us of any additional
+        salient updates known at the point of updating the delivery. An example
+        of this is notifying us of the IMEI of a mobile device at the point of
+        delivery. NOTE: You must provide a lineItemId in the original POST ITB
+        call in order to use this endpoint
+      required:
+        - lineItemId
+        - deliveryDate
+      properties:
+        lineItemId:
+          allOf:
+            - $ref: '#/components/schemas/lineItemId'
+        deliveryDate:
+          type: string
+          format: date
+          description: >
+            The date of delivery in YYYY-mm-dd format; the update will result in
+            the customer’s plan being activated on this date.
+        imei:
+          allOf:
+            - $ref: '#/components/schemas/imei'
+    ITBIMEIUpdateRequest:
+      description: >
+        NOTE: You must provide a lineItemId in the original POST ITB call in
+        order to use this endpoint
+      required:
+        - lineItemId
+      properties:
+        lineItemId:
+          allOf:
+            - $ref: '#/components/schemas/lineItemId'
+        imei:
+          allOf:
+            - $ref: '#/components/schemas/imei'
+    ITBCancelPolicyRequest:
+      description: >
+        NOTE: You must provide a lineItemId in the original POST ITB call in
+        order to use this endpoint
+      required:
+        - lineItemId
+        - reasonCode
+      properties:
+        lineItemId:
+          allOf:
+            - $ref: '#/components/schemas/lineItemId'
+        reasonCode:
+          description: |
+            A Domestic & General defined reason code for the cancellation:
+              - PREDELIVERY: Policy cancelled before appliance delivered
+              - POSTDELIVERY: Policy cancelled after appliance delivered
+              - NOTREQUIRED: Policy no longer required
+          type: string
+          minimum: 11
+          maximum: 12
+          enum:
+            - PREDELIVERY
+            - POSTDELIVERY
+            - NOTREQUIRED
+        reasonReference:
+          description: >
+            A client defined reason code for the cancellation used for
+            performance reporting only.
+          type: string
+          minimum: 1
+          maximum: 50
+        correspondanceCode:
+          description: >
+            A Domestic & General defined Corerespondance code for the
+            cancellation:
+              - EMAIL: 
+              - LETTER: 
+              - NOTREQUIRED:
+          type: string
+          minimum: 5
+          maximum: 11
+          enum:
+            - EMAIL
+            - LETTER
+            - NOTREQUIRED
+        cancellationSource:
+          description: >
+            A Domestic & General defined Cancellation Source for the
+            cancellation:
+              - BANK: 
+              - EMAIL: 
+              - WHITEMAIL: 
+              - RECALL: 
+              - TELEPHONE: 
+              - WRITEOFF:
+          type: string
+          minimum: 4
+          maximum: 9
+          enum:
+            - BANK
+            - EMAIL
+            - WHITEMAIL
+            - RECALL
+            - TELEPHONE
+            - WRITEOFF
+    OFDApplianceDetails:
+      properties:
+        appliancesPurchased:
+          type: array
+          minimum: 1
+          maximum: 90
+          items:
+            type: object
+            allOf:
+              - $ref: '#/components/schemas/ITBAppliance'
+            oneOf:
+              - $ref: '#/components/schemas/ITBApplianceIdentificationDetailsSimple'
+              - $ref: '#/components/schemas/ITBApplianceIdentificationDetailsExpanded'
+    ITBApplianceDetails:
+      properties:
+        appliancesPurchased:
+          type: array
+          minimum: 1
+          maximum: 90
+          items:
+            type: object
+            allOf:
+              - $ref: '#/components/schemas/ITBAppliance'
+            oneOf:
+              - $ref: '#/components/schemas/ITBApplianceIdentificationDetailsSimple'
+              - $ref: '#/components/schemas/ITBApplianceIdentificationDetailsExpanded'
+            required:
+              - appliancePrice
+              - purchaseCurrency
+              - applianceBrand
+              - premium
+    ITBAppliance:
+      properties:
+        agentNumber:
+          type: string
+          example: 7C370
+          minimum: 1
+          maximum: 5
+          description: >-
+            The agentNumber (associated to the branchNumber) where the appliance
+            is being fulfilled. The value to be used here will be advised by
+            Domestic & General
+        branchNumber:
+          type: string
+          example: 1
+          minimum: 1
+          maximum: 2
+          pattern: '^[A-Za-z0-9]{1,2}$'
+          description: >-
+            The branchNumber of the specific branch fulfilling the appliance.
+            The value to be used here will be advised by Domestic & General
+        applianceBrand:
+          type: string
+          example: HOTP
+          minimum: 1
+          maximum: 4
+        applianceDescription:
+          type: string
+          example: 32 Inch LED TV
+          minimum: 1
+          maximum: 200
+        deliveryEstimate:
+          type: string
+          format: date
+          example: '2017-07-21T00:00:00.000Z'
+          pattern: '([12]\d{3}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01]))'
+          maximum: 10
+          minimum: 10
+        lineItemId:
+          allOf:
+            - $ref: '#/components/schemas/lineItemId'
+          example: purchase-101-item-001
+        modelNumber:
+          type: string
+          example: ABCD1234
+          maximum: 200
+          minimum: 1
+          description: >-
+            The model number of the appliance; this is used as part of the
+            repair/replacement process
+        premium:
+          type: number
+          example: 30555
+          minimum: 1
+          maximum: 999999999999999
+          description: >-
+            the full price of the warranty plan. note - amounts should be passed
+            in lowest currency denomination
+        appliancePrice:
+          type: number
+          example: 50199
+          description: note - amounts should be passed in lowest currency denomination
+          maximum: 999999999999999
+          minimum: 1
+        serialNumber:
+          type: string
+          example: ABCD1234
+          maximum: 50
+          minimum: 1
+    ITBMultiPlanAppliance:
+      properties:
+        applianceBrand:
+          type: string
+          example: HOTP
+          minimum: 1
+          maximum: 4
+        applianceDescription:
+          type: string
+          example: 32 Inch LED TV
+          minimum: 1
+          maximum: 200
+        deliveryEstimate:
+          type: string
+          format: date
+          example: '2017-07-21T00:00:00.000Z'
+          pattern: '([12]\d{3}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01]))'
+          maximum: 10
+          minimum: 10
+        applianceLineItemId:
+          type: string
+          minimum: 1
+          maximum: 64
+          example: ITB10001-101
+          description: >-
+            The Id of the individual line item within the purchase. This id is
+            used when updating or retrieving information around an individual
+            policy in follow-up API calls after the initial ITB has been
+            registered.
+        modelNumber:
+          type: string
+          example: ABCD1234
+          maximum: 50
+          minimum: 1
+        appliancePrice:
+          type: number
+          example: 50199
+          description: note - amounts should be passed in lowest currency denomination
+          maximum: 999999999999999
+          minimum: 1
+        serialNumber:
+          type: string
+          example: ABCD1234
+          maximum: 50
+          minimum: 1
+    ITBApplianceIdentificationDetailsExpanded:
+      required:
+        - schemeCode
+        - applianceCode
+        - manufacturerGuarantee
+        - partsGuarantee
+      properties:
+        schemeCode:
+          type: string
+          example: ABC
+          description: >-
+            Domestic & General 3 letter reference code for the insurance product
+            assigned to the appliance
+          maximum: 3
+          minimum: 3
+        applianceCode:
+          type: string
+          example: FF
+          description: FF for fridge freezer etc
+          maximum: 2
+          minimum: 2
+        manufacturerGuarantee:
+          type: number
+          minimum: 0
+          maximum: 180
+        partsGuarantee:
+          type: number
+          minimum: 0
+          maximum: 180
+    ITBApplianceIdentificationDetailsSimple:
+      required:
+        - sku
+      properties:
+        sku:
+          type: string
+          example: CW22002
+          maximum: 50
+          minimum: 1
+    ITBOrderDetails:
+      required:
+        - orderCurrency
+      properties:
+        orderNumber:
+          type: string
+          example: ITB10001
+          maximum: 200
+          minimum: 1
+        orderCurrency:
+          type: string
+          minimum: 3
+          maximum: 3
+          enum:
+            - GBP
+    ITBTouchPointRequest:
+      required:
+        - applianceBrand
+        - premium
+        - appliancePrice
+        - sku
+        - description
+        - journeyStep
+        - placement
+      properties:
+        applianceBrand:
+          type: string
+          example: HOTP
+          minimum: 1
+          maximum: 4
+        premium:
+          type: number
+          example: 30555
+          minimum: 1
+          maximum: 999999999999999
+          description: >-
+            the full price of the warranty plan. note - amounts should be passed
+            in lowest currency denomination
+        appliancePrice:
+          type: number
+          example: 50199
+          description: note - amounts should be passed in lowest currency denomination
+          maximum: 999999999999999
+          minimum: 1
+        sku:
+          type: string
+          example: CW22002
+          maximum: 50
+          minimum: 1
+        description:
+          type: string
+          example: 32 Inch LED TV
+          maximum: 200
+          minimum: 1
+        imageUrl:
+          type: string
+          example: >-
+            https://prod.domesticgeneral.magnolia-platform.io/dam/jcr:ccc1871e-a3f6-4d5f-83af-8e3ec92af7aa/engineer-repairing-oven.jpg
+        journeyStep:
+          type: string
+          enum:
+            - LISTINGS PAGE
+            - PRODUCT PAGE
+            - BASKET PAGE
+        placement:
+          type: string
+          enum:
+            - MODAL
+    ITBTouchPointResponse:
+      properties:
+        itbId:
+          type: string
+          description: a tracking id for the opt-in journey.
+          example: a1a3287f-1596-4bfe-83ab-44e0c36658c6
+        frameSrcUrl:
+          type: string
+          description: >-
+            a secured URL that can be used to display the opt-in widget within
+            an IFrame
+          example: >-
+            https://secure.dg-click-integrations.com/embed?payload=eyJhcHBsaWFuY2UiOnsiYXBwbGlhbmNlQnJhbmQiOiJIT1RQIiwicHJlbWl1bSI6Njk5LCJhcHBsaWFuY2VQcmljZSI6MTIwMDAsInNrdSI6IkRHUDE0Q04wMDAwMCIsImRlc2NyaXB0aW9uIjoiaGVsbG8gQW5keSIsImpvdXJuZXlTdGVwIjoiTGlzdGluZ3MgUGFnZSIsInBsYWNlbWVudCI6Im1vZGFsIn0sInRyYWNraW5nSWQiOiJhMWEzMjg3Zi0xNTk2LTRiZmUtODNhYi00NGUwYzM2NjU4YzYifQ==
+    InternalError:
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          default: internal error
+    PartialError:
+      description: >-
+        Returned when there is a problem creating one or more policies, the
+        'appliances' array in this response allows you to handle the error and
+        issue a partial or full refund.
+      required:
+        - itbId
+        - message
+        - policies
+      properties:
+        itbId:
+          type: string
+          example: ec55292c-307f-4856-b1ed-98f09be05f19
+          description: The Id of the Intention To Buy purchase record
+        message:
+          type: string
+          example: >-
+            error: Not all contracts were created. Please see appliances array
+            for details.
+        appliances:
+          type: array
+          items:
+            type: object
+            required:
+              - status
+              - reason
+              - index
+              - premium
+              - appliancePrice
+              - lineItemId
+              - sku
+            properties:
+              status:
+                type: string
+                enum:
+                  - rejected
+                  - fulfilled
+                description: >-
+                  Indicates whether the appliance was successful (fulfilled) or
+                  not (rejected) with creating a policy; you can use this for
+                  determining partial refund logic
+              reason:
+                type: string
+                example: Error creating contract
+              index:
+                type: number
+                description: >-
+                  The index of the appliance in regards to the index that it was
+                  passed in the request body; this is here in case no lineItemId
+                  was passed as another way to link the appliance from our
+                  system with yours for partial refund (or other) purposes.
+              premium:
+                type: number
+                example: 6000
+                description: >-
+                  The premium associated with the appliance; returned here to
+                  help with partial refund logic.
+              appliancePrice:
+                type: number
+                example: 100200
+                description: >-
+                  The appliance price associated with the appliance; returned
+                  here to help with partial refund logic.
+              lineItemId:
+                type: string
+                example: purchase-101-item-001
+              sku:
+                type: number
+                example: DNG10001
+                description: >-
+                  The SKU associated with the appliance; returned here to help
+                  with partial refund logic.
+              contractNumber:
+                type: number
+                example: 2Z50000005
+                description: >-
+                  The number for the DnG policy that has been created for the
+                  specified appliance; this will only appear if the policy
+                  creation for this particular appliance was successful.
+    PartialErrorMultiplan:
+      description: >-
+        Returned when there is a problem creating one or more policies, the
+        policies in this response allows you to handle the error and issue a
+        partial or full refund.
+      required:
+        - itbId
+        - message
+        - policies
+      properties:
+        itbId:
+          type: string
+          example: ec55292c-307f-4856-b1ed-98f09be05f19
+          description: The Id of the Intention To Buy purchase record
+        message:
+          type: string
+          example: >-
+            error: Not all contracts were created. Please see policies array for
+            details.
+        policies:
+          type: array
+          items:
+            type: object
+            required:
+              - status
+              - reason
+              - index
+              - premium
+              - appliancePrice
+              - lineItemId
+              - sku
+            properties:
+              status:
+                type: string
+                enum:
+                  - rejected
+                  - fulfilled
+                description: >-
+                  Indicates whether the multiplan was successful (fulfilled) or
+                  not (rejected) with creating a policy; you can use this for
+                  determining partial refund logic
+              reason:
+                type: string
+                example: Error creating contract
+              index:
+                type: number
+                description: >-
+                  The index of the multiplan in regards to the index that it was
+                  passed in the request body; this is here in case no lineItemId
+                  was passed in at the policy level as another way to link the
+                  multiplan from our system with yours for partial refund (or
+                  other) purposes.
+              premium:
+                type: number
+                example: 6000
+                description: >-
+                  The premium associated with the multiplan; returned here to
+                  help with partial refund logic.
+              appliancePrice:
+                type: number
+                example: 100200
+                description: >-
+                  The price associated with the multiplan; returned here to help
+                  with partial refund logic.
+              lineItemId:
+                type: string
+                example: purchase-101-item-001
+              sku:
+                type: number
+                example: DNG10001
+                description: >-
+                  The SKU associated with the multiplan; returned here to help
+                  with partial refund logic.
+              contractNumber:
+                type: number
+                example: 2Z50000005
+                description: >
+                  The number for the DnG policy if it has been successfully
+                  created for the specified multiplan. Note: this is what is
+                  referred to as the header plan policy number; each
+                  successfully created multiplan will have a 'header' plan which
+                  represents the full multiplan contract and then each appliance
+                  within that multiplan will have its own 'baby' plan with a
+                  unique contract number for it. The baby plans sit underneath
+                  the header plan. When dealing with the grouping of items as a
+                  single 'multiplan' entity the header plan (the one provided
+                  here) is the one used.
+    ValidationError:
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          default: validation error
+        validationError:
+          type: array
+          minimum: 1
+          items:
+            type: object
+            properties:
+              code:
+                type: string
+                example: too small
+              minimum:
+                type: number
+                example: 1
+              type:
+                type: string
+                example: string
+              inclusive:
+                type: boolean
+                example: true
+              message:
+                type: string
+                example: String must contain at least 1 character(s)
+              path:
+                type: array
+                items:
+                  anyOf:
+                    - type: string
+                    - type: number
+                example:
+                  - appliancesPurchased
+                  - 0
+                  - applianceBrand
+    ValidationErrorLineItem:
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          default: validation error
+        validationError:
+          type: array
+          minimum: 1
+          items:
+            type: object
+            properties:
+              code:
+                type: string
+                example: too small
+              minimum:
+                type: number
+                example: 1
+              type:
+                type: string
+                example: string
+              inclusive:
+                type: boolean
+                example: true
+              message:
+                type: string
+                example: String must contain at least 1 character
+              path:
+                type: array
+                items:
+                  anyOf:
+                    - type: string
+                    - type: number
+                example:
+                  - lineItemId
+    DDIValidationError:
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          default: validation error
+        validationError:
+          type: array
+          minimum: 1
+          items:
+            type: object
+            properties:
+              code:
+                type: string
+                example: too small
+              minimum:
+                type: number
+                example: 1
+              type:
+                type: string
+                example: string
+              inclusive:
+                type: boolean
+                example: true
+              message:
+                type: string
+                example: String must contain at least 1 character(s)
+              path:
+                type: array
+                items:
+                  anyOf:
+                    - type: string
+                    - type: number
+                example: accountHolderFullName
+    ForbiddenError:
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          default: forbidden
+    NotFoundError:
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          default: not found
+    Gone:
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          default: gone
+    PaymentComplete:
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          default: >-
+            This purchase has already been completed or is currently being
+            processed
+    UnauthorizedError:
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          default: unauthorized
+    priceBandRangeUnauthorizedError:
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          default: >-
+            appliancePrice (50199) does not fall within SKU price band range
+            (CW22002)
+    Success:
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          default: ok
+    Created:
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          default: created
+    Accepted:
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          default: accepted
+    DdbSObject:
+      required:
+        - S
+      properties:
+        S:
+          type: string
+    DdbNObject:
+      required:
+        - 'N'
+      properties:
+        'N':
+          type: string
+    DdbBOOLObject:
+      required:
+        - BOOL
+      properties:
+        BOOL:
+          type: boolean
+    Retailer:
+      required:
+        - retailerPk
+        - clientCode
+        - clientGroupCode
+        - agentNumber
+        - branchNumber
+        - companyCode
+      properties:
+        retailerPk:
+          type: string
+          example: c5069de0-12f3-42cb-a297-caef660cbecc
+          description: pk of RETAILER record
+        clientCode:
+          type: string
+          example: 16053
+          minimum: 5
+          maximum: 5
+        clientGroupCode:
+          type: string
+          example: 12853
+          minimum: 5
+          maximum: 5
+        agentNumber:
+          type: string
+          example: 7C370
+          minimum: 1
+          maximum: 5
+        branchNumber:
+          type: string
+          example: 1
+          minimum: 1
+          maximum: 2
+          pattern: '^[A-Za-z0-9]{1,2}$'
+        companyCode:
+          type: string
+          example: D
+          minimum: 1
+          maximum: 1
+    PostRegister:
+      required:
+        - nominatedEmail
+        - retailerName
+        - retailerDomain
+      properties:
+        nominatedEmail:
+          type: string
+          example: test@test.com
+          minimum: 6
+          maximum: 100
+          format: email
+        retailerName:
+          type: string
+          example: GoodStuff
+          minimum: 1
+          maximum: 160
+        retailerDomain:
+          type: string
+          example: goodstuff.com
+          minimum: 3
+          maximum: 255
+        parentRetailerDomain:
+          type: string
+          example: allstuff.com
+          minimum: 3
+          maximum: 255
+          description: >-
+            Can be used to specify a parent company which is useful for auditing
+            purposes.
+    PatchActivate:
+      allOf:
+        - $ref: '#/components/schemas/Retailer'
+    SkuMap:
+      required:
+        - schemeCode
+        - applianceCode
+        - manufacturerGuarantee
+        - partsGuarantee
+        - startBehaviour
+        - multiplan
+        - periodOfCover
+        - priceBandStart
+        - priceBandEnd
+      properties:
+        schemeCode:
+          type: string
+          example: ABC
+          description: >-
+            Domestic & General 3 letter reference code for the insurance product
+            assigned to the appliance
+          maximum: 3
+          minimum: 3
+        applianceCode:
+          type: string
+          example: FF
+          description: FF for fridge freezer etc
+          maximum: 2
+          minimum: 2
+        manufacturerGuarantee:
+          type: number
+          minimum: 0
+          maximum: 180
+        partsGuarantee:
+          type: number
+          minimum: 0
+          maximum: 180
+        startBehaviour:
+          type: string
+          enum:
+            - Immediate
+            - Demand
+            - Estimate
+        multiplan:
+          type: boolean
+        periodOfCover:
+          type: number
+          minimum: 0
+          maximum: 180
+        priceBandStart:
+          type: number
+          minimum: 0
+          maximum: 100000000
+        priceBandEnd:
+          type: number
+          minimum: 0
+          maximum: 100000000
+        description:
+          type: string
+        policyName:
+          type: string
+        agentNumber:
+          type: string
+          maximum: 5
+        excess:
+          type: number
+        additionalCoverage:
+          type: string
+        premium:
+          type: number
+        promotion:
+          type: string
+        promitionPrefix:
+          type: string
+        numberOfPayments:
+          type: number
+          description: >-
+            Number of payments during the contract period to work out the total
+            contract amount (temp solution for catering x free month promotions
+        paymentType:
+          type: number
+        paymentProfile:
+          type: string
+        ipid:
+          type: string
+        termsAndConditions:
+          type: string
+    PostSku:
+      required:
+        - skus
+      properties:
+        skus:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/SkuMap'
+    RegAuthX-Request-Id:
+      type: string
+      example: 96113c99-304f-44f2-b3a2-4a3f301ce148
+    RegAuthValidationError:
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          default: validation error
+        validationError:
+          type: array
+          minimum: 1
+          items:
+            type: object
+            properties:
+              code:
+                type: string
+                example: too small
+              minimum:
+                type: number
+                example: 2
+              type:
+                type: string
+                example: string
+              inclusive:
+                type: boolean
+                example: true
+              message:
+                type: string
+                example: should be at least 2 characters
+              path:
+                type: array
+                items:
+                  anyOf:
+                    - type: string
+                    - type: number
+                example:
+                  - addresses
+                  - 0
+                  - line1
+    CognitoSuccess:
+      required:
+        - access_token
+        - expires_in
+        - token_type
+      properties:
+        access_token:
+          type: string
+          example: >-
+            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
+        expires_in:
+          type: number
+          example: 3600
+        token_type:
+          type: string
+          example: Bearer
+    CognitoFailure:
+      required:
+        - error
+      properties:
+        error:
+          type: string
+          example: invalid_client
+          enum:
+            - invalid_client
+            - invalid_grant
+            - invalid_request
+            - unauthorized_client
+            - unsupported_grant_type
+  securitySchemes:
+    BearerAuth:
+      type: apiKey
+      in: header
+      name: Authorization
