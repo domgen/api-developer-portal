@@ -1449,7 +1449,7 @@ components:
         contractNumber:
           type: string
           example: ZGJ0001131
-        contractStatus:
+        status:
           type: string
           enum:
             - Active
@@ -1492,7 +1492,7 @@ components:
             contractNumber:
                 type: string
                 example: 'ZGJ0001131'
-            contractStatus:
+            status:
                 type: string
                 enum: ['Active', 'Cancelled', 'Lapsed', 'Error', 'Pending']
             firstName:
@@ -1523,7 +1523,7 @@ components:
                         contractNumber:
                             type: string
                             example: 'ZGJ0001131'
-                        contractStatus:
+                        status:
                             type: string
                             enum:
                                 [
@@ -1545,7 +1545,7 @@ components:
             contractNumber:
                 type: string
                 example: 'ZGJ0001131'
-            contractStatus:
+            status:
                 type: string
                 enum: ['Active', 'Cancelled', 'Lapsed', 'Error', 'Pending']
             appliancesPurchased:
@@ -1556,7 +1556,7 @@ components:
                         contractNumber:
                             type: string
                             example: 'ZGJ0001131'
-                        contractStatus:
+                        status:
                             type: string
                             enum:
                                 [
