@@ -131,7 +131,7 @@ paths:
                 SKUNotFoundExample:
                     summary: SKU not found error example
                     value:
-                      message: Unable to find SKU
+                      message: "Unable to find SKU: (123456)"
         '401':
           description: Status 401 Response
           content:
@@ -281,7 +281,7 @@ paths:
                 SKUNotFoundExample:
                   summary: SKU not found error example
                   value:
-                    message: Unable to find SKU
+                    message: "Unable to find SKU: (123456)"
         '401':
           description: Status 401 Response
           content:
@@ -657,7 +657,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ITBGetContractStatusResponse'
+                oneOf: 
+                    - $ref: '#/components/schemas/ITBGetContractStatusResponse'
+                    - $ref: '#/components/schemas/ITBGetContractStatusMultiPlanResponse'
+                    - $ref: '#/components/schemas/ITBGetContractStatusResponseWithoutExpandedFields'
         '400':
           description: Status 400 Response
           content:
@@ -1446,7 +1449,7 @@ components:
         contractNumber:
           type: string
           example: ZGJ0001131
-        contractStatus:
+        status:
           type: string
           enum:
             - Active
@@ -1454,67 +1457,115 @@ components:
             - Lapsed
             - Error
             - Pending
-      oneOf:
-        - type: object
+        firstName:
+          type: string
+          example: John
+        lastName:
+          type: string
+          example: S
+          description: The first letter of the surname
+        postcodeOutCode:
+          type: string
+          example: AA00
+          description: The out code of the postcode (up to the subdistrict)
+        countryCode:
+          type: string
+          example: GBR
+        acceptanceDate:
+          type: string
+          example: '2023-10-31T00:00:00.000Z'
+        renewalDate:
+          type: string
+          example: '2024-10-31T00:00:00.000Z'
+        itemCode:
+          type: string
+          example: CN
+          description: The code of the item/appliance associated with the contract
+        itemDescription:
+          type: string
+          example: MOBILE PHONE
           description: >-
-            Expanded fields (fields provided if the 'expandFields' input is
-            true) these fields can be useful for performing validations.
-          properties:
-            firstName:
-              type: string
-              example: John
-            lastName:
-              type: string
-              example: S
-              description: The first letter of the surname
-            postcodeOutCode:
-              type: string
-              example: AA00
-              description: The out code of the postcode (up to the subdistrict)
-            countryCode:
-              type: string
-              example: GBR
-            acceptanceDate:
-              type: string
-              example: '2023-10-31T00:00:00.000Z'
-            renewalDate:
-              type: string
-              example: '2024-10-31T00:00:00.000Z'
-            itemCode:
-              type: string
-              example: CN
-              description: The code of the item/appliance associated with the contract
-            itemDescription:
-              type: string
-              example: MOBILE PHONE
-              description: >-
                 The description of the item/appliance associated with the
                 contract
+    ITBGetContractStatusMultiPlanResponse:
+        properties:
+            contractNumber:
+                type: string
+                example: 'ZGJ0001131'
+            status:
+                type: string
+                enum: ['Active', 'Cancelled', 'Lapsed', 'Error', 'Pending']
+            firstName:
+                 type: string
+                 example: John
+            lastName:
+                type: string
+                example: S
+                description: The first letter of the surname
+            postcodeOutCode:
+                type: string
+                example: AA00
+                description: The out code of the postcode (up to the subdistrict)
+            countryCode:
+                type: string
+                example: GBR
+            acceptanceDate:
+                type: string
+                example: 2023-10-31
+            renewalDate:
+                type: string
+                example: 2024-10-31
             appliancesPurchased:
-              type: array
-              items:
-                type: object
-                properties:
-                  contractNumber:
-                    type: string
-                    example: ZGJ0001131
-                  contractStatus:
-                    type: string
-                    enum:
-                      - Active
-                      - Cancelled
-                      - Lapsed
-                      - Error
-                      - Pending
-                  itemCode:
-                    type: string
-                    example: CN
-                    description: >-
-                      The code of the item/appliance associated with the
-                      contract
-                  itemDescription:
-                    type: string
-                    example: MOBILE PHONE
+                type: array
+                items:
+                    type: object
+                    properties:
+                        contractNumber:
+                            type: string
+                            example: 'ZGJ0001131'
+                        status:
+                            type: string
+                            enum:
+                                [
+                                    'Active',
+                                    'Cancelled',
+                                    'Lapsed',
+                                    'Error',
+                                    'Pending',
+                                ]
+                        itemCode:
+                            type: string
+                            example: CN
+                            description: The code of the item/appliance associated with the contract
+                        itemDescription:
+                            type: string
+                            example: MOBILE PHONE
+    ITBGetContractStatusResponseWithoutExpandedFields:
+        properties:
+            contractNumber:
+                type: string
+                example: 'ZGJ0001131'
+            status:
+                type: string
+                enum: ['Active', 'Cancelled', 'Lapsed', 'Error', 'Pending']
+            appliancesPurchased:
+                type: array
+                items:
+                    type: object
+                    properties:
+                        contractNumber:
+                            type: string
+                            example: 'ZGJ0001131'
+                        status:
+                            type: string
+                            enum:
+                                [
+                                    'Active',
+                                    'Cancelled',
+                                    'Lapsed',
+                                    'Error',
+                                    'Pending',
+                                ]
     ITBPurchaseDetails:
       properties:
         addressLine1:
@@ -2025,7 +2076,7 @@ components:
         deliveryEstimate:
           type: string
           format: date
-          example: '2017-07-21T00:00:00.000Z'
+          example: '2017-07-21'
           pattern: '([12]\d{3}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01]))'
           maximum: 10
           minimum: 10
@@ -2075,7 +2126,7 @@ components:
         deliveryEstimate:
           type: string
           format: date
-          example: '2017-07-21T00:00:00.000Z'
+          example: '2017-07-21'
           pattern: '([12]\d{3}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01]))'
           maximum: 10
           minimum: 10
@@ -2558,7 +2609,7 @@ components:
             properties:
                 message:
                     type: string
-                    default: Unable to find SKU
+                    default: "Unable to find SKU: (123456)"
     Success:
       required:
         - message
