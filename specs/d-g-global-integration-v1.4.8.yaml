@@ -1,0 +1,62 @@
+openapi: 3.0.0
+info:
+    title: D&G Global Integration
+    description: This spec defines the API for the D&G Global Integration Service
+    version: v1.4.8
+servers:
+    - url: 'https://prod-sandbox.api.dg-click-integrations.com/{version}'
+      description: Sandbox environment for testing before going live
+      variables:
+          version:
+              default: v1
+              enum:
+                  - v1
+    - url: 'https://api.dg-click-integrations.com/{version}'
+      description: Live production environment
+      variables:
+          version:
+              default: v1
+              enum:
+                  - v1
+paths:
+    /oauth2/token:
+        servers:
+            - url: https://prod-sandbox-regauth-client.auth.eu-west-1.amazoncognito.com/oauth2/token
+              description: Prod Sandbox Environment OAuth Endpoint
+            - url: https://prod-regauth-client.auth.eu-west-1.amazoncognito.com/oauth2/token
+              description: Production Environment OAuth Endpoint
+        post:
+            summary: Endpoint to handle oauth2 token generation for clients and admins
+            security:
+                - BearerAuth: [read]
+            tags:
+                - oauth2
+            requestBody:
+                content:
+                    application/x-www-form-urlencoded:
+                        schema:
+                            type: object
+                            properties:
+                                grant_type:
+                                    type: string
+                                    example: client_credentials
+                                    description: 'We only support grant_type: client_credentials'
+                                client_id:
+                                    type: string
+                                    example: 6mhtijs5hsdqjquinrvlntjm9e
+                                client_secret:
+                                    type: string
+                                    example: 1ik270j5m8jrngbvvi1p60ag4qs5rlh6ok4kkkj8gqarvfdc35r
+            responses:
+                '200':
+                    description: Status 200 Response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/CognitoSuccess'
+                '400':
+                    description: Status 400 Response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/CognitoFailure'
