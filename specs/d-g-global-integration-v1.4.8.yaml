@@ -28,23 +28,9 @@ paths:
       - url: >-
           https://prod-sandbox-regauth-client.auth.eu-west-1.amazoncognito.com/oauth2/token
         description: Prod Sandbox Environment OAuth Endpoint
-        variables:
-          user-type:
-            default: client
-            description: User type for the service (External clients or Internal D&G users)
-            enum:
-              - client
-              - admin
       - url: >-
           https://prod-regauth-client.auth.eu-west-1.amazoncognito.com/oauth2/token
         description: Production Environment OAuth Endpoint
-        variables:
-          user-type:
-            default: client
-            description: User type for the service (External clients or Internal D&G users)
-            enum:
-              - client
-              - admin
     post:
       summary: Endpoint to handle oauth2 token generation for clients and admins
       security:
@@ -170,194 +156,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/InternalError'
-    get:
-      summary: >-
-        retrieve customer and product information related to a particular ITB
-        purchase
-      parameters:
-        - in: query
-          name: linkid
-          schema:
-            type: string
-          required: true
-          description: uuid linked to a particular purchase
-      security:
-        - BearerAuth:
-            - read
-      tags:
-        - itb
-        - _internal
-      responses:
-        '200':
-          description: Status 200 Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ITBResponse'
-        '400':
-          description: Status 400 Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ValidationError'
-        '401':
-          description: Status 401 Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UnauthorizedError'
-        '403':
-          description: Status 403 Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ForbiddenError'
-        '404':
-          description: Status 404 Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/NotFoundError'
-        '410':
-          description: Status 410 Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Gone'
-        '500':
-          description: Status 500 Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/InternalError'
-    put:
-      summary: >-
-        update purchase details for users who have expressed an intention to buy
-        a warranty
-      parameters:
-        - in: header
-          name: X-Request-Id
-          description: uuidv4 string to identify the individual request
-          schema:
-            $ref: '#/components/schemas/X-Request-Id'
-      security:
-        - BearerAuth:
-            - read
-            - write
-      tags:
-        - itb
-        - _internal
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ITBUpdateRequest'
-      responses:
-        '200':
-          description: Status 200 Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Success'
-        '400':
-          description: Status 400 Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ValidationError'
-        '401':
-          description: Status 401 Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UnauthorizedError'
-        '403':
-          description: Status 403 Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ForbiddenError'
-        '404':
-          description: Status 404 Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/NotFoundError'
-        '500':
-          description: Status 500 Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/InternalError'
-  /itb/ddi:
-    post:
-      summary: >
-        setup a direct debit instruction for an item that the customer has
-        previously expressed an intention to buy.  DISCLAIMER: by submitting
-        user data to this endpoint you confirm that the user has stated that
-        they are the only account holder of the bank details in question
-      parameters:
-        - in: header
-          name: X-Request-Id
-          required: true
-          description: uuidv4 string to identify the individual request
-          schema:
-            $ref: '#/components/schemas/X-Request-Id'
-      security:
-        - BearerAuth:
-            - read
-            - write
-      tags:
-        - itb
-        - _internal
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ITBCreateDDIRequest'
-      responses:
-        '201':
-          description: Status 201 Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Created'
-        '400':
-          description: Status 400 Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/DDIValidationError'
-        '401':
-          description: Status 401 Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UnauthorizedError'
-        '403':
-          description: Status 403 Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ForbiddenError'
-        '404':
-          description: Status 404 Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/NotFoundError'
-        '410':
-          description: Status 410 Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/PaymentComplete'
-        '500':
-          description: Status 500 Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/InternalError'
   /itb/ofd:
     post:
       summary: >
@@ -389,67 +187,6 @@ paths:
               schema:
                 allOf:
                   - $ref: '#/components/schemas/OFDCreateResponse'
-        '400':
-          description: Status 400 Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ValidationError'
-        '401':
-          description: Status 401 Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UnauthorizedError'
-        '403':
-          description: Status 403 Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ForbiddenError'
-        '404':
-          description: Status 404 Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/NotFoundError'
-        '500':
-          description: Status 500 Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/InternalError'
-  /itb/link:
-    post:
-      summary: |
-        Generates a new magic link to itb checkout
-      parameters:
-        - in: header
-          name: X-Request-Id
-          required: true
-          description: uuidv4 string to identify the individual request
-          schema:
-            $ref: '#/components/schemas/X-Request-Id'
-      security:
-        - BearerAuth:
-            - read
-            - write
-      tags:
-        - itb
-        - _internal
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/GenerateNewLinkRequest'
-      responses:
-        '201':
-          description: Status 201 Response
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - $ref: '#/components/schemas/GenerateNewLinkResponse'
         '400':
           description: Status 400 Response
           content:
@@ -1073,276 +810,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/InternalError'
-  /reg/register:
-    post:
-      summary: post retailer information and initial admin user email address
-      parameters:
-        - in: header
-          name: X-Request-Id
-          description: uuidv4 string to identify the individual request
-          schema:
-            $ref: '#/components/schemas/regX-Request-Id'
-      security:
-        - BearerAuth:
-            - read
-            - write
-      tags:
-        - reg
-        - _internal
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/PostRegister'
-      responses:
-        '201':
-          description: Status 201 Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Created'
-        '400':
-          description: Status 400 Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/regValidationError'
-        '401':
-          description: Status 401 Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UnauthorizedError'
-        '403':
-          description: Status 403 Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ForbiddenError'
-        '404':
-          description: Status 404 Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/NotFoundError'
-        '500':
-          description: Status 500 Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/InternalError'
-  /reg/activate:
-    patch:
-      summary: patch retailer information with D&G internal codes and set to active
-      parameters:
-        - in: header
-          name: X-Request-Id
-          description: uuidv4 string to identify the individual request
-          schema:
-            $ref: '#/components/schemas/regX-Request-Id'
-      security:
-        - BearerAuth:
-            - read
-            - write
-      tags:
-        - reg
-        - _internal
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/PatchActivate'
-      responses:
-        '200':
-          description: Status 200 Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Success'
-        '400':
-          description: Status 400 Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/regValidationError'
-        '401':
-          description: Status 401 Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UnauthorizedError'
-        '403':
-          description: Status 403 Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ForbiddenError'
-        '404':
-          description: Status 404 Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/NotFoundError'
-        '500':
-          description: Status 500 Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/InternalError'
-  /reg/verify:
-    get:
-      summary: endpoint to handle email verification for retailers
-      parameters:
-        - in: query
-          name: linkid
-          schema:
-            type: string
-            example: b27595e8-6bec-49ff-8887-da4a5e53b760
-          required: true
-          description: uuid linked to a particular retailer
-      tags:
-        - reg
-        - _internal
-      responses:
-        '200':
-          description: Status 200 Response
-          content:
-            text/html:
-              schema:
-                type: string
-                example: <body><h1>E-mail address verified</h1></body>
-        '404':
-          description: Status 400 Response
-          content:
-            text/html:
-              schema:
-                type: string
-                example: <body><h1>404 - Page not found</h1></body>
-        '500':
-          description: Status 500 Response
-          content:
-            text/html:
-              schema:
-                type: string
-                example: <body><h1>Internal Error</h1></body>
-  /reg/retailer:
-    get:
-      summary: endpoint to get retailer details
-      parameters:
-        - in: query
-          name: cognitoAppClientId
-          schema:
-            type: string
-            example: 7gbht6583ae33ujohgiqelt24t
-          required: true
-          description: clientId for a particular retailer
-      tags:
-        - reg
-        - _internal
-      responses:
-        '200':
-          description: Successful response
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  entity:
-                    allOf:
-                      - $ref: '#/components/schemas/DdbSObject'
-                      - description: Entity type
-                  version:
-                    allOf:
-                      - $ref: '#/components/schemas/DdbNObject'
-                      - description: Version of the entity
-                  cognitoAppClientId:
-                    allOf:
-                      - $ref: '#/components/schemas/DdbSObject'
-                      - description: The appClientId for the client user pool in cognito
-                  createdAt:
-                    allOf:
-                      - $ref: '#/components/schemas/DdbSObject'
-                      - description: Timestamp of creation
-                        format: date-time
-                  authorisedBy:
-                    allOf:
-                      - $ref: '#/components/schemas/DdbSObject'
-                      - description: Authorized by
-                  requestId:
-                    allOf:
-                      - $ref: '#/components/schemas/DdbSObject'
-                      - description: Request ID
-                  emailVerified:
-                    allOf:
-                      - $ref: '#/components/schemas/DdbBOOLObject'
-                      - description: Indicates if the email is verified
-                  active:
-                    allOf:
-                      - $ref: '#/components/schemas/DdbBOOLObject'
-                      - description: Indicates if the entity is active
-                  retailerName:
-                    allOf:
-                      - $ref: '#/components/schemas/DdbSObject'
-                      - description: Name of the retailer
-                  updatedAt:
-                    allOf:
-                      - $ref: '#/components/schemas/DdbSObject'
-                      - description: Timestamp of last update
-                        format: date-time
-                  sk:
-                    allOf:
-                      - $ref: '#/components/schemas/DdbSObject'
-                      - description: Secondary key of the entity
-                  nominatedEmail:
-                    allOf:
-                      - $ref: '#/components/schemas/DdbSObject'
-                      - description: Email address of the nominee
-                  pk:
-                    allOf:
-                      - $ref: '#/components/schemas/DdbSObject'
-                      - description: Primary key of the entity
-                  retailerDomain:
-                    allOf:
-                      - $ref: '#/components/schemas/DdbSObject'
-                      - description: Domain of the retailer
-                  clientCode:
-                    allOf:
-                      - $ref: '#/components/schemas/DdbSObject'
-                      - description: ClientCode (SCHEME) of the retailer
-                  clientGroupCode:
-                    allOf:
-                      - $ref: '#/components/schemas/DdbSObject'
-                      - description: ClientGroupCode (SCHEME) of the retailer
-                  agentNumber:
-                    allOf:
-                      - $ref: '#/components/schemas/DdbSObject'
-                      - description: AgentNumber (SCHEME) of the retailer
-                  branchNumber:
-                    allOf:
-                      - $ref: '#/components/schemas/DdbSObject'
-                      - description: BranchNumber (SCHEME) of the retailer
-                  companyCode:
-                    allOf:
-                      - $ref: '#/components/schemas/DdbSObject'
-                      - description: CompanyCode (SCHEME) of the retailer
-        '400':
-          description: Status 400 Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/regValidationError'
-        '404':
-          description: Status 404 Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/NotFoundError'
-        '500':
-          description: Status 500 Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/InternalError'
   /reg/retailer/sku:
     post:
       summary: Insert/Update the sku inventory for a given retailer
@@ -1351,7 +818,7 @@ paths:
           name: X-Request-Id
           description: uuidv4 string to identify the individual request
           schema:
-            $ref: '#/components/schemas/regX-Request-Id'
+            $ref: '#/components/schemas/RegAuthX-Request-Id'
       security:
         - BearerAuth:
             - read
@@ -1375,7 +842,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/regValidationError'
+                $ref: '#/components/schemas/RegAuthValidationError'
         '401':
           description: Status 401 Response
           content:
@@ -1407,7 +874,7 @@ paths:
           name: X-Request-Id
           description: uuidv4 string to identify the individual request
           schema:
-            $ref: '#/components/schemas/regX-Request-Id'
+            $ref: '#/components/schemas/RegAuthX-Request-Id'
         - in: query
           name: sku
           schema:
@@ -1439,7 +906,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/regValidationError'
+                $ref: '#/components/schemas/RegAuthValidationError'
         '401':
           description: Status 401 Response
           content:
@@ -3361,10 +2828,10 @@ components:
           type: object
           additionalProperties:
             $ref: '#/components/schemas/SkuMap'
-    regX-Request-Id:
+    RegAuthX-Request-Id:
       type: string
       example: 96113c99-304f-44f2-b3a2-4a3f301ce148
-    regValidationError:
+    RegAuthValidationError:
       required:
         - message
       properties:
