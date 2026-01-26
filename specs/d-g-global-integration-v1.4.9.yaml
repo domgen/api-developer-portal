@@ -1876,8 +1876,8 @@ components:
           description: >
             A Domestic & General defined Corerespondance code for the
             cancellation:
-              - EMAIL: 
-              - LETTER: 
+              - EMAIL:
+              - LETTER:
               - NOTREQUIRED:
           type: string
           minimum: 5
@@ -1890,11 +1890,11 @@ components:
           description: >
             A Domestic & General defined Cancellation Source for the
             cancellation:
-              - BANK: 
-              - EMAIL: 
-              - WHITEMAIL: 
-              - RECALL: 
-              - TELEPHONE: 
+              - BANK:
+              - EMAIL:
+              - WHITEMAIL:
+              - RECALL:
+              - TELEPHONE:
               - WRITEOFF:
           type: string
           minimum: 4
@@ -1970,7 +1970,7 @@ components:
         deliveryEstimate:
           type: string
           format: date
-          example: '2017-07-21T00:00:00.000Z'
+          example: '2026-01-21'
           pattern: '([12]\d{3}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01]))'
           maximum: 10
           minimum: 10
@@ -2020,7 +2020,7 @@ components:
         deliveryEstimate:
           type: string
           format: date
-          example: '2017-07-21T00:00:00.000Z'
+          example: '2026-01-21'
           pattern: '([12]\d{3}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01]))'
           maximum: 10
           minimum: 10
@@ -2156,7 +2156,7 @@ components:
           type: string
           enum:
             - MODAL
-            - SIDE_DRAWER
+            - SIDE-DRAWER
     ITBTouchPointResponse:
       properties:
         itbId:
