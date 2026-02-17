@@ -4,14 +4,14 @@ info:
   description: This spec defines the API for the D&G Global Integration Service
   version: v1.4.9
 servers:
-  - url: 'https://prod-sandbox.api.dg-click-integrations.com/{version}'
+  - url: "https://prod-sandbox.api.dg-click-integrations.com/{version}"
     description: Sandbox environment for testing before going live
     variables:
       version:
         default: v1
         enum:
           - v1
-  - url: 'https://api.dg-click-integrations.com/{version}'
+  - url: "https://api.dg-click-integrations.com/{version}"
     description: Live production environment
     variables:
       version:
@@ -47,7 +47,7 @@ paths:
                 grant_type:
                   type: string
                   example: client_credentials
-                  description: 'We only support grant_type: client_credentials'
+                  description: "We only support grant_type: client_credentials"
                 client_id:
                   type: string
                   example: 6mhtijs5hsdqjquinrvlntjm9e
@@ -55,18 +55,18 @@ paths:
                   type: string
                   example: 1ik270j5m8jrngbvvi1p60ag4qs5rlh6ok4kkkj8gqarvfdc35r
       responses:
-        '200':
+        "200":
           description: Status 200 Response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CognitoSuccess'
-        '400':
+                $ref: "#/components/schemas/CognitoSuccess"
+        "400":
           description: Status 400 Response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CognitoFailure'
+                $ref: "#/components/schemas/CognitoFailure"
   /itb:
     post:
       summary: >-
@@ -78,7 +78,7 @@ paths:
           required: true
           description: uuidv4 string to identify the individual request
           schema:
-            $ref: '#/components/schemas/X-Request-Id'
+            $ref: "#/components/schemas/X-Request-Id"
       security:
         - BearerAuth:
             - read
@@ -89,24 +89,24 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ITBCreateRequest'
+              $ref: "#/components/schemas/ITBCreateRequest"
       responses:
-        '201':
+        "201":
           description: Status 201 Response
           content:
             application/json:
               schema:
                 allOf:
-                  - $ref: '#/components/schemas/ITBCreateResponse'
-        '400':
+                  - $ref: "#/components/schemas/ITBCreateResponse"
+        "400":
           description: Status 400 Response
           content:
             application/json:
               schema:
                 oneOf:
-                  - $ref: '#/components/schemas/ValidationError'
-                  - $ref: '#/components/schemas/priceBandRangeUnauthorizedError'
-                  - $ref: '#/components/schemas/skuNotFoundError'
+                  - $ref: "#/components/schemas/ValidationError"
+                  - $ref: "#/components/schemas/priceBandRangeUnauthorizedError"
+                  - $ref: "#/components/schemas/skuNotFoundError"
               examples:
                 ValidationErrorExample:
                   summary: Validation error example
@@ -131,31 +131,31 @@ paths:
                 SKUNotFoundExample:
                   summary: SKU not found error example
                   value:
-                    message: 'Unable to find SKU: (123456)'
-        '401':
+                    message: "Unable to find SKU: (123456)"
+        "401":
           description: Status 401 Response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UnauthorizedError'
-        '403':
+                $ref: "#/components/schemas/UnauthorizedError"
+        "403":
           description: Status 403 Response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ForbiddenError'
-        '404':
+                $ref: "#/components/schemas/ForbiddenError"
+        "404":
           description: Status 404 Response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/NotFoundError'
-        '500':
+                $ref: "#/components/schemas/NotFoundError"
+        "500":
           description: Status 500 Response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/InternalError'
+                $ref: "#/components/schemas/InternalError"
   /itb/ofd:
     post:
       summary: >
@@ -167,7 +167,7 @@ paths:
           required: true
           description: uuidv4 string to identify the individual request
           schema:
-            $ref: '#/components/schemas/X-Request-Id'
+            $ref: "#/components/schemas/X-Request-Id"
       security:
         - BearerAuth:
             - read
@@ -178,45 +178,45 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/OFDCreateRequest'
+              $ref: "#/components/schemas/OFDCreateRequest"
       responses:
-        '201':
+        "201":
           description: Status 201 Response
           content:
             application/json:
               schema:
                 allOf:
-                  - $ref: '#/components/schemas/OFDCreateResponse'
-        '400':
+                  - $ref: "#/components/schemas/OFDCreateResponse"
+        "400":
           description: Status 400 Response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ValidationError'
-        '401':
+                $ref: "#/components/schemas/ValidationError"
+        "401":
           description: Status 401 Response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UnauthorizedError'
-        '403':
+                $ref: "#/components/schemas/UnauthorizedError"
+        "403":
           description: Status 403 Response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ForbiddenError'
-        '404':
+                $ref: "#/components/schemas/ForbiddenError"
+        "404":
           description: Status 404 Response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/NotFoundError'
-        '500':
+                $ref: "#/components/schemas/NotFoundError"
+        "500":
           description: Status 500 Response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/InternalError'
+                $ref: "#/components/schemas/InternalError"
   /itb/term:
     post:
       summary: >-
@@ -228,7 +228,7 @@ paths:
           required: true
           description: uuidv4 string to identify the individual request
           schema:
-            $ref: '#/components/schemas/X-Request-Id'
+            $ref: "#/components/schemas/X-Request-Id"
       security:
         - BearerAuth:
             - read
@@ -239,24 +239,24 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ITBTermCreateRequest'
+              $ref: "#/components/schemas/ITBTermCreateRequest"
       responses:
-        '201':
+        "201":
           description: Status 201 Response
           content:
             application/json:
               schema:
                 allOf:
-                  - $ref: '#/components/schemas/ITBTermPlanResponse'
-        '400':
+                  - $ref: "#/components/schemas/ITBTermPlanResponse"
+        "400":
           description: Status 400 Response
           content:
             application/json:
               schema:
                 oneOf:
-                  - $ref: '#/components/schemas/ValidationError'
-                  - $ref: '#/components/schemas/priceBandRangeUnauthorizedError'
-                  - $ref: '#/components/schemas/skuNotFoundError'
+                  - $ref: "#/components/schemas/ValidationError"
+                  - $ref: "#/components/schemas/priceBandRangeUnauthorizedError"
+                  - $ref: "#/components/schemas/skuNotFoundError"
               examples:
                 ValidationErrorExample:
                   summary: Validation error example
@@ -281,31 +281,31 @@ paths:
                 SKUNotFoundExample:
                   summary: SKU not found error example
                   value:
-                    message: 'Unable to find SKU: (123456)'
-        '401':
+                    message: "Unable to find SKU: (123456)"
+        "401":
           description: Status 401 Response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UnauthorizedError'
-        '403':
+                $ref: "#/components/schemas/UnauthorizedError"
+        "403":
           description: Status 403 Response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ForbiddenError'
-        '404':
+                $ref: "#/components/schemas/ForbiddenError"
+        "404":
           description: Status 404 Response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/NotFoundError'
-        '500':
+                $ref: "#/components/schemas/NotFoundError"
+        "500":
           description: Status 500 Response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PartialError'
+                $ref: "#/components/schemas/PartialError"
   /itb/multiplan/term:
     post:
       summary: >-
@@ -317,7 +317,7 @@ paths:
           required: true
           description: uuidv4 string to identify the individual request
           schema:
-            $ref: '#/components/schemas/X-Request-Id'
+            $ref: "#/components/schemas/X-Request-Id"
       security:
         - BearerAuth:
             - read
@@ -328,27 +328,27 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ITBMultiPlanTermCreateRequest'
+              $ref: "#/components/schemas/ITBMultiPlanTermCreateRequest"
       responses:
-        '201':
+        "201":
           description: Status 201 Response
           content:
             application/json:
               schema:
                 allOf:
-                  - $ref: '#/components/schemas/ITBMultiplanTermPlanResponse'
+                  - $ref: "#/components/schemas/ITBMultiplanTermPlanResponse"
                   - type: object
                     properties:
                       message:
                         example: processing term multiplan
-        '400':
+        "400":
           description: Status 400 Response
           content:
             application/json:
               schema:
                 oneOf:
-                  - $ref: '#/components/schemas/ValidationError'
-                  - $ref: '#/components/schemas/priceBandRangeUnauthorizedError'
+                  - $ref: "#/components/schemas/ValidationError"
+                  - $ref: "#/components/schemas/priceBandRangeUnauthorizedError"
               examples:
                 ValidationErrorExample:
                   summary: Validation error example
@@ -370,30 +370,30 @@ paths:
                     message: >-
                       appliancePrice (50199) does not fall within SKU price band
                       range (CW22002)
-        '401':
+        "401":
           description: Status 401 Response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UnauthorizedError'
-        '403':
+                $ref: "#/components/schemas/UnauthorizedError"
+        "403":
           description: Status 403 Response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ForbiddenError'
-        '404':
+                $ref: "#/components/schemas/ForbiddenError"
+        "404":
           description: Status 404 Response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/NotFoundError'
-        '500':
+                $ref: "#/components/schemas/NotFoundError"
+        "500":
           description: Status 500 Response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PartialErrorMultiplan'
+                $ref: "#/components/schemas/PartialErrorMultiplan"
   /itb/appliance/cancel:
     patch:
       summary: request cancellation of a policy created for a specific line item
@@ -403,7 +403,7 @@ paths:
           required: true
           description: uuidv4 string to identify the individual request
           schema:
-            $ref: '#/components/schemas/X-Request-Id'
+            $ref: "#/components/schemas/X-Request-Id"
       security:
         - BearerAuth:
             - read
@@ -414,64 +414,64 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ITBCancelPolicyRequest'
+              $ref: "#/components/schemas/ITBCancelPolicyRequest"
       responses:
-        '202':
+        "202":
           description: Status 202 Response
           content:
             application/json:
               schema:
                 allOf:
-                  - $ref: '#/components/schemas/Accepted'
+                  - $ref: "#/components/schemas/Accepted"
                   - properties:
                       message:
                         type: string
                         example: Contract cancel request received
-        '400':
+        "400":
           description: Status 400 Response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ValidationErrorLineItem'
-        '401':
+                $ref: "#/components/schemas/ValidationErrorLineItem"
+        "401":
           description: Status 401 Response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UnauthorizedError'
-        '403':
+                $ref: "#/components/schemas/UnauthorizedError"
+        "403":
           description: Status 403 Response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ForbiddenError'
-        '404':
+                $ref: "#/components/schemas/ForbiddenError"
+        "404":
           description: |
             Status 404 Response: lineItem not found, reasonCode not found
           content:
             application/json:
               schema:
                 allOf:
-                  - $ref: '#/components/schemas/NotFoundError'
+                  - $ref: "#/components/schemas/NotFoundError"
                 properties:
                   message:
                     default: lineItem not found
-        '410':
+        "410":
           description: Status 410 Response
           content:
             application/json:
               schema:
                 allOf:
-                  - $ref: '#/components/schemas/Gone'
+                  - $ref: "#/components/schemas/Gone"
                 properties:
                   message:
                     default: contract already cancelled
-        '500':
+        "500":
           description: Status 500 Response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/InternalError'
+                $ref: "#/components/schemas/InternalError"
   /itb/appliance/delivery:
     patch:
       summary: Confirm the delivery date of of a specific line item.
@@ -481,7 +481,7 @@ paths:
           required: true
           description: uuidv4 string to identify the individual request
           schema:
-            $ref: '#/components/schemas/X-Request-Id'
+            $ref: "#/components/schemas/X-Request-Id"
       security:
         - BearerAuth:
             - read
@@ -492,60 +492,60 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ITBDeliveryUpdateRequest'
+              $ref: "#/components/schemas/ITBDeliveryUpdateRequest"
       responses:
-        '202':
+        "202":
           description: Status 202 Response
           content:
             application/json:
               schema:
                 allOf:
-                  - $ref: '#/components/schemas/Accepted'
-        '400':
+                  - $ref: "#/components/schemas/Accepted"
+        "400":
           description: Status 400 Response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ValidationErrorLineItem'
-        '401':
+                $ref: "#/components/schemas/ValidationErrorLineItem"
+        "401":
           description: Status 401 Response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UnauthorizedError'
-        '403':
+                $ref: "#/components/schemas/UnauthorizedError"
+        "403":
           description: Status 403 Response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ForbiddenError'
-        '404':
+                $ref: "#/components/schemas/ForbiddenError"
+        "404":
           description: |
             Status 404 Response: lineItem not found
           content:
             application/json:
               schema:
                 allOf:
-                  - $ref: '#/components/schemas/NotFoundError'
+                  - $ref: "#/components/schemas/NotFoundError"
                 properties:
                   message:
                     default: lineItem not found
-        '410':
+        "410":
           description: Status 410 Response
           content:
             application/json:
               schema:
                 allOf:
-                  - $ref: '#/components/schemas/Gone'
+                  - $ref: "#/components/schemas/Gone"
                 properties:
                   message:
                     default: contract has been cancelled
-        '500':
+        "500":
           description: Status 500 Response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/InternalError'
+                $ref: "#/components/schemas/InternalError"
   /itb/appliance/imei:
     patch:
       summary: update the IMEI number associated with a specific line item
@@ -555,7 +555,7 @@ paths:
           required: true
           description: uuidv4 string to identify the individual request
           schema:
-            $ref: '#/components/schemas/X-Request-Id'
+            $ref: "#/components/schemas/X-Request-Id"
       security:
         - BearerAuth:
             - read
@@ -566,60 +566,60 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ITBIMEIUpdateRequest'
+              $ref: "#/components/schemas/ITBIMEIUpdateRequest"
       responses:
-        '202':
+        "202":
           description: Status 202 Response
           content:
             application/json:
               schema:
                 allOf:
-                  - $ref: '#/components/schemas/Accepted'
-        '400':
+                  - $ref: "#/components/schemas/Accepted"
+        "400":
           description: Status 400 Response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ValidationErrorLineItem'
-        '401':
+                $ref: "#/components/schemas/ValidationErrorLineItem"
+        "401":
           description: Status 401 Response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UnauthorizedError'
-        '403':
+                $ref: "#/components/schemas/UnauthorizedError"
+        "403":
           description: Status 403 Response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ForbiddenError'
-        '404':
+                $ref: "#/components/schemas/ForbiddenError"
+        "404":
           description: |
             Status 404 Response: lineItem not found
           content:
             application/json:
               schema:
                 allOf:
-                  - $ref: '#/components/schemas/ValidationErrorLineItem'
+                  - $ref: "#/components/schemas/ValidationErrorLineItem"
                 properties:
                   message:
                     default: lineItem not found
-        '410':
+        "410":
           description: Status 410 Response
           content:
             application/json:
               schema:
                 allOf:
-                  - $ref: '#/components/schemas/Gone'
+                  - $ref: "#/components/schemas/Gone"
                 properties:
                   message:
                     default: contract has been cancelled
-        '500':
+        "500":
           description: Status 500 Response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/InternalError'
+                $ref: "#/components/schemas/InternalError"
   /itb/contract/status:
     get:
       summary: >-
@@ -652,46 +652,46 @@ paths:
       tags:
         - itb
       responses:
-        '200':
+        "200":
           description: Status 200 Response
           content:
             application/json:
               schema:
                 oneOf:
-                  - $ref: '#/components/schemas/ITBGetContractStatusResponse'
-                  - $ref: '#/components/schemas/ITBGetContractStatusMultiPlanResponse'
+                  - $ref: "#/components/schemas/ITBGetContractStatusResponse"
+                  - $ref: "#/components/schemas/ITBGetContractStatusMultiPlanResponse"
                   - $ref: >-
                       #/components/schemas/ITBGetContractStatusResponseWithoutExpandedFields
-        '400':
+        "400":
           description: Status 400 Response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ValidationErrorLineItem'
-        '401':
+                $ref: "#/components/schemas/ValidationErrorLineItem"
+        "401":
           description: Status 401 Response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UnauthorizedError'
-        '403':
+                $ref: "#/components/schemas/UnauthorizedError"
+        "403":
           description: Status 403 Response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ForbiddenError'
-        '404':
+                $ref: "#/components/schemas/ForbiddenError"
+        "404":
           description: Status 404 Response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/NotFoundError'
-        '500':
+                $ref: "#/components/schemas/NotFoundError"
+        "500":
           description: Status 500 Response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/InternalError'
+                $ref: "#/components/schemas/InternalError"
   /itb/approved-policy-updates:
     get:
       summary: >-
@@ -704,7 +704,7 @@ paths:
       parameters:
         - in: query
           name: approvedFromDate
-          example: 2024-01-01-00.00
+          example: 2026-01-01-00.00
           schema:
             type: string
             pattern: >-
@@ -714,7 +714,7 @@ paths:
             that were approved after this date and time
         - in: query
           name: approvedToDate
-          example: 2024-01-02-00.00
+          example: 2026-01-02-00.00
           schema:
             type: string
             pattern: >-
@@ -728,12 +728,12 @@ paths:
       tags:
         - itb
       responses:
-        '200':
+        "200":
           description: Status 200 Response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ITBGetPolicyUpdateResponse'
+                $ref: "#/components/schemas/ITBGetPolicyUpdateResponse"
   /itb/touchpoint:
     post:
       summary: generates the opt-in iframe url to display the opt-in step
@@ -743,7 +743,7 @@ paths:
           required: true
           description: uuidv4 string to identify the individual request
           schema:
-            $ref: '#/components/schemas/X-Request-Id'
+            $ref: "#/components/schemas/X-Request-Id"
       security:
         - BearerAuth:
             - read
@@ -754,23 +754,23 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ITBTouchPointRequest'
+              $ref: "#/components/schemas/ITBTouchPointRequest"
       responses:
-        '200':
+        "200":
           description: Status 200 Response
           content:
             application/json:
               schema:
                 allOf:
-                  - $ref: '#/components/schemas/ITBTouchPointResponse'
-        '400':
+                  - $ref: "#/components/schemas/ITBTouchPointResponse"
+        "400":
           description: Status 400 Response
           content:
             application/json:
               schema:
                 oneOf:
-                  - $ref: '#/components/schemas/ValidationError'
-                  - $ref: '#/components/schemas/priceBandRangeUnauthorizedError'
+                  - $ref: "#/components/schemas/ValidationError"
+                  - $ref: "#/components/schemas/priceBandRangeUnauthorizedError"
               examples:
                 ValidationErrorExample:
                   summary: Validation error example
@@ -792,24 +792,24 @@ paths:
                     message: >-
                       appliancePrice (50199) does not fall within SKU price band
                       range (CW22002)
-        '401':
+        "401":
           description: Status 401 Response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UnauthorizedError'
-        '403':
+                $ref: "#/components/schemas/UnauthorizedError"
+        "403":
           description: Status 403 Response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ForbiddenError'
-        '500':
+                $ref: "#/components/schemas/ForbiddenError"
+        "500":
           description: Status 500 Response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/InternalError'
+                $ref: "#/components/schemas/InternalError"
 components:
   schemas:
     uuid:
@@ -819,11 +819,11 @@ components:
       example: 96113c99-304f-44f2-b3a2-4a3f301ce148
     X-Request-Id:
       allOf:
-        - $ref: '#/components/schemas/uuid'
+        - $ref: "#/components/schemas/uuid"
       example: c73bcdcc-2669-4bf6-81d3-e4ae73fb11fd
     itbId:
       allOf:
-        - $ref: '#/components/schemas/uuid'
+        - $ref: "#/components/schemas/uuid"
       example: c73bcdcc-2669-4bf6-81d3-e4ae73fb11fd
       description: The Id of the ITB record
     lineItemId:
@@ -847,10 +847,10 @@ components:
       properties:
         createdAt:
           type: string
-          example: 'YYYY-MM-DDThh:mm:ss.SSSZ'
+          example: "YYYY-MM-DDThh:mm:ss.SSSZ"
         updatedAt:
           type: string
-          example: 'YYYY-MM-DDThh:mm:ss.SSSZ'
+          example: "YYYY-MM-DDThh:mm:ss.SSSZ"
     ITBResponse:
       required:
         - message
@@ -868,8 +868,8 @@ components:
             purchase:
               type: object
               allOf:
-                - $ref: '#/components/schemas/ITBPurchaseResponse'
-                - $ref: '#/components/schemas/TimestampedEntity'
+                - $ref: "#/components/schemas/ITBPurchaseResponse"
+                - $ref: "#/components/schemas/TimestampedEntity"
                 - type: object
                   properties:
                     appliances:
@@ -879,8 +879,8 @@ components:
                       items:
                         type: object
                         allOf:
-                          - $ref: '#/components/schemas/ITBApplianceDetails'
-                          - $ref: '#/components/schemas/TimestampedEntity'
+                          - $ref: "#/components/schemas/ITBApplianceDetails"
+                          - $ref: "#/components/schemas/TimestampedEntity"
                         required:
                           - applianceBrand
                           - applianceType
@@ -892,7 +892,7 @@ components:
     ITBCreateResponse:
       properties:
         itbId:
-          $ref: '#/components/schemas/itbId'
+          $ref: "#/components/schemas/itbId"
         paymentEmbedUrl:
           type: string
           description: >-
@@ -928,7 +928,7 @@ components:
           default: processing term plan
         itbId:
           allOf:
-            - $ref: '#/components/schemas/uuid'
+            - $ref: "#/components/schemas/uuid"
         appliances:
           type: array
           required:
@@ -978,11 +978,11 @@ components:
                   specified appliance.
               breakdownStartDate:
                 type: string
-                example: '2026-01-01T00:00:00.000Z'
+                example: "2026-01-01T00:00:00.000Z"
                 description: The date from which breakdown cover begins (YYYY-MM-DD).
               renewalDate:
                 type: string
-                example: '2028-01-01T00:00:00.000Z'
+                example: "2028-01-01T00:00:00.000Z"
                 description: >-
                   The date when the current policy would be subject to renewal
                   (YYYY-MM-DD).
@@ -997,7 +997,7 @@ components:
           default: processing term multiplan
         itbId:
           allOf:
-            - $ref: '#/components/schemas/uuid'
+            - $ref: "#/components/schemas/uuid"
         policies:
           type: array
           description: Array of all processed multiplan policies.
@@ -1056,13 +1056,13 @@ components:
                   header plan (the one provided here) is the one used.
               breakdownStartDate:
                 type: string
-                example: '2026-01-01T00:00:00.000Z'
+                example: "2026-01-01T00:00:00.000Z"
                 description: >-
                   The date from which breakdown cover begins for the header plan
                   (YYYY-MM-DD).
               renewalDate:
                 type: string
-                example: '2028-01-01T00:00:00.000Z'
+                example: "2028-01-01T00:00:00.000Z"
                 description: >-
                   The date when the current header plan policy would be subject
                   to renewal (YYYY-MM-DD).
@@ -1099,14 +1099,14 @@ components:
                         appliance was successful.
                     breakdownStartDate:
                       type: string
-                      example: '2026-01-01T00:00:00.000Z'
+                      example: "2026-01-01T00:00:00.000Z"
                       description: >-
                         The date from which breakdown cover begins for the baby
                         plan (YYYY-MM-DD) - this should be the same as the
                         header plan.
                     renewalDate:
                       type: string
-                      example: '2028-01-01T00:00:00.000Z'
+                      example: "2028-01-01T00:00:00.000Z"
                       description: >-
                         The date when the current baby plan policy would be
                         subject to renewal (YYYY-MM-DD) - this should be the
@@ -1120,9 +1120,9 @@ components:
             flow.
           example: a1a3287f-1596-4bfe-83ab-44e0c36658c6
       allOf:
-        - $ref: '#/components/schemas/ITBPurchaseDetails'
-        - $ref: '#/components/schemas/ITBApplianceDetails'
-        - $ref: '#/components/schemas/ITBOrderDetails'
+        - $ref: "#/components/schemas/ITBPurchaseDetails"
+        - $ref: "#/components/schemas/ITBApplianceDetails"
+        - $ref: "#/components/schemas/ITBOrderDetails"
       required:
         - title
         - lastName
@@ -1141,9 +1141,9 @@ components:
             flow.
           example: a1a3287f-1596-4bfe-83ab-44e0c36658c6
       allOf:
-        - $ref: '#/components/schemas/ITBTermPurchaseDetails'
-        - $ref: '#/components/schemas/ITBApplianceDetails'
-        - $ref: '#/components/schemas/ITBOrderDetails'
+        - $ref: "#/components/schemas/ITBTermPurchaseDetails"
+        - $ref: "#/components/schemas/ITBApplianceDetails"
+        - $ref: "#/components/schemas/ITBOrderDetails"
       required:
         - title
         - lastName
@@ -1156,8 +1156,8 @@ components:
         - email
     ITBMultiPlanTermCreateRequest:
       allOf:
-        - $ref: '#/components/schemas/ITBMultiPlanTermPurchaseDetails'
-        - $ref: '#/components/schemas/ITBOrderDetails'
+        - $ref: "#/components/schemas/ITBMultiPlanTermPurchaseDetails"
+        - $ref: "#/components/schemas/ITBOrderDetails"
       required:
         - title
         - lastName
@@ -1170,7 +1170,7 @@ components:
         - email
     OFDCreateRequest:
       allOf:
-        - $ref: '#/components/schemas/OFDApplianceDetails'
+        - $ref: "#/components/schemas/OFDApplianceDetails"
         - properties:
             orderNumber:
               type: string
@@ -1213,7 +1213,7 @@ components:
       properties:
         itbId:
           allOf:
-            - $ref: '#/components/schemas/itbId'
+            - $ref: "#/components/schemas/itbId"
         accountHolderFullName:
           description: The full name associated with the bank account in question
           type: string
@@ -1224,12 +1224,12 @@ components:
           type: string
           minimum: 8
           maximum: 8
-          pattern: '^[0-9]{8,8}$'
+          pattern: "^[0-9]{8,8}$"
         sortCode:
           type: string
           minimum: 6
           maximum: 6
-          pattern: '^[0-9]{6,6}$'
+          pattern: "^[0-9]{6,6}$"
         preferredBillingDay:
           type: integer
           minimum: 1
@@ -1250,7 +1250,7 @@ components:
         - preferredBillingDay
     ITBUpdateRequest:
       allOf:
-        - $ref: '#/components/schemas/ITBUpdateDetails'
+        - $ref: "#/components/schemas/ITBUpdateDetails"
       required:
         - ITBId
         - addressLine1
@@ -1262,7 +1262,7 @@ components:
       properties:
         ITBId:
           allOf:
-            - $ref: '#/components/schemas/itbId'
+            - $ref: "#/components/schemas/itbId"
       required:
         - ITBId
     GenerateNewLinkResponse:
@@ -1361,10 +1361,10 @@ components:
           example: GBR
         acceptanceDate:
           type: string
-          example: '2023-10-31T00:00:00.000Z'
+          example: "2025-10-31"
         renewalDate:
           type: string
-          example: '2024-10-31T00:00:00.000Z'
+          example: "2026-10-31"
         itemCode:
           type: string
           example: CN
@@ -1431,10 +1431,10 @@ components:
           example: GBR
         acceptanceDate:
           type: string
-          example: '2023-10-31T00:00:00.000Z'
+          example: "2025-10-31"
         renewalDate:
           type: string
-          example: '2024-10-31T00:00:00.000Z'
+          example: "2026-10-31"
         appliancesPurchased:
           type: array
           items:
@@ -1502,7 +1502,7 @@ components:
           maximum: 40
         mobile:
           type: string
-          example: '+447777123456'
+          example: "+447777123456"
           minimum: 9
           maximum: 15
           pattern: ^\+?\d+$
@@ -1650,7 +1650,7 @@ components:
           maximum: 40
         mobile:
           type: string
-          example: '+447777123456'
+          example: "+447777123456"
           minimum: 9
           maximum: 15
           pattern: ^\+?\d+$
@@ -1707,7 +1707,7 @@ components:
       required:
         - policiesPurchased
       allOf:
-        - $ref: '#/components/schemas/ITBTermPurchaseDetails'
+        - $ref: "#/components/schemas/ITBTermPurchaseDetails"
       properties:
         policiesPurchased:
           type: array
@@ -1735,7 +1735,7 @@ components:
                 minimum: 1
               lineItemId:
                 allOf:
-                  - $ref: '#/components/schemas/lineItemId'
+                  - $ref: "#/components/schemas/lineItemId"
               appliancesPurchased:
                 type: array
                 minimum: 1
@@ -1743,7 +1743,7 @@ components:
                 items:
                   type: object
                   allOf:
-                    - $ref: '#/components/schemas/ITBMultiPlanAppliance'
+                    - $ref: "#/components/schemas/ITBMultiPlanAppliance"
                     - properties:
                         applianceCode:
                           type: string
@@ -1759,7 +1759,7 @@ components:
       properties:
         itbId:
           allOf:
-            - $ref: '#/components/schemas/itbId'
+            - $ref: "#/components/schemas/itbId"
         addressLine1:
           type: string
           example: 1 The Street
@@ -1815,7 +1815,7 @@ components:
       properties:
         lineItemId:
           allOf:
-            - $ref: '#/components/schemas/lineItemId'
+            - $ref: "#/components/schemas/lineItemId"
         deliveryDate:
           type: string
           format: date
@@ -1826,7 +1826,7 @@ components:
             the past.
         imei:
           allOf:
-            - $ref: '#/components/schemas/imei'
+            - $ref: "#/components/schemas/imei"
     ITBIMEIUpdateRequest:
       description: >
         NOTE: You must provide a lineItemId in the original POST ITB call in
@@ -1837,10 +1837,10 @@ components:
       properties:
         lineItemId:
           allOf:
-            - $ref: '#/components/schemas/lineItemId'
+            - $ref: "#/components/schemas/lineItemId"
         imei:
           allOf:
-            - $ref: '#/components/schemas/imei'
+            - $ref: "#/components/schemas/imei"
     ITBCancelPolicyRequest:
       description: >
         NOTE: You must provide a lineItemId in the original POST ITB call in
@@ -1851,7 +1851,7 @@ components:
       properties:
         lineItemId:
           allOf:
-            - $ref: '#/components/schemas/lineItemId'
+            - $ref: "#/components/schemas/lineItemId"
         reasonCode:
           description: |
             A Domestic & General defined reason code for the cancellation:
@@ -1915,10 +1915,10 @@ components:
           items:
             type: object
             allOf:
-              - $ref: '#/components/schemas/ITBAppliance'
+              - $ref: "#/components/schemas/ITBAppliance"
             oneOf:
-              - $ref: '#/components/schemas/ITBApplianceIdentificationDetailsSimple'
-              - $ref: '#/components/schemas/ITBApplianceIdentificationDetailsExpanded'
+              - $ref: "#/components/schemas/ITBApplianceIdentificationDetailsSimple"
+              - $ref: "#/components/schemas/ITBApplianceIdentificationDetailsExpanded"
     ITBApplianceDetails:
       properties:
         appliancesPurchased:
@@ -1928,10 +1928,10 @@ components:
           items:
             type: object
             allOf:
-              - $ref: '#/components/schemas/ITBAppliance'
+              - $ref: "#/components/schemas/ITBAppliance"
             oneOf:
-              - $ref: '#/components/schemas/ITBApplianceIdentificationDetailsSimple'
-              - $ref: '#/components/schemas/ITBApplianceIdentificationDetailsExpanded'
+              - $ref: "#/components/schemas/ITBApplianceIdentificationDetailsSimple"
+              - $ref: "#/components/schemas/ITBApplianceIdentificationDetailsExpanded"
             required:
               - appliancePrice
               - purchaseCurrency
@@ -1953,7 +1953,7 @@ components:
           example: 1
           minimum: 1
           maximum: 2
-          pattern: '^[A-Za-z0-9]{1,2}$'
+          pattern: "^[A-Za-z0-9]{1,2}$"
           description: >-
             The branchNumber of the specific branch fulfilling the appliance.
             The value to be used here will be advised by Domestic & General
@@ -1970,13 +1970,13 @@ components:
         deliveryEstimate:
           type: string
           format: date
-          example: '2026-01-21'
+          example: "2026-01-21"
           pattern: '([12]\d{3}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01]))'
           maximum: 10
           minimum: 10
         lineItemId:
           allOf:
-            - $ref: '#/components/schemas/lineItemId'
+            - $ref: "#/components/schemas/lineItemId"
           example: purchase-101-item-001
         modelNumber:
           type: string
@@ -2020,7 +2020,7 @@ components:
         deliveryEstimate:
           type: string
           format: date
-          example: '2026-01-21'
+          example: "2026-01-21"
           pattern: '([12]\d{3}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01]))'
           maximum: 10
           minimum: 10
@@ -2504,7 +2504,7 @@ components:
       properties:
         message:
           type: string
-          default: 'Unable to find SKU: (123456)'
+          default: "Unable to find SKU: (123456)"
     Success:
       required:
         - message
@@ -2534,9 +2534,9 @@ components:
           type: string
     DdbNObject:
       required:
-        - 'N'
+        - "N"
       properties:
-        'N':
+        "N":
           type: string
     DdbBOOLObject:
       required:
@@ -2577,7 +2577,7 @@ components:
           example: 1
           minimum: 1
           maximum: 2
-          pattern: '^[A-Za-z0-9]{1,2}$'
+          pattern: "^[A-Za-z0-9]{1,2}$"
         companyCode:
           type: string
           example: D
@@ -2615,7 +2615,7 @@ components:
             purposes.
     PatchActivate:
       allOf:
-        - $ref: '#/components/schemas/Retailer'
+        - $ref: "#/components/schemas/Retailer"
     SkuMap:
       required:
         - schemeCode
@@ -2722,7 +2722,7 @@ components:
           type: object
           additionalProperties:
             type: object
-            $ref: '#/components/schemas/SkuMap'
+            $ref: "#/components/schemas/SkuMap"
     RegAuthX-Request-Id:
       type: string
       example: 96113c99-304f-44f2-b3a2-4a3f301ce148
