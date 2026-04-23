@@ -2142,6 +2142,16 @@ components:
           example: 32 Inch LED TV
           maximum: 200
           minimum: 1
+        termSku:
+          type: string
+          example: CW22002
+          maximum: 50
+          minimum: 1
+        termPremium:
+          type: number
+          example: 30555
+          minimum: 1
+          maximum: 999999999999999
         imageUrl:
           type: string
           example: >-
@@ -2157,6 +2167,11 @@ components:
           enum:
             - MODAL
             - SIDE-DRAWER
+        policyTypes:
+          type: array
+          items:
+            type: string
+            enum: ['MONTHLY', 'TERM']
     ITBTouchPointResponse:
       properties:
         itbId:
