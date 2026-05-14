@@ -899,7 +899,7 @@ components:
             a secured URL that can be used to display a payment form within an
             IFrame
           example: >-
-            https://retailer.secure.dg-click-integrations.com/ddi-variant?ref=e7116591-3906-41be-be1d-31bf635daded
+            https://retailer.secure.dg-click-integrations.com/ddi?reference=e7116591-3906-41be-be1d-31bf635daded
         paymentRedirectUrl:
           type: string
           description: >-
