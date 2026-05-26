@@ -1,0 +1,1529 @@
+openapi: 3.0.0
+info:
+  description: "Domestic And General API"
+  version: 1.0.0
+  title: D&G IPS Core APIs Client V2
+
+paths:
+  '/v2/{countryCode}/client/pricing/anonymous':
+    post:
+      tags:
+        - Pricing
+      summary: Pricing Anonymous POST
+      description: Creates and returns a list of prices without person information
+      operationId: pricingCreateAnonymous
+      parameters:
+        - in: path
+          name: countryCode
+          schema:
+            $ref: '#/components/schemas/CountryCode'
+          allowEmptyValue: false
+          example: USA
+          description: The 3 character ISO-3166 country code
+          required: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePriceAnonymousRequest'
+      responses:
+        '200':
+          description: The request has succeeded and the resource returned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreatePriceAnonymousResponse'
+        '404':
+          description: The requested resource does not exist
+  '/v2/{countryCode}/client/quote':
+    post:
+      tags:
+        - Quote
+      summary: Quote POST
+      description: Creates and returns a list of prices without person information
+      operationId: quoteCreate
+      parameters:
+        - in: path
+          name: countryCode
+          schema:
+            $ref: '#/components/schemas/CountryCode'
+          allowEmptyValue: false
+          example: USA
+          description: The 3 character ISO-3166 country code
+          required: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateQuoteRequest'
+      responses:
+        '200':
+          description: The request has succeeded and the resource returned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateQuoteResponse'
+        '404':
+          description: The requested resource does not exist
+  '/v2/{countryCode}/client/contract':
+    post:
+      tags:
+        - Contract
+      summary: Contract Create
+      description: Create a new CONTRACT
+      operationId: createContract
+      parameters:
+        - in: path
+          name: countryCode
+          schema:
+            $ref: '#/components/schemas/CountryCode'
+          allowEmptyValue: false
+          example: GBR
+          description: The 3 character ISO-3166 country code
+          required: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateContractRequest'
+      responses:
+        '200':
+          description: The request has succeeded and the resource returned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateContractResponse'
+        '404':
+          description: The requested resource does not exist
+components:
+  parameters:
+  schemas:
+    CreatePriceAnonymousRequest:
+      type: object
+      required:
+        - rating
+        - item
+      properties:
+        item:
+          type: array
+          items:
+            oneOf:
+              - $ref: '#/components/schemas/ItemUsingModel'
+              - $ref: '#/components/schemas/ItemUsingAttributes'
+        rating:
+          $ref: '#/components/schemas/Rating'
+    CreatePriceAnonymousResponse:
+      type: object
+      properties:
+        pricingAnonymous:
+          type: array
+          items:
+            $ref: '#/components/schemas/PricingAnonymousResponseData'
+    CreateQuoteRequest:
+      type: object
+      required:
+        - person
+        - item
+        - rating
+      properties:
+        person:
+          $ref: '#/components/schemas/CreatePersonData'
+        item:
+          type: array
+          items:
+            oneOf:
+              - $ref: '#/components/schemas/CreateItemUsingModel'
+              - $ref: '#/components/schemas/CreateItemUsingAttributes'
+        rating:
+          $ref: '#/components/schemas/Rating'       
+    CreateQuoteResponse:
+      allOf:
+        - $ref: '#/components/schemas/QuoteResponseData'
+    CreateContractRequest:
+      allOf:
+        - $ref: '#/components/schemas/FullCreateContractData'
+    CreateContractResponse:
+      type: object
+      required:
+        - contract
+      properties:
+        personId:
+          type: string
+          example: '12345679'
+          description: D&G unique identifier for a Person in OGC
+          maxLength: 100
+        contract:
+          type: array
+          items:
+            $ref: '#/components/schemas/CreateContractData'
+    CountryCode:
+      type: string
+      maxLength: 3
+      enum:
+        - GBR
+        - AUS
+        - AUT
+        - BEL
+        - DNK
+        - FRA
+        - DEU
+        - IRL
+        - ITA
+        - NLD
+        - NZL
+        - POL
+        - PRT
+        - ESP
+        - SWE
+        - USA
+      description: The 3 character ISO-3166 country code
+      example: 'USA'
+    CreatePersonData:
+      allOf:
+        - $ref: '#/components/schemas/PersonDetailsData'
+        - $ref: '#/components/schemas/PersonPhoneArrayCreate'
+        - $ref: '#/components/schemas/PersonEmailArrayCreate'
+        - $ref: '#/components/schemas/CreatePersonCorrespondanceAddress'
+        - $ref: '#/components/schemas/PersonMarketingArray'
+    PersonDetailsData:
+      allOf:
+        - $ref: '#/components/schemas/PersonClientPersonReference'
+        - $ref: '#/components/schemas/PersonInitial'
+        - $ref: '#/components/schemas/PersonFirstName'
+        - $ref: '#/components/schemas/PersonSurname'
+        - $ref: '#/components/schemas/PersonPreferredName'
+        - $ref: '#/components/schemas/PersonTitle'
+        - $ref: '#/components/schemas/PersonPreferredLanguageCode'
+        - $ref: '#/components/schemas/PersonPreferredContactMethod'
+        - $ref: '#/components/schemas/PersonPreferredCorrespondence'
+    PersonClientPersonReference:
+      type: object
+      properties:
+        clientPersonReference:
+          type: string
+          example: 'DGN:355ffa32-5504-41fb-b38e-307f6ea8e1cc'
+          description: >-
+            The client's allocated unique reference for a Person in the data
+            returned by D&G
+          maxLength: 100
+    PersonInitial:
+      type: object
+      properties:
+        initial:
+          type: string
+          example: J
+          description: Initial
+          maxLength: 1
+    PersonFirstName:
+      type: object
+      properties:
+        firstName:
+          type: string
+          example: John
+          description: Person First Name
+          maxLength: 50
+    PersonSurname:
+      type: object
+      required:
+        - surname
+      properties:
+        surname:
+          type: string
+          example: Smith
+          description: Person Surname
+          maxLength: 100
+    PersonPreferredName:
+      type: object
+      properties:
+        preferredName:
+          type: string
+          example: John
+          description: The preferred name by which the person wishes to be addressed
+          maxLength: 150
+    PersonTitle:
+      type: object
+      properties:
+        title:
+          type: string
+          example: Mr
+          description: >-
+            The title by which the person wishes to be addressed. Pls refer to
+            the D&G reference dataset for a full list of values for title
+          maxLength: 10
+    PersonPreferredLanguageCode:
+      type: object
+      properties:
+        preferredLanguageCode:
+          type: string
+          example: 'en-US'
+          description: >-
+            The preferred language code that the customer wishes to use when
+            communicating with D&G. Format {ISO 639-1:}-{ISO 3166}
+          maxLength: 3
+    PersonPreferredContactMethod:
+      type: object
+      properties:
+        preferredContactMethod:
+          type: string
+          enum:
+            - PHONE
+            - EMAIL
+            - POST
+          example: PHONE
+          description: >-
+            The preferred method by which the customer wishes to be contacted by
+            D&G - PHONE, EMAIL,  POST
+          maxLength: 3
+    PersonPreferredCorrespondence:
+      type: object
+      properties:
+        preferredCorrespondence:
+          type: string
+          enum:
+            - EMAIL
+            - POST
+            - BOTH
+          example: EMAIL
+          description: >-
+            The preferred method by which the customer wishes to receive
+            correspondence from D&G - EMAIL, POST, BOTH
+    PersonPhoneArrayCreate:
+      type: object
+      properties:
+        phone:
+          $ref: '#/components/schemas/PhoneNumberDataArrayCreate'
+    PersonEmailArrayCreate:
+      type: object
+      properties:
+        email:
+          $ref: '#/components/schemas/EmailAddressDataArrayCreate'
+    PhoneNumberData:
+      type: object
+      required:
+        - type
+        - usage
+        - value
+      properties:
+        type:
+          type: string
+          enum:
+            - LANDLINE
+            - MOBILE
+            - OTHER
+          example: LANDLINE
+          description: 'Type (Landline, Mobile, Other)'
+        usage:
+          type: string
+          enum:
+            - PERSONAL
+            - PROFESSIONAL
+            - Other
+          example: PERSONAL
+          description: 'Usage (Personal, Professional, Other)'
+        value:
+          type: string
+          example: '123456789'
+          description: 'Phone Number (E.164 format i.e. country code, area code and number)'
+          maxLength: 100
+        isValid:
+          type: boolean
+          readOnly: true
+          description: A flag to indicate that the phone number is valid
+        preferred:
+          type: boolean
+          example: true
+          description: >-
+            A flag to indicate that this is the number that the customer has
+            expressed preference for, to be used for any phone or SMS
+            correspondence with D&G
+    PhoneNumberDataArrayCreate:
+      type: array
+      items:
+        allOf:
+          - $ref: '#/components/schemas/PhoneNumberData'
+    EmailAddressData:
+      type: object
+      required:
+        - usage
+        - value
+      properties:
+        usage:
+          type: string
+          enum:
+            - PERSONAL
+            - PROFESSIONAL
+            - OTHER
+          example: PERSON
+          description: 'Usage (Personal, Professional, Other)'
+        value:
+          type: string
+          example: a.a@a.com
+          description: Email Address
+          maxLength: 100
+        isValid:
+          type: boolean
+          readOnly: true
+          description: A flag to indicate that the email address is valid
+        preferred:
+          type: boolean
+          example: true
+          description: >-
+            A flag to indicate that this is the email that the customer has
+            expressed preference for, to be used for correspondence with D&G
+    EmailAddressDataArrayCreate:
+      type: array
+      items:
+        allOf:
+          - $ref: '#/components/schemas/EmailAddressData'
+    MarketingDataArray:
+      type: array
+      items:
+        $ref: '#/components/schemas/MarketingData'
+    MarketingData:
+      type: object
+      description: >-
+        Marketing type is only returned if the associated optIn value has been
+        specified
+      properties:
+        type:
+          type: string
+          enum:
+            - POST
+            - EMAIL
+            - PHONE
+            - SMS
+          example: POST
+          description: 'Post, Email, Phone, SMS'
+        optIn:
+          type: boolean
+          description: true = Opt in to Marketing from D&G and/or Client
+    PersonMarketingArray:
+      type: object
+      properties:
+        marketingPreferences:
+          $ref: '#/components/schemas/MarketingDataArray'
+
+    GuaranteeArray:
+      type: object
+      properties:
+        guarantee:
+          type: array
+          items:
+            $ref: '#/components/schemas/Guarantee'
+    Guarantee:
+      type: object
+      required:
+        - type
+        - period
+      properties:
+        type:
+          type: string
+          example: LABOUR
+          description: 'Guarantee Type, either LABOUR or PARTS'
+        period:
+          type: number
+          example: 12
+          description: Guarantee period in months
+    CreatePersonCorrespondanceAddress:
+      type: object
+      required:
+        - correspondanceAddress
+      properties:
+        correspondanceAddress:
+          $ref: '#/components/schemas/CreateFormattedUnformattedAddressData'
+
+    CreateItemLocationAddress:
+      type: object
+      required:
+        - locationAddress
+      properties:
+        locationAddress:
+          $ref: '#/components/schemas/CreateFormattedUnformattedAddressData'      
+
+    CreateFormattedUnformattedAddressData:
+        allOf:
+          - anyOf:
+              - $ref: '#/components/schemas/CreateUnformattedAddressData'
+              - $ref: '#/components/schemas/CreateFormattedAddressData'
+          - $ref: '#/components/schemas/CommonAddressData'
+
+    CreateFormattedUnformattedAddressDataArray:
+      type: array
+      items:
+        allOf:
+          - anyOf:
+              - $ref: '#/components/schemas/CreateFormattedAddressData'
+              - $ref: '#/components/schemas/CreateUnformattedAddressData'
+          - $ref: '#/components/schemas/CommonAddressData'
+    CommonAddressData:
+      type: object
+      required:
+        - addressLine1
+        - postalCode
+        - countryCode
+        - city
+        - regionOrStateCode
+        - isFormatted
+      properties:
+        addressLine1:
+          type: string
+          example: 'Unit 1, 22382 Avenida Empresa'
+          description: Address Line 1
+          maxLength: 150
+        city:
+          type: string
+          example: 'Rancho Santa Margarita'
+          description: City
+          maxLength: 150
+        regionOrStateCode:
+          type: string
+          example: 'CA'
+          description: Region or State Code
+          maxLength: 100          
+        postalCode:
+          $ref: '#/components/schemas/PostalCodeSchema'
+        countryCode:
+          $ref: '#/components/schemas/CountryCode'
+        isFormatted:
+          type: boolean
+          default: false
+          description: true if address is formatted
+        addressOverride:
+          type: boolean
+          default: false
+          description: >-
+            Address Override - Has address been manually overridden after
+            address lookup or verification?
+        isCommercialAddress:
+          type: boolean
+          default: false
+          description: true if address is a commercial address
+        isValid:
+          type: boolean
+          default: false
+          description: true if address is valid
+        externalAVSAddressId:
+          type: string
+          example: '8008006245'
+          description: External AVS Address Id
+          maxLength: 100
+        concatenatedAddress:
+          type: string
+          example: '22382 Avenida Empresa, Rancho Santa Margarita, CA 92688-2112'
+          description: Mailable Address
+          maxLength: 2000
+    PostalCodeSchema:
+      type: string
+      example: '92688-2112'
+      description: "Postal Code or ZIP Code. Where a country refers to this as ZIP code such as 90210, this can be the complete ZIP code including any local extensions, i.e ZIP+4 code used in the USA is 90210-0727"
+      maxLength: 20   
+    CreateFormattedAddressData:
+      type: object
+      properties:
+        number:
+          type: string
+          example: '22382'
+          description: House or Building Number
+          maxLength: 150
+        street:
+          type: string
+          example: 'Avenida Empresa'
+          description: Street Name
+          maxLength: 150
+        subBuilding:
+          type: string
+          example: Unit 1
+          description: 'Sub Building - Apartment or Unit, for example'
+          maxLength: 150
+        poBox:
+          type: string
+          example: 'PO Box 1234'
+          description: Post Office Box
+          maxLength: 150
+    FormattedAddressRequest:
+      title: FormattedAddressRequest
+      type: object
+      required:
+        - isFormatted
+        - poBox
+        - building
+        - streetNumber
+        - street
+        - addressLine1
+        - city
+        - regionOrStateCode
+        - postalCode
+      properties:
+        isFormatted:
+          type: boolean
+          example: true
+          description: Wether an address is formatted or not. True for formatted address.
+        addressLine1:
+          type: string
+          example: 22382 Avenida Empresa
+          description: >-
+            The first address line of an address. Can be used by itself instead
+            of providing values for poBox, subBuilding, building, streetNumber
+            and street.
+        poBox:
+          type: string
+          example: PO Box 1234
+          description: The post box number.
+        subBuilding:
+          type: string
+          example: Apt 16
+          description: The apartment /  flat number.
+        building:
+          type: string
+          example: Wimbledon House
+          description: The building name / number.
+        streetNumber:
+          type: string
+          example: '22382'
+          description: The street / house number.
+        street:
+          type: string
+          example: Avenida Empresa
+          description: The street name.
+        city:
+          type: string
+          example: Rancho Santa Margarita
+          description: The city name.
+        regionOrStateCode:
+          type: string
+          example: CA
+          description: The state code / borough name / county.
+        postalCode:
+          type: string
+          example: 0018-2589
+          description: The postal code.      
+    CreateUnformattedAddressData:
+      type: object
+      properties:
+        addressLine2:
+          type: string
+          example: ''
+          description: Address Line 2
+          maxLength: 150
+        addressLine3:
+          type: string
+          example: ''
+          description: Address Line 3
+          maxLength: 150
+        addressLine4:
+          type: string
+          example: ''
+          description: Address Line 4
+          maxLength: 150
+    
+    CreateItemUsingModel:
+      type: object
+      required:
+        - manufacturerBrandCode
+        - modelNumber
+        - purchase
+        - operationalStatusCode
+      allOf:
+        - $ref: '#/components/schemas/ItemClientItemReference'
+        - $ref: '#/components/schemas/ManufacturerBrandCode'
+        - $ref: '#/components/schemas/ModelNumber'
+        - $ref: '#/components/schemas/SerialNumber'
+        - $ref: '#/components/schemas/OperationalStatusAtPos'
+        - $ref: '#/components/schemas/CreateItemLocationAddress'
+        - $ref: '#/components/schemas/ItemPurchaseUsingModel'
+        - $ref: '#/components/schemas/ItemNominatedServiceContractData'
+        - $ref: '#/components/schemas/ItemLastServiceDate'
+        - $ref: '#/components/schemas/itemReferenceArray'
+    CreateItemUsingAttributes:
+      type: object
+      required:
+        - manufacturerBrandCode
+        - itemTypeCode
+        - guarantee
+        - purchase
+        - operationalStatusCode
+      allOf:
+        - $ref: '#/components/schemas/ItemClientItemReference'
+        - $ref: '#/components/schemas/ManufacturerBrandCode'
+        - $ref: '#/components/schemas/ItemTypeCode'
+        - $ref: '#/components/schemas/ModelNumber'
+        - $ref: '#/components/schemas/SerialNumber'
+        - $ref: '#/components/schemas/OperationalStatusAtPos'
+        - $ref: '#/components/schemas/CreateItemLocationAddress'
+        - $ref: '#/components/schemas/GuaranteeArray'
+        - $ref: '#/components/schemas/ItemPurchaseUsingAttributes'
+        - $ref: '#/components/schemas/ItemNominatedServiceContractData'
+        - $ref: '#/components/schemas/ItemLastServiceDate'
+        - $ref: '#/components/schemas/itemReferenceArray'
+    QuoteItemArray:
+      type: object
+      properties:
+        quote:
+          type: array
+          items:
+            $ref: '#/components/schemas/QuoteItem'
+    QuoteItem:
+      type: object
+      required:
+        - productVariantCode
+        - cover
+      properties:
+        item:
+          type: array
+          items:
+            $ref: '#/components/schemas/QuoteResponseItem'
+        itemOffersRedirectURL:
+          $ref: '#/components/schemas/QuoteItemRedirectURL'
+        offer:
+          type: array
+          items:
+            $ref: '#/components/schemas/QuoteResponseOffer'
+        productVariant:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductVariant'
+    QuoteResponseItem:
+      type: object
+      required:
+        - manufacturerBrandCode
+        - itemTypeCode
+      allOf:
+        - $ref: '#/components/schemas/ManufacturerBrandCode'
+        - $ref: '#/components/schemas/ItemTypeCode'
+        - $ref: '#/components/schemas/ModelNumber'
+        - $ref: '#/components/schemas/SerialNumber'
+    QuoteResponseOffer:
+      type: object
+      required:
+        - productVariantId
+      allOf:
+        - $ref: '#/components/schemas/OfferRedirectURL'
+        - $ref: '#/components/schemas/OfferReference'
+        - $ref: '#/components/schemas/OfferExpiryDate'
+        - $ref: '#/components/schemas/ResponsePriceCore'
+        - $ref: '#/components/schemas/PriceOptionPeriodOfCoverArray'
+    QuoteRedirectURL:
+      type: object
+      properties:
+        quoteOffersRedirectURL:
+          type: string
+          example: >-
+            https://...........domesticandgeneral.us/offer/review?offerRef=DGQ0008322101&offerRef=DGQ0008322102
+          description: >-
+            A redirect URL for all offers generated by the Quote API for all
+            item
+          maxLength: 100
+    QuoteItemRedirectURL:
+      type: string
+      example: >-
+        https://...........domesticandgeneral.us/offer/review?offerRef=DGQ0008322101&offerRef=DGQ0008322102
+      description: A redirect URL for all offers generated by the Quote API for an item
+      maxLength: 100
+    OfferRedirectURL:
+      type: object
+      properties:
+        offerRedirectURL:
+          type: string
+          example: >-
+            https://...........domesticandgeneral.us/offer/review?offerRef=DGQ0008322101&offerRef=DGQ0008322102
+          description: A redirect URL for a single offer generated by the Quote API
+          maxLength: 100
+    OfferReference:
+      type: object
+      properties:
+        offerReference:
+          type: string
+          example: 12-01-123-456-7890-1
+          description: >-
+            The unique customer facing offer reference of an offer or quote that
+            the customer has received from D&G
+          maxLength: 20
+    OfferExpiryDate:
+      type: object
+      properties:
+        offerExpiryDate:
+          type: string
+          format: date-time
+          example: 2025-12-01T06:59:59.000Z
+          description: Expiry Date of an offer in timestampz format
+
+    Rating:
+      type: object
+      required:
+        - isMultiPlan
+        - numberOfItems
+      properties:
+        isMultiPlan:
+          type: boolean
+          default: false
+          description: Is MultiPlan - true or false (default false)
+        numberOfItems:
+          type: integer
+          default: 1
+          example: 1
+          description: |
+            Max number of items to be rated. 
+            If single plan this must be 1.
+    ItemUsingModel:
+      type: object
+      required:
+        - manufacturerBrandCode
+        - modelNumber
+        - operationalStatusCodeatPointOfSale
+        - purchase
+      allOf:
+        - $ref: '#/components/schemas/ItemClientItemReference'
+        - $ref: '#/components/schemas/ManufacturerBrandCode'
+        - $ref: '#/components/schemas/ModelNumber'
+        - $ref: '#/components/schemas/SerialNumber'
+        - $ref: '#/components/schemas/OperationalStatusAtPos'
+        - $ref: '#/components/schemas/ItemPurchaseUsingModel'
+    ItemUsingAttributes:
+      type: object
+      required:
+        - manufacturerBrandCode
+        - itemTypeCode
+        - operationalStatusCodeatPointOfSale
+        - guarantee
+        - purchase   
+      allOf:
+        - $ref: '#/components/schemas/ItemClientItemReference'
+        - $ref: '#/components/schemas/ManufacturerBrandCode'
+        - $ref: '#/components/schemas/ItemTypeCode'
+        - $ref: '#/components/schemas/ModelNumber'
+        - $ref: '#/components/schemas/SerialNumber'
+        - $ref: '#/components/schemas/OperationalStatusAtPos'
+        - $ref: '#/components/schemas/GuaranteeArray'
+        - $ref: '#/components/schemas/ItemPurchaseUsingAttributes'
+    ItemPurchaseUsingModel:
+      type: object
+      required:
+        - purchasePrice
+        - currencyCode
+        - purchaseDate
+      properties:
+        purchase:
+          allOf:
+            - $ref: '#/components/schemas/ItemPurchasePrice'
+            - $ref: '#/components/schemas/CurrencyCode'
+            - $ref: '#/components/schemas/ItemPurchaseDate'
+    ItemPurchaseUsingAttributes:
+      type: object
+      required:
+        - purchasePrice
+        - recommendedRetailPrice
+      properties:
+        purchase:
+          allOf:
+            - $ref: '#/components/schemas/ItemPurchasePrice'
+            - $ref: '#/components/schemas/RecommendedRetailPrice'
+            - $ref: '#/components/schemas/CurrencyCode'
+            - $ref: '#/components/schemas/ItemPurchaseDate'
+
+    PricingAnonymousItem:
+      type: object
+      required:
+        - productVariantCode
+        - cover
+      properties:
+        item:
+          type: array
+          items:
+            $ref: '#/components/schemas/PricingAnonymousResponseItem'
+        price:
+          type: array
+          items:
+            $ref: '#/components/schemas/PricingAnonymousResponsePrice'
+        productVariant:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductVariant'
+ 
+    QuoteResponseData:
+      type: object
+      properties:
+        quoteOffersRedirectURL:
+          $ref: '#/components/schemas/QuoteItemRedirectURL'   
+        itemOffer:
+          type: array
+          items:
+            $ref: '#/components/schemas/QuoteItemOffer'
+        productVariant:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductVariant' 
+    QuoteItemOffer:
+      type: object
+      required:
+        - productVariantCode
+        - cover
+      properties:
+        item:
+          type: array
+          items:
+            $ref: '#/components/schemas/QuoteResponseItem'
+        itemOffersRedirectURL:
+          $ref: '#/components/schemas/QuoteItemRedirectURL'       
+        offer:
+          type: array
+          items:
+            $ref: '#/components/schemas/QuoteResponseOffer'
+
+
+    PricingAnonymousResponseData:
+      type: object
+      properties:       
+        itemPrice:
+          type: array
+          items:
+            $ref: '#/components/schemas/PricingAnonymousItemPrice'
+        productVariant:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductVariant'         
+    PricingAnonymousItemPrice:
+      type: object
+      required:
+        - productVariantCode
+        - cover
+      properties:
+        item:
+          type: array
+          items:
+            $ref: '#/components/schemas/PricingAnonymousResponseItem'
+        price:
+          type: array
+          items:
+            $ref: '#/components/schemas/PricingAnonymousResponsePrice'      
+    PricingAnonymousResponseItem:
+      type: object
+      required:
+        - manufacturerBrandCode
+        - itemTypeCode
+      allOf:
+        - $ref: '#/components/schemas/ManufacturerBrandCode'
+        - $ref: '#/components/schemas/ItemTypeCode'
+        - $ref: '#/components/schemas/ModelNumber'
+        - $ref: '#/components/schemas/SerialNumber'
+    PricingAnonymousResponsePrice:
+      type: object
+      required:
+        - productVariantId
+      allOf:
+        - $ref: '#/components/schemas/ResponsePriceCore'
+        - $ref: '#/components/schemas/PriceOptionPeriodOfCoverArray'
+    PriceOptionPeriodOfCoverArray:
+      type: object
+      properties:
+        priceOptionPeriodOfCover:
+          type: array
+          items:
+            $ref: '#/components/schemas/PriceOptionPeriodOfCover'
+    ResponsePriceCore:
+      type: object
+      required:
+        - productVariantId
+      properties:
+        productVariantId:
+          $ref: '#/components/schemas/ProductVariantId'
+        contractStartDateWaitPeriod:
+          $ref: '#/components/schemas/ContractStartDateWaitPeriod'
+        coolingOffPeriod:
+          $ref: '#/components/schemas/CoolingOffPeriod'
+        contractEffectiveDate:
+          $ref: '#/components/schemas/ContractEffectiveDate'
+    PriceOptionPeriodOfCover:
+      type: object
+      required:
+        - periodOfCover
+        - priceOption
+      properties:
+        periodOfCover:
+          type: integer
+          example: 12
+          description: Period of Cover (in months)
+        priceOption:
+          type: array
+          items:
+            $ref: '#/components/schemas/PriceOption'
+    PriceOption:
+      type: object
+      required:
+        - code
+      properties:
+        paymentMethodCode:
+          type: string
+          example: ACH
+          enum:
+            - CC
+            - ACH
+            - CSH
+          description: >-
+            Payment Method - CC=Credit Card ACH=Automated Clearing CSH=Payment
+            taken by client. Please refer to the D&G reference dataset for a
+            full list of defined values
+        preferredPaymentProfile:
+          type: boolean
+          description: Preferred Payment Profile Code
+        numberOfPayments:
+          type: number
+          example: 12
+          description: Number Of Payments
+        monthsBetweenPayments:
+          type: number
+          example: 1
+          description: Months between payments in the Payment Profile
+        firstPaymentWaitPeriod:
+          type: number
+          example: 0
+          description: First scheduled payment wait period in days
+        netTermAmount:
+          type: number
+          example: 7.42
+          format: float
+          description: 'Net Amount including any discount, for the term of the contract'
+        netTermAmountExDiscount:
+          type: number
+          example: 14.83
+          format: float
+          description: >-
+            Net Amount including excluding any discount, for the term of the
+            contract
+        netInstalmentAmount:
+          type: number
+          example: 7.42
+          format: float
+          description: 'Net Amount including any discount, for an intsalment'
+        netInstalmentAmountExDiscount:
+          type: number
+          example: 14.83
+          format: float
+          description: 'Net Amount including excluding any discount, for an intsalment'
+        discountProfile:
+          type: string
+          example: 50% First 6 Months
+          description: Discount Profile for Propduct & Payment Type
+          maxLength: 5
+        discountTerm:
+          type: number
+          example: 12
+          description: Discount term in months
+        discountAmount:
+          type: number
+          example: 0
+          format: float
+          description: >-
+            Discount Amount: Either discountAmount OR discountPercentage is
+            returned depending on which type of discount has been applied
+        discountPercentage:
+          type: number
+          format: float
+          example: 0.5
+          description: >-
+            Discount Percentage - 0.5 = 50%: Either discountAmount OR
+            discountPercentage is returned depending on which type of discount
+            has been applied
+    ProductVariant:
+      type: object
+      required:
+        - code
+      properties:
+        productVariantId:
+          $ref: '#/components/schemas/ProductVariantId'
+        productCategory:
+          $ref: '#/components/schemas/ProductCategory'
+        productType:
+          $ref: '#/components/schemas/ProductType'
+        productTerm:
+          $ref: '#/components/schemas/ProductTerm'
+        cover:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductVariantCover'
+    ProductVariantCover:
+      type: object
+      required:
+        - code
+      properties:
+        levelOfCoverCode:
+          $ref: '#/components/schemas/LevelOfCoverCode'
+        coverage:
+          type: array
+          items:
+            $ref: '#/components/schemas/Coverage'
+        exclusion:
+          type: array
+          items:
+            $ref: '#/components/schemas/Exclusion'
+    Coverage:
+      type: object
+      required:
+        - code
+      properties:
+        code:
+          type: string
+          example: BKDWN
+          description: >-
+            A D&G code to represent the risks covered - Please refer to the D&G
+            reference dataset for a full list of values
+          maxLength: 5
+        description:
+          type: string
+          example: Breakdown after Manufacturer's Warranty expires
+          description: A D&G description to represent the risks covered
+          maxLength: 100
+    Exclusion:
+      type: object
+      required:
+        - code
+      properties:
+        code:
+          type: string
+          example: COSM
+          description: >-
+            A D&G code to represent the risks excluded - Please refer to the D&G
+            reference dataset for a full list of values
+          maxLength: 30
+        description:
+          type: string
+          example: Cosmetic Damage
+          description: A D&G description to represent the risks excluded
+          maxLength: 100
+    ProductVariantId:
+      type: number
+      example: 4
+      description: >-
+        A D&G unique ID identifying the product variant of the contract. It is
+        the fourth level in a 4 level product hierarchy (Proposition Cover
+        Category --> Product category --> Product Type ---> Product Variant).
+    LevelOfCoverCode:
+      type: string
+      example: STD
+      description: Level of Cover Code
+      maxLength: 10
+    CurrencyCode:
+      type: object
+      properties:
+        currencyCode:
+          type: string
+          example: USD
+          description: Currency Code
+    ContractStartDateWaitPeriod:
+      type: number
+      example: 30
+      description: 'Period [in days] before cover starts'
+    ContractEffectiveDate:
+      type: string
+      format: date-time
+      example: 2025-10-01T07:00:00.000Z
+      description: Effective Date of an offer in timestampz format
+    CoolingOffPeriod:
+      type: number
+      example: 30
+      description: 'Period [in days] allowance for cooling off'
+    ProductTerm:
+      type: string
+      maxLength: 20
+      example: Subscription
+      description: >-
+        A D&G code that defines the type of minimum payment commitment for a
+        contract  - Please refer to the D&G reference dataset for a full list of
+        values
+    ProductCategory:
+      type: string
+      maxLength: 20
+      example: Item Care
+      description: A D&G product category of the contract.
+    ProductType:
+      type: string
+      maxLength: 20
+      example: Appliance Care Monthly
+      description: >-
+        A D&G product type of the contract. The Product Type is a way of further
+        classifying a Product category.
+    ItemClientItemReference:
+      type: object
+      properties:
+        clientItemReference:
+          type: string
+          maxLength: 100
+          example: 'DGN:355ffa32-5504-41fb-b38e-307f6ea8e1cc'
+          description: >-
+            The client's allocated unique reference for an Item in the data
+            returned by D&G
+    ItemTypeCode:
+      type: object
+      properties:
+        itemTypeCode:
+          type: string
+          maxLength: 10
+          example: WASHER
+          description: >-
+            This is a D&G defined code that identifies the type of item. Please
+            refer to the D&G reference dataset for Itemtypes for a full list of
+            allowable values
+    ManufacturerBrandCode:
+      type: object
+      properties:
+        manufacturerBrandCode:
+          type: string
+          maxLength: 10
+          example: WHIRLPOOL
+          description: >-
+            This is a D&G defined code that identifies the manufacturer brand of
+            the item. Please refer to the D&G reference dataset for
+            ItemManufacturerBrands for a full list of allowable values
+    ItemPurchasePrice:
+      type: object
+      properties:
+        purchasePrice:
+          type: number
+          format: float
+          example: 199
+          description: The customer paid purchase price for the item
+    RecommendedRetailPrice:
+      type: object
+      properties:
+        recommendedRetailPrice:
+          type: number
+          format: float
+          example: 199
+          description: The manufacturer recommended retail price for the item
+    ItemPurchaseDate:
+      type: object
+      properties:
+        purchaseDate:
+          type: string
+          format: date
+          description: Item Date of Purchase - Format YYYY-MM-DD
+    ModelNumber:
+      type: object
+      properties:
+        modelNumber:
+          type: string
+          maxLength: 50
+          example: MODEL12345
+          description: >-
+            This is a manufacturer allocated alphanumeric reference identifying
+            the model of the the item
+    SerialNumber:
+      type: object
+      properties:
+        serialNumber:
+          type: string
+          maxLength: 50
+          example: SERIAL12345
+          description: >-
+            This is a manufacturer allocated unique alphanumeric reference that
+            is used to identify this manufactured item
+    OperationalStatusAtPos:
+      type: object
+      properties:
+        operationalStatusCodeatPointOfSale:
+          type: string
+          enum:
+            - WORKING
+            - NOT_WORKING
+          example: WORKING
+          description: >-
+            Operational Status (used to determine D&G product eligibility for
+            protection cover) - WORKING:Good Working Order NOT_WORKING:Not
+            Working
+    ItemLastServiceDate:
+      type: object
+      properties:
+        lastServiceDate:
+          type: string
+          format: date-time
+          description: 'Last Service Date and Time - Format YYYY-MM-DDThh:mm:ss.SSSZ'
+    itemReferenceArray:
+      type: object
+      properties:
+        itemReference:
+          $ref: '#/components/schemas/itemReferenceDataArray'
+    itemReferenceDataArray:
+      type: array
+      items:
+        $ref: '#/components/schemas/itemReferenceData'
+      maxItems: 5
+    itemReferenceData:
+      type: object
+      required:
+        - type
+        - value
+      properties:
+        type:
+          type: string
+          example: IMEI
+          description: >-
+            Type of Item Reference - Examples: GTIN (Global Trade Item Number),
+            IMEI (International Mobile Equipment Identity), EAN (European
+            Article Number), MPN (Manufacturer Part number), SKU (Stock Keeping
+            Unit) , UPC (Universal Product code), E-NR & FD (Model and
+            Production Number)
+          maxLength: 20
+        value:
+          type: string
+          example: '12345678901234567890'
+          description: Item Reference Value
+          maxLength: 50
+   
+    ItemNominatedServiceContractData:
+      type: object
+      properties:
+        nominatedServiceContact:
+          $ref: '#/components/schemas/NominatedServiceContactDataArray'
+    NominatedServiceContactDataArray:
+      type: array
+      items:
+        $ref: '#/components/schemas/NominatedServiceContactData'
+      maxItems: 2
+    NominatedServiceContactData:
+      type: object
+      required:
+        - firstName
+        - surname
+        - phone
+        - email
+      properties:
+        title:
+          type: string
+          example: Mr
+          description: The title of the nominated service contact
+          maxLength: 10
+        firstName:
+          type: string
+          example: John
+          description: The first name of the nominated service contact
+          maxLength: 100
+        surname:
+          type: string
+          example: Smith
+          description: The surname of the nominated service contact
+          maxLength: 100
+        phone:
+          type: string
+          example: '07777123456'
+          description: The phone number of the nominated service contact
+          maxLength: 100
+        email:
+          type: string
+          example: john.smith@email.com
+          description: The email address of the nominated service contact
+          maxLength: 100
+        primary:
+          type: boolean
+          example: true
+          default: false
+          description: Identifies which Nominated Service Contact is the primary contact
+
+    FullCreateContractData:
+      type: object
+      required:
+        - person
+        - contract
+        - billing
+      properties:
+        person:
+          type: object
+          required:
+            - personId
+          properties:
+            personId:
+              type: string
+              example: 'GEN:9cebc7d3-9f44-4de8-a813-16ebc4f4dba5'
+        contract:
+          $ref: '#/components/schemas/ContractOffer'
+        billing:
+          $ref: '#/components/schemas/BillingOption'
+    ContractOffer:
+      type: object
+      required:
+        - offers
+      properties:
+        offers:
+          type: array
+          items:
+            $ref: '#/components/schemas/ContractOfferIds'
+    ContractOfferIds:
+      type: object
+      required:
+        - offer
+      properties:
+        offer:
+          $ref: '#/components/schemas/OfferIds'
+    BillingOption:
+      oneOf:
+        - $ref: '#/components/schemas/PaymentMethodBilling'
+        - $ref: '#/components/schemas/BillingAccount'    
+
+    
+    PaymentMethodBilling:
+      type: object
+      required:
+        - paymentMethodCode 
+      properties:   
+        paymentMethodCode:
+          $ref: '#/components/schemas/PaymentMethodCode'
+    PaymentMethodCode:
+      type: string
+      description: Enum representing different payment methods.
+      enum:
+        - DD
+        - CC
+        - ACH
+        - APL
+        - GPY
+        - CHQ
+        - CSH
+        - DGW
+        - VOU
+      example: CSH
+    BillingAccount:
+      type: object
+      properties:
+        profileId:
+          type: string
+          description: Unique identifier for the profile from the billing account system.
+          maxLength: 150
+          minLength: 1
+        accountId:
+          type: string
+          description: Unique identifier for the billing account.
+          maxLength: 100
+          minLength: 1
+          nullable: true
+        token:
+          type: string
+          description: Optional token for the billing account used for settlement API.
+          maxLength: 50
+          nullable: true
+        settlement:
+          type: object
+          nullable: true
+          properties:
+            authId:
+              type: string
+              description: PaySafe Authorization ID.
+              maxLength: 50
+            paymentMethodCode:
+              $ref: '#/components/schemas/PaymentMethodCode'
+        merchantReferenceNumber:
+          type: string
+          description: Optional reference number for the merchant.
+          maxLength: 100
+          nullable: true
+        initialTransactionId:
+          type: string
+          description: Optional initial transaction ID.
+          maxLength: 100
+          nullable: true
+    CreateContractData:
+      type: object
+      required:
+        - id
+      properties:
+        offer:
+          $ref: '#/components/schemas/ContractCreateOffer'
+        created:
+          $ref: '#/components/schemas/ContractCreation'
+    ContractCreateOffer:
+      type: object
+      required:
+        - ref
+      properties:
+        reference:
+          type: string
+          example: 12-01-123-456-1111-1
+          description: Offer Reference - Format 12-01-123-456-1111-1
+          maxLength: 20
+        priceOptionId:
+          type: number
+          description: >-
+            The priceOptionId provided in the request relating to this contract
+            creation attempt
+          example: 3798744
+    ContractCreation:
+      oneOf:
+        - $ref: '#/components/schemas/CreateContractSuccessData'
+    CreateContractSuccessData:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          type: string
+          example: '11011989923448'
+          maxLength: 100
+          description: D&G Contract Unique Identifer
+        effectiveDate:
+          $ref: '#/components/schemas/CreatedEffectiveDate'
+        renewalDate:
+          $ref: '#/components/schemas/CreatedRenewalDate'
+        expirationDate:
+          $ref: '#/components/schemas/CreatedExpirationDate'
+        contractTermEndDate:
+          $ref: '#/components/schemas/CreatedContractTermEndDate'
+        netTotalAmount:
+          type: number
+          example: 90
+          description: Net Total Amount for the contract
+        taxTotalAmount:
+          type: number
+          example: 5
+          description: Tax total amount for the contract
+        grossTotalAmount:
+          type: number
+          example: 95
+          description: Gross total amount for the contract
+    CreatedEffectiveDate:
+      type: string
+      format: date-time
+      example: 2025-10-01T07:00:00.000Z
+      description: Contract Effective Date in timestampz format
+    CreatedRenewalDate:
+      type: string
+      format: date-time
+      example: 2026-10-01T07:00:00.000Z
+      description: Contract Renewal Date in timestampz format
+    CreatedExpirationDate:
+      deprecated: true
+      type: string
+      format: date-time
+      example: 2026-10-01T06:59:59.000Z
+      description: Contract Expiration Date in timestampz format
+    CreatedContractTermEndDate:
+      type: string
+      format: date-time
+      example: 2026-10-01T06:59:59.000Z
+      description: Contract Term End Date in timestampz format
+    OfferIds:
+      type: object
+      required:
+        - reference
+        - priceOptionId
+      properties:
+        reference:
+          type: string
+          example: 12-01-123-456-1111-1
+          description: Offer Reference - Format 12-01-123-456-1111-1
+          maxLength: 20
+        priceOptionId:
+          type: array
+          description: Array of Price Option Ids
+          example:
+            - 123
+            - 234
+          items:
+            type: number
+        netTotalAmount:
+          type: number
+          example: 9.49
+          description: netTotalAmount - Mandatory if the paymentMethodCode is CSH
+        taxTotalAmount:
+          type: number
+          example: 0.5
+          description: taxTotalAmount - Mandatory if the paymentMethodCode is CSH
