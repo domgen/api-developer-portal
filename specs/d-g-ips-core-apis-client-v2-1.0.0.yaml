@@ -52,6 +52,33 @@ paths:
           example: USA
           description: The 3 character ISO-3166 country code
           required: true
+        - in: header
+          name: X-User-Id
+          schema:
+            type: string
+            maxLength: 10
+          allowEmptyValue: false
+          example: "WHIRL"
+          description: "An ID of the person who has made the request and will be logged against the offer"      
+        - in: header
+          name: X-Interaction-Id
+          schema:
+            type: string
+            maxLength: 10
+          allowEmptyValue: false
+          example: "WHIRL"
+          description: "A value which uniquely identifies the current customer journey and used for all calls to D&G APIs for that customer journey"  
+        - in: header
+          name: X-Interaction-Direction
+          schema:
+            type: string
+            enum:
+              - IN
+              - OUT
+            maxLength: 10
+          allowEmptyValue: false
+          example: "IN"
+          description: "A D&G code representing whether the interaction with the customer was triggered by the client [OUT] or by the customer [IN]" 
       requestBody:
         required: true
         content:
@@ -83,6 +110,33 @@ paths:
           example: GBR
           description: The 3 character ISO-3166 country code
           required: true
+        - in: header
+          name: X-User-Id
+          schema:
+            type: string
+            maxLength: 10
+          allowEmptyValue: false
+          example: "WHIRL"
+          description: "An ID of the person who has made the request and will be logged against the offer"      
+        - in: header
+          name: X-Interaction-Id
+          schema:
+            type: string
+            maxLength: 10
+          allowEmptyValue: false
+          example: "WHIRL"
+          description: "A value which uniquely identifies the current customer journey and used for all calls to D&G APIs for that customer journey"  
+        - in: header
+          name: X-Interaction-Direction
+          schema:
+            type: string
+            enum:
+              - IN
+              - OUT
+            maxLength: 10
+          allowEmptyValue: false
+          example: "IN"
+          description: "A D&G code representing whether the interaction with the customer was triggered by the client [OUT] or by the customer [IN]" 
       requestBody:
         required: true
         content:
@@ -150,11 +204,6 @@ components:
       required:
         - contract
       properties:
-        personId:
-          type: string
-          example: '12345679'
-          description: D&G unique identifier for a Person in OGC
-          maxLength: 100
         contract:
           type: array
           items:
@@ -685,26 +734,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ProductVariant'
-    QuoteResponseItem:
-      type: object
-      required:
-        - manufacturerBrandCode
-        - itemTypeCode
-      allOf:
-        - $ref: '#/components/schemas/ManufacturerBrandCode'
-        - $ref: '#/components/schemas/ItemTypeCode'
-        - $ref: '#/components/schemas/ModelNumber'
-        - $ref: '#/components/schemas/SerialNumber'
-    QuoteResponseOffer:
-      type: object
-      required:
-        - productVariantId
-      allOf:
-        - $ref: '#/components/schemas/OfferRedirectURL'
-        - $ref: '#/components/schemas/OfferReference'
-        - $ref: '#/components/schemas/OfferExpiryDate'
-        - $ref: '#/components/schemas/ResponsePriceCore'
-        - $ref: '#/components/schemas/PriceOptionPeriodOfCoverArray'
+
     QuoteRedirectURL:
       type: object
       properties:
@@ -871,8 +901,70 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/QuoteResponseOffer'
-
-
+    QuoteResponseItem:
+      type: object
+      required:
+        - manufacturerBrandCode
+        - itemTypeCode
+      allOf:
+        - $ref: '#/components/schemas/ManufacturerBrandCode'
+        - $ref: '#/components/schemas/ItemTypeCode'
+        - $ref: '#/components/schemas/ModelNumber'
+        - $ref: '#/components/schemas/SerialNumber'
+    QuoteResponseOffer:
+      type: object
+      required:
+        - productVariantId
+      allOf:
+        - $ref: '#/components/schemas/OfferRedirectURL'
+        - $ref: '#/components/schemas/OfferReference'
+        - $ref: '#/components/schemas/OfferExpiryDate'
+        - $ref: '#/components/schemas/ResponsePriceCore'
+        - $ref: '#/components/schemas/QuotePriceOptionPeriodOfCoverArray'
+    QuotePriceOptionPeriodOfCoverArray:
+      type: object
+      properties:
+        priceOptionPeriodOfCover:
+          type: array
+          items:
+            $ref: '#/components/schemas/QuotePriceOptionPeriodOfCover'           
+    QuotePriceOptionPeriodOfCover:
+      type: object
+      required:
+        - periodOfCover
+        - priceOption
+      properties:
+        periodOfCover:
+          type: integer
+          example: 12
+          description: Period of Cover (in months)
+        priceOption:
+          type: array
+          items:
+            $ref: '#/components/schemas/QuotePriceOption'  
+    QuotePriceOptionArray:
+      type: object
+      properties:
+        priceOption:
+          type: array
+          items:
+            $ref: '#/components/schemas/QuotePriceOption'            
+    QuotePriceOption:
+      type: object
+      required:
+        - priceOptionId
+      allOf:
+        - $ref: '#/components/schemas/PriceOptionId'
+        - $ref: '#/components/schemas/PriceOption'
+    PriceOptionId:
+      type: object
+      required:
+        - priceOptionId
+      properties:
+        priceOptionId:  
+          type: number
+          description: A unique ID for a priceOption
+          example: 3798744                     
     PricingAnonymousResponseData:
       type: object
       properties:       
@@ -914,14 +1006,14 @@ components:
         - productVariantId
       allOf:
         - $ref: '#/components/schemas/ResponsePriceCore'
-        - $ref: '#/components/schemas/PriceOptionPeriodOfCoverArray'
+        - $ref: '#/components/schemas/PriceOptionPeriodOfCoverArray'  
     PriceOptionPeriodOfCoverArray:
       type: object
       properties:
         priceOptionPeriodOfCover:
           type: array
           items:
-            $ref: '#/components/schemas/PriceOptionPeriodOfCover'
+            $ref: '#/components/schemas/PriceOptionPeriodOfCover'           
     ResponsePriceCore:
       type: object
       required:
@@ -935,6 +1027,7 @@ components:
           $ref: '#/components/schemas/CoolingOffPeriod'
         contractEffectiveDate:
           $ref: '#/components/schemas/ContractEffectiveDate'
+    
     PriceOptionPeriodOfCover:
       type: object
       required:
@@ -948,7 +1041,7 @@ components:
         priceOption:
           type: array
           items:
-            $ref: '#/components/schemas/PriceOption'
+            $ref: '#/components/schemas/PriceOption'   
     PriceOption:
       type: object
       required:
@@ -1323,38 +1416,17 @@ components:
     FullCreateContractData:
       type: object
       required:
-        - person
-        - contract
+        - offer
         - billing
       properties:
-        person:
-          type: object
-          required:
-            - personId
-          properties:
-            personId:
-              type: string
-              example: 'GEN:9cebc7d3-9f44-4de8-a813-16ebc4f4dba5'
-        contract:
-          $ref: '#/components/schemas/ContractOffer'
+        offer:
+          $ref: '#/components/schemas/ContractOfferArray'
         billing:
           $ref: '#/components/schemas/BillingOption'
-    ContractOffer:
-      type: object
-      required:
-        - offers
-      properties:
-        offers:
-          type: array
-          items:
-            $ref: '#/components/schemas/ContractOfferIds'
-    ContractOfferIds:
-      type: object
-      required:
-        - offer
-      properties:
-        offer:
-          $ref: '#/components/schemas/OfferIds'
+    ContractOfferArray:
+      type: array
+      items:
+        $ref: '#/components/schemas/OfferIds'
     BillingOption:
       oneOf:
         - $ref: '#/components/schemas/PaymentMethodBilling'
@@ -1435,11 +1507,6 @@ components:
       required:
         - ref
       properties:
-        reference:
-          type: string
-          example: 12-01-123-456-1111-1
-          description: Offer Reference - Format 12-01-123-456-1111-1
-          maxLength: 20
         priceOptionId:
           type: number
           description: >-
@@ -1463,8 +1530,6 @@ components:
           $ref: '#/components/schemas/CreatedEffectiveDate'
         renewalDate:
           $ref: '#/components/schemas/CreatedRenewalDate'
-        expirationDate:
-          $ref: '#/components/schemas/CreatedExpirationDate'
         contractTermEndDate:
           $ref: '#/components/schemas/CreatedContractTermEndDate'
         netTotalAmount:
@@ -1503,22 +1568,12 @@ components:
     OfferIds:
       type: object
       required:
-        - reference
         - priceOptionId
       properties:
-        reference:
-          type: string
-          example: 12-01-123-456-1111-1
-          description: Offer Reference - Format 12-01-123-456-1111-1
-          maxLength: 20
         priceOptionId:
-          type: array
+          type: number
           description: Array of Price Option Ids
-          example:
-            - 123
-            - 234
-          items:
-            type: number
+          example: 123
         netTotalAmount:
           type: number
           example: 9.49
