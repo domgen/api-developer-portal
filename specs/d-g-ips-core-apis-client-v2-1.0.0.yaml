@@ -5,7 +5,7 @@ info:
   title: D&G IPS Core APIs Client V2
 
 paths:
-  '/v2/{countryCode}/client/pricing/anonymous':
+  /v2/{countryCode}/client/pricing/anonymous:
     post:
       tags:
         - Pricing
