@@ -100,7 +100,7 @@ paths:
                   - $ref: '#/components/schemas/ITBCreateResponse'
               examples:
                 StandardResponse:
-                  summary: Standard POST /itb response
+                  summary: Default POST /itb response
                   value:
                     itbId: c73bcdcc-2669-4bf6-81d3-e4ae73fb11fd
                     paymentEmbedUrl: >-
