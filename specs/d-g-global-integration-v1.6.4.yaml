@@ -1177,7 +1177,7 @@ components:
           type: string
           description: >-
             Specifies the context through which this sale is being made, for
-            example “online” or "instore". If not specified, the value default
+            example “online” or "instore". If not specified, the value defaults
             to "online". The value to be used here will be advised by Domestic &
             General based on the applicable customer journey.
           example: online
