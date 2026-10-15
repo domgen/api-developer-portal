@@ -1175,6 +1175,11 @@ components:
           example: a1a3287f-1596-4bfe-83ab-44e0c36658c6
         contexts:
           type: string
+          description: >-
+            Specifies the context through which this sale is being made, for
+            example “online” or "instore". If not specified, the value default
+            to "online". The value to be used here will be advised by Domestic &
+            General based on the applicable customer journey.
           example: online
       allOf:
         - $ref: '#/components/schemas/ITBPurchaseDetails'
