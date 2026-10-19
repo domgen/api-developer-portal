@@ -2055,7 +2055,7 @@ components:
         deliveryEstimate:
           type: string
           format: date
-          example: '2026-01-21T00:00:00.000Z'
+          example: '2026-01-21'
           pattern: '([12]\d{3}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01]))'
           maximum: 10
           minimum: 10
@@ -2105,7 +2105,7 @@ components:
         deliveryEstimate:
           type: string
           format: date
-          example: '2026-01-21T00:00:00.000Z'
+          example: '2026-01-21'
           pattern: '([12]\d{3}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01]))'
           maximum: 10
           minimum: 10
