@@ -839,6 +839,150 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/InternalError'
+  /reg/retailer/sku:
+    get:
+      summary: Retrieve a sku to appliance mapping for a given retailer
+      parameters:
+        - in: header
+          name: X-Request-Id
+          description: uuidv4 string to identify the individual request
+          schema:
+            $ref: '#/components/schemas/RegAuthX-Request-Id'
+        - in: query
+          name: sku
+          schema:
+            type: string
+            example: 12345678
+          required: false
+          description: The sku for a given sku to appliance mapping
+        - in: query
+          name: skus
+          schema:
+            type: array
+            items:
+              type: string
+              example: 12345678
+          required: false
+          description: The array of skus for a given sku to appliance mapping
+        - in: query
+          name: retailerDomain
+          schema:
+            type: string
+            example: retailer.com
+          required: false
+          description: >-
+            The retailer domain for the required skus (either retailerName or
+            retailerDomain should be passed)
+        - in: query
+          name: retailerName
+          schema:
+            type: string
+            example: retailer
+          required: false
+          description: >-
+            The retailer name for the required skus (either retailerName or
+            retailerDomain should be passed)
+        - in: query
+          name: contexts
+          schema:
+            type: string
+            example: online
+          required: true
+          description: The contexts or retailer channel of the required skus
+        - in: query
+          name: applianceCode
+          schema:
+            type: string
+            example: FF
+          required: false
+          description: >-
+            Appliance code used for SKU lookup. Must be supplied together with
+            appliancePrice and manufacturerGuarantee.
+        - in: query
+          name: appliancePrice
+          schema:
+            type: number
+            example: 499.99
+            minimum: 0
+          required: false
+          description: >-
+            Appliance price used for SKU lookup. Must be supplied together with
+            applianceCode and manufacturerGuarantee.
+        - in: query
+          name: manufacturerGuarantee
+          schema:
+            type: number
+            example: 24
+            minimum: 0
+          required: false
+          description: >-
+            Manufacturer guarantee duration used for SKU lookup. Must be
+            supplied together with applianceCode and appliancePrice.
+        - in: query
+          name: pricingOnly
+          schema:
+            type: boolean
+            example: true
+          required: false
+          description: >-
+            If true then only returns the sku id, applianceCode, appliancePrice,
+            manufacturerGuarantee, premium and promotion.
+        - in: query
+          name: idsOnly
+          schema:
+            type: boolean
+            example: true
+          required: false
+          description: If true then only returns the Sku Ids rather than full data
+      security:
+        - BearerAuth:
+            - read
+            - write
+      tags:
+        - reg
+      responses:
+        '200':
+          description: Status 200 Response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SkuMap'
+                  - type: object
+                    properties:
+                      version:
+                        type: number
+                        description: The version of the retailer's sku inventory
+        '400':
+          description: Status 400 Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RegAuthValidationError'
+        '401':
+          description: Status 401 Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedError'
+        '403':
+          description: Status 403 Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenError'
+        '404':
+          description: Status 404 Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundError'
+        '500':
+          description: Status 500 Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalError'
 components:
   schemas:
     uuid:
