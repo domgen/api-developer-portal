@@ -949,6 +949,47 @@ paths:
                 oneOf:
                   - $ref: '#/components/schemas/SkuMap'
                   - $ref: '#/components/schemas/SkuMapResponseWithPricingOnly'
+              examples:
+                SkuMap:
+                  summary: Standard SKU mapping response
+                  value:
+                    sku: '5673920'
+                    schemeCode: ABC
+                    applianceCode: FF
+                    manufacturerGuarantee: 24
+                    partsGuarantee: 12
+                    startBehaviour: Immediate
+                    multiplan: false
+                    periodOfCover: 12
+                    priceBandStart: 1000
+                    priceBandEnd: 50000
+                    description: Frost-free fridge freezer
+                    policyName: Complete Appliance Protection
+                    agentNumber: 7C370
+                    excess: 100
+                    additionalCoverage: Accidental damage included
+                    premium: 50
+                    promotion: 2MF
+                    promitionPrefix: SAVE
+                    numberOfPayments: 12
+                    paymentType: 1
+                    paymentProfile: Monthly
+                    ipid: 'https://example.com/ipid/5673920'
+                    termsAndConditions: 'https://example.com/terms/5673920'
+                    retailer: retailer
+                    effectiveFrom: '2026-08-17'
+                    effectiveTo: '2026-12-14'
+                    contexts: online
+                    version: 5
+                SkuMapResponseWithPricingOnly:
+                  summary: Response when pricingOnly is true
+                  value:
+                    applianceCode: FF
+                    manufacturerGuarantee: 24
+                    appliancePrice: 2000
+                    sku: '5673920'
+                    premium: 50
+                    promotion: 2MF
         '400':
           description: Status 400 Response
           content:
