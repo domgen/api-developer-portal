@@ -949,6 +949,47 @@ paths:
                 oneOf:
                   - $ref: '#/components/schemas/SkuMap'
                   - $ref: '#/components/schemas/SkuMapResponseWithPricingOnly'
+              examples:
+                SkuMap:
+                  summary: Standard SKU mapping response
+                  value:
+                    sku: '5673920'
+                    schemeCode: ABC
+                    applianceCode: FF
+                    manufacturerGuarantee: 24
+                    partsGuarantee: 12
+                    startBehaviour: Immediate
+                    multiplan: false
+                    periodOfCover: 12
+                    priceBandStart: 0
+                    priceBandEnd: 100000000
+                    description: Frost-free fridge freezer
+                    policyName: Complete Appliance Protection
+                    agentNumber: 7C370
+                    excess: 100
+                    additionalCoverage: Accidental damage included
+                    premium: 50
+                    promotion: 2MF
+                    promitionPrefix: SAVE
+                    numberOfPayments: 12
+                    paymentType: 1
+                    paymentProfile: Monthly
+                    ipid: 'https://example.com/ipid/5673920'
+                    termsAndConditions: 'https://example.com/terms/5673920'
+                    retailer: retailer
+                    effectiveFrom: '2026-08-17'
+                    effectiveTo: '2026-12-14'
+                    contexts: online
+                    version: 5
+                SkuMapResponseWithPricingOnly:
+                  summary: Response when pricingOnly is true
+                  value:
+                    applianceCode: FF
+                    manufacturerGuarantee: 24
+                    appliancePrice: 2000
+                    sku: '5673920'
+                    premium: 50
+                    promotion: 2MF
         '400':
           description: Status 400 Response
           content:
@@ -2201,7 +2242,7 @@ components:
         deliveryEstimate:
           type: string
           format: date
-          example: '2026-01-21'
+          example: '2026-01-21T00:00:00.000Z'
           pattern: '([12]\d{3}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01]))'
           maximum: 10
           minimum: 10
@@ -2251,7 +2292,7 @@ components:
         deliveryEstimate:
           type: string
           format: date
-          example: '2026-01-21'
+          example: '2026-01-21T00:00:00.000Z'
           pattern: '([12]\d{3}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01]))'
           maximum: 10
           minimum: 10
@@ -2973,10 +3014,10 @@ components:
           type: string
         effectiveFrom:
           type: string
-          example: '2026-08-17'
+          example: '2026-08-17T00:00:00.000Z'
         effectiveTo:
           type: string
-          example: '2026-12-14'
+          example: '2026-12-14T00:00:00.000Z'
         contexts:
           type: string
           example: online
