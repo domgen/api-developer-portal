@@ -2,7 +2,7 @@ openapi: 3.0.3
 info:
   title: D&G Global Integration
   description: This spec defines the API for the D&G Global Integration Service
-  version: v1.6.8
+  version: v1.6.7
 servers:
   - url: 'https://prod-sandbox.api.dg-click-integrations.com/v1'
     description: Sandbox environment for testing before going live
@@ -2242,7 +2242,7 @@ components:
         deliveryEstimate:
           type: string
           format: date
-          example: '2026-01-21T00:00:00.000Z'
+          example: '2026-01-21'
           pattern: '([12]\d{3}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01]))'
           maximum: 10
           minimum: 10
@@ -2292,7 +2292,7 @@ components:
         deliveryEstimate:
           type: string
           format: date
-          example: '2026-01-21T00:00:00.000Z'
+          example: '2026-01-21'
           pattern: '([12]\d{3}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01]))'
           maximum: 10
           minimum: 10
@@ -3014,10 +3014,10 @@ components:
           type: string
         effectiveFrom:
           type: string
-          example: '2026-08-17T00:00:00.000Z'
+          example: '2026-08-17'
         effectiveTo:
           type: string
-          example: '2026-12-14T00:00:00.000Z'
+          example: '2026-12-14'
         contexts:
           type: string
           example: online
