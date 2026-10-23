@@ -902,7 +902,7 @@ paths:
           name: appliancePrice
           schema:
             type: number
-            example: 499.99
+            example: 2000
             minimum: 0
           required: false
           description: >-
@@ -946,13 +946,9 @@ paths:
           content:
             application/json:
               schema:
-                allOf:
+                oneOf:
                   - $ref: '#/components/schemas/SkuMap'
-                  - type: object
-                    properties:
-                      version:
-                        type: number
-                        description: The version of the retailer's sku inventory
+                  - $ref: '#/components/schemas/SkuMapResponseWithPricingOnly'
         '400':
           description: Status 400 Response
           content:
@@ -2205,7 +2201,7 @@ components:
         deliveryEstimate:
           type: string
           format: date
-          example: '2026-01-21T00:00:00.000Z'
+          example: '2026-01-21'
           pattern: '([12]\d{3}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01]))'
           maximum: 10
           minimum: 10
@@ -2255,7 +2251,7 @@ components:
         deliveryEstimate:
           type: string
           format: date
-          example: '2026-01-21T00:00:00.000Z'
+          example: '2026-01-21'
           pattern: '([12]\d{3}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01]))'
           maximum: 10
           minimum: 10
@@ -2896,6 +2892,9 @@ components:
         - priceBandEnd
         - retailer
       properties:
+        sku:
+          type: string
+          example: 5673920
         schemeCode:
           type: string
           example: ABC
@@ -2951,8 +2950,10 @@ components:
           type: string
         premium:
           type: number
+          example: 50
         promotion:
           type: string
+          example: 2MF
         promitionPrefix:
           type: string
         numberOfPayments:
@@ -2972,14 +2973,44 @@ components:
           type: string
         effectiveFrom:
           type: string
+          example: '2026-08-17'
         effectiveTo:
           type: string
+          example: '2026-12-14'
         contexts:
           type: string
           example: online
-          enum:
-            - online
-            - inStore
+        version:
+          type: number
+          example: 5
+    SkuMapResponseWithPricingOnly:
+      required:
+        - applianceCode
+        - manufacturerGuarantee
+        - appliancePrice
+      properties:
+        applianceCode:
+          type: string
+          example: FF
+          description: FF for fridge freezer etc
+          maximum: 2
+          minimum: 2
+        manufacturerGuarantee:
+          type: number
+          minimum: 0
+          maximum: 180
+        appliancePrice:
+          type: number
+          example: 2000
+        sku:
+          type: string
+          example: 5673920
+        premium:
+          type: number
+          example: 50
+        promotion:
+          type: string
+          example: 2MF
     PostSku:
       required:
         - skus
