@@ -59,7 +59,7 @@ jobs:
       - name: Render the spec
         uses: fluximus-prime/redocly-cli-github-action@v1
         with:
-          args: build-docs ${{ matrix.file }} --output "pages/${{ steps.basename.outputs.render_name }}/index.html" ${{ env.BUILD_ARGS }}
+          args: build-docs ${{ matrix.file }} --output "pages/${{ steps.basename.outputs.render_name }}/index.html"
       - name: Check in any changes
         uses: domgen/api-developer-portal/.github/actions/matrix-git-push@main
         with:
@@ -91,7 +91,7 @@ jobs:
       - name: Render the spec
         uses: fluximus-prime/redocly-cli-github-action@v1
         with:
-          args: build-docs ${{ matrix.file }} --output "pages/${{ steps.basename.outputs.render_name }}/index.html" ${{ env.BUILD_ARGS }}
+          args: build-docs ${{ matrix.file }} --output "pages/${{ steps.basename.outputs.render_name }}/index.html"
       - name: Check in any changes
         uses: domgen/api-developer-portal/.github/actions/matrix-git-push@main
         with:
