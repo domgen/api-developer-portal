@@ -9,7 +9,7 @@ permissions:
   id-token: write
 
 env:
-  BUILD_ARGS: --theme.openapi.theme.typography.code.fontFamily='monospace' --theme.openapi.theme.typography.headings.fontFamily='Roboto,sans-serif' --theme.openapi.theme.typography.fontFamily='Roboto,sans-serif'
+  BUILD_ARGS: --openapi.theme.typography.code.fontFamily='monospace' --openapi.theme.typography.headings.fontFamily='Roboto,sans-serif' --openapi.theme.typography.fontFamily='Roboto,sans-serif'
 
 jobs:
   # Update the index page
