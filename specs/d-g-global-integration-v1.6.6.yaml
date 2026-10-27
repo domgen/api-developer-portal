@@ -2,7 +2,7 @@ openapi: 3.0.3
 info:
   title: D&G Global Integration
   description: This spec defines the API for the D&G Global Integration Service
-  version: v1.6.5
+  version: v1.6.6
 servers:
   - url: 'https://prod-sandbox.api.dg-click-integrations.com/v1'
     description: Sandbox environment for testing before going live
@@ -771,14 +771,20 @@ paths:
             schema:
               $ref: '#/components/schemas/ITBTouchPointRequest'
             example:
+              itbId: a1a3287f-1596-4bfe-83ab-44e0c36658c6
               appliance:
                 applianceBrand: test
                 premium: 123
                 appliancePrice: 123456
                 sku: test-sku
-                description: test descrioption
-                journeyStep: test journey step
-                placement: SIDE-DRAWER
+                description: test description
+                termSku: CW22002
+                termPremium: 123456
+                imageUrl: 'https://testImageUrl.com'
+                journeyStep: LISTINGS PAGE
+                placement: MODAL
+                policyTypes:
+                  - MONTHLY
       responses:
         '200':
           description: Status 200 Response
@@ -833,85 +839,163 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/InternalError'
-  /itb/checkout:
-    post:
-      summary: >-
-        post customer and product information for users who are going through
-        landing page and checkout. Based on the provided payload this can lead
-        to either anonymous or pre-populated checkout.
+  /reg/retailer/sku:
+    get:
+      summary: Retrieve a sku to appliance mapping for a given retailer
       parameters:
         - in: header
           name: X-Request-Id
-          required: true
           description: uuidv4 string to identify the individual request
           schema:
-            $ref: '#/components/schemas/X-Request-Id'
+            $ref: '#/components/schemas/RegAuthX-Request-Id'
+        - in: query
+          name: sku
+          schema:
+            type: string
+            example: 12345678
+          required: false
+          description: The sku for a given sku to appliance mapping
+        - in: query
+          name: skus
+          schema:
+            type: array
+            items:
+              type: string
+              example: 12345678
+          required: false
+          description: The array of skus for a given sku to appliance mapping
+        - in: query
+          name: retailerDomain
+          schema:
+            type: string
+            example: retailer.com
+          required: false
+          description: >-
+            The retailer domain for the required skus (either retailerName or
+            retailerDomain should be passed)
+        - in: query
+          name: retailerName
+          schema:
+            type: string
+            example: retailer
+          required: false
+          description: >-
+            The retailer name for the required skus (either retailerName or
+            retailerDomain should be passed)
+        - in: query
+          name: contexts
+          schema:
+            type: string
+            example: online
+          required: true
+          description: The contexts or retailer channel of the required skus
+        - in: query
+          name: applianceCode
+          schema:
+            type: string
+            example: FF
+          required: false
+          description: >-
+            Appliance code used for SKU lookup. Must be supplied together with
+            appliancePrice and manufacturerGuarantee.
+        - in: query
+          name: appliancePrice
+          schema:
+            type: number
+            example: 2000
+            minimum: 0
+          required: false
+          description: >-
+            Appliance price used for SKU lookup. Must be supplied together with
+            applianceCode and manufacturerGuarantee.
+        - in: query
+          name: manufacturerGuarantee
+          schema:
+            type: number
+            example: 24
+            minimum: 0
+          required: false
+          description: >-
+            Manufacturer guarantee duration used for SKU lookup. Must be
+            supplied together with applianceCode and appliancePrice.
+        - in: query
+          name: pricingOnly
+          schema:
+            type: boolean
+            example: true
+          required: false
+          description: >-
+            If true then only returns the sku id, applianceCode, appliancePrice,
+            manufacturerGuarantee, premium and promotion.
+        - in: query
+          name: idsOnly
+          schema:
+            type: boolean
+            example: true
+          required: false
+          description: If true then only returns the Sku Ids rather than full data
       security:
         - BearerAuth:
             - read
             - write
       tags:
-        - itb
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CheckoutLinkCreateRequest'
+        - reg
       responses:
-        '201':
-          description: Status 201 Response
+        '200':
+          description: Status 200 Response
           content:
             application/json:
               schema:
-                allOf:
-                  - $ref: '#/components/schemas/CheckoutLinkCreateResponse'
+                oneOf:
+                  - $ref: '#/components/schemas/SkuMap'
+                  - $ref: '#/components/schemas/SkuMapResponseWithPricingOnly'
               examples:
-                StandardResponse:
-                  summary: Default POST /checkout response
+                SkuMap:
+                  summary: Standard SKU mapping response
                   value:
-                    itbId: c73bcdcc-2669-4bf6-81d3-e4ae73fb11fd
-                    checkoutLinkUrl: >-
-                      https://retailer.secure.dg-click-integrations.com/entry?ref=e7116591-3906-41be-be1d-31bf635daded
-                TriggerEmailTypeResponse:
-                  summary: Response when triggerEmailType is passed in the request
+                    sku: '5673920'
+                    schemeCode: ABC
+                    applianceCode: FF
+                    manufacturerGuarantee: 24
+                    partsGuarantee: 12
+                    startBehaviour: Immediate
+                    multiplan: false
+                    periodOfCover: 12
+                    priceBandStart: 0
+                    priceBandEnd: 100000000
+                    description: Frost-free fridge freezer
+                    policyName: Complete Appliance Protection
+                    agentNumber: 7C370
+                    excess: 100
+                    additionalCoverage: Accidental damage included
+                    premium: 50
+                    promotion: 2MF
+                    promitionPrefix: SAVE
+                    numberOfPayments: 12
+                    paymentType: 1
+                    paymentProfile: Monthly
+                    ipid: 'https://example.com/ipid/5673920'
+                    termsAndConditions: 'https://example.com/terms/5673920'
+                    retailer: retailer
+                    effectiveFrom: '2026-08-17'
+                    effectiveTo: '2026-12-14'
+                    contexts: online
+                    version: 5
+                SkuMapResponseWithPricingOnly:
+                  summary: Response when pricingOnly is true
                   value:
-                    itbId: c73bcdcc-2669-4bf6-81d3-e4ae73fb11fd
-                    emailTriggered: true
-                    emailType: FOLLOW_UP_REQUESTED
+                    applianceCode: FF
+                    manufacturerGuarantee: 24
+                    appliancePrice: 2000
+                    sku: '5673920'
+                    premium: 50
+                    promotion: 2MF
         '400':
           description: Status 400 Response
           content:
             application/json:
               schema:
-                oneOf:
-                  - $ref: '#/components/schemas/ValidationError'
-                  - $ref: '#/components/schemas/priceBandRangeUnauthorizedError'
-                  - $ref: '#/components/schemas/skuNotFoundError'
-              examples:
-                ValidationErrorExample:
-                  summary: Validation error example
-                  value:
-                    message: validation error
-                    validationError:
-                      - code: too small
-                        minimum: 1
-                        type: string
-                        inclusive: true
-                        message: String must contain at least 1 character(s)
-                        path:
-                          - appliancesPurchased
-                          - 0
-                          - applianceBrand
-                PriceBandRangeUnauthorizedExample:
-                  summary: Price band range unauthorized error example
-                  value:
-                    message: >-
-                      appliancePrice (50199) does not fall within SKU price band
-                      range (CW22002)
-                SKUNotFoundExample:
-                  summary: SKU not found error example
-                  value:
-                    message: 'Unable to find SKU: (123456)'
+                $ref: '#/components/schemas/RegAuthValidationError'
         '401':
           description: Status 401 Response
           content:
@@ -1278,6 +1362,11 @@ components:
           example: a1a3287f-1596-4bfe-83ab-44e0c36658c6
         contexts:
           type: string
+          description: >-
+            Specifies the context through which this sale is being made, for
+            example “online” or "instore". If not specified, the value defaults
+            to "online". The value to be used here will be advised by Domestic &
+            General based on the applicable customer journey.
           example: online
       allOf:
         - $ref: '#/components/schemas/ITBPurchaseDetails'
@@ -2365,6 +2454,8 @@ components:
               example: SIDE-DRAWER
             policyTypes:
               type: array
+              example:
+                - MONTHLY
               items:
                 type: string
                 enum:
@@ -2842,6 +2933,9 @@ components:
         - priceBandEnd
         - retailer
       properties:
+        sku:
+          type: string
+          example: 5673920
         schemeCode:
           type: string
           example: ABC
@@ -2897,8 +2991,10 @@ components:
           type: string
         premium:
           type: number
+          example: 50
         promotion:
           type: string
+          example: 2MF
         promitionPrefix:
           type: string
         numberOfPayments:
@@ -2918,14 +3014,44 @@ components:
           type: string
         effectiveFrom:
           type: string
+          example: '2026-08-17T00:00:00.000Z'
         effectiveTo:
           type: string
+          example: '2026-12-14T00:00:00.000Z'
         contexts:
           type: string
           example: online
-          enum:
-            - online
-            - inStore
+        version:
+          type: number
+          example: 5
+    SkuMapResponseWithPricingOnly:
+      required:
+        - applianceCode
+        - manufacturerGuarantee
+        - appliancePrice
+      properties:
+        applianceCode:
+          type: string
+          example: FF
+          description: FF for fridge freezer etc
+          maximum: 2
+          minimum: 2
+        manufacturerGuarantee:
+          type: number
+          minimum: 0
+          maximum: 180
+        appliancePrice:
+          type: number
+          example: 2000
+        sku:
+          type: string
+          example: 5673920
+        premium:
+          type: number
+          example: 50
+        promotion:
+          type: string
+          example: 2MF
     PostSku:
       required:
         - skus
