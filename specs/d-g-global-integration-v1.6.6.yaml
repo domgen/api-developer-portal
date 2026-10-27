@@ -2,7 +2,7 @@ openapi: 3.0.3
 info:
   title: D&G Global Integration
   description: This spec defines the API for the D&G Global Integration Service
-  version: v1.6.6
+  version: v1.6.7
 servers:
   - url: 'https://prod-sandbox.api.dg-click-integrations.com/v1'
     description: Sandbox environment for testing before going live
@@ -961,8 +961,8 @@ paths:
                     startBehaviour: Immediate
                     multiplan: false
                     periodOfCover: 12
-                    priceBandStart: 1000
-                    priceBandEnd: 50000
+                    priceBandStart: 100
+                    priceBandEnd: 100000000
                     description: Frost-free fridge freezer
                     policyName: Complete Appliance Protection
                     agentNumber: 7C370
@@ -2242,7 +2242,7 @@ components:
         deliveryEstimate:
           type: string
           format: date
-          example: '2026-01-21'
+          example: '2026-01-21T00:00:00.000Z'
           pattern: '([12]\d{3}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01]))'
           maximum: 10
           minimum: 10
@@ -2292,7 +2292,7 @@ components:
         deliveryEstimate:
           type: string
           format: date
-          example: '2026-01-21'
+          example: '2026-01-21T00:00:00.000Z'
           pattern: '([12]\d{3}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01]))'
           maximum: 10
           minimum: 10
@@ -2921,17 +2921,6 @@ components:
       allOf:
         - $ref: '#/components/schemas/Retailer'
     SkuMap:
-      required:
-        - schemeCode
-        - applianceCode
-        - manufacturerGuarantee
-        - partsGuarantee
-        - startBehaviour
-        - multiplan
-        - periodOfCover
-        - priceBandStart
-        - priceBandEnd
-        - retailer
       properties:
         sku:
           type: string
@@ -2972,11 +2961,9 @@ components:
           maximum: 180
         priceBandStart:
           type: number
-          minimum: 0
           maximum: 100000000
         priceBandEnd:
           type: number
-          minimum: 0
           maximum: 100000000
         description:
           type: string
@@ -3014,10 +3001,10 @@ components:
           type: string
         effectiveFrom:
           type: string
-          example: '2026-08-17'
+          example: '2026-08-17T00:00:00.000Z'
         effectiveTo:
           type: string
-          example: '2026-12-14'
+          example: '2026-12-14T00:00:00.000Z'
         contexts:
           type: string
           example: online
@@ -3025,10 +3012,6 @@ components:
           type: number
           example: 5
     SkuMapResponseWithPricingOnly:
-      required:
-        - applianceCode
-        - manufacturerGuarantee
-        - appliancePrice
       properties:
         applianceCode:
           type: string
