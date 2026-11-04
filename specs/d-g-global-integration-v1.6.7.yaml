@@ -1452,7 +1452,7 @@ components:
                 will be advised by Domestic & General.
             agentId:
               type: string
-              example: SALESAGENT0001
+              example: SALESAGENT001
               minimum: 1
               maximum: 50
               description: >-
@@ -1806,7 +1806,7 @@ components:
           example: FOLLOW_UP_REQUESTED
         agentId:
           type: string
-          example: SALESAGENT0001
+          example: SALESAGENT001
           minimum: 1
           maximum: 50
           description: >-
@@ -1954,7 +1954,7 @@ components:
             advised by Domestic & General.
         agentId:
           type: string
-          example: SALESAGENT0001
+          example: SALESAGENT001
           minimum: 1
           maximum: 50
           description: >-
