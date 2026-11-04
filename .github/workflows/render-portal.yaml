@@ -13,7 +13,7 @@ permissions:
   id-token: write
 
 env:
-  BUILD_ARGS: --openapi.theme.typography.code.fontFamily='monospace' --openapi.theme.typography.headings.fontFamily='Roboto,sans-serif' --openapi.theme.typography.fontFamily='Roboto,sans-serif'
+  BUILD_ARGS: --theme.openapi.theme.typography.code.fontFamily='monospace' --theme.openapi.theme.typography.headings.fontFamily='Roboto,sans-serif' --theme.openapi.theme.typography.fontFamily='Roboto,sans-serif'
 
 jobs:
   # Calculate changes
@@ -57,9 +57,13 @@ jobs:
       - name: Create the page folder
         run: mkdir -p "pages/${{ steps.basename.outputs.render_name }}"
       - name: Render the spec
-        uses: fluximus-prime/redocly-cli-github-action@v1
-        with:
-          args: build-docs ${{ matrix.file }} --output "pages/${{ steps.basename.outputs.render_name }}/index.html"
+        env:
+          SPEC_FILE: ${{ matrix.file }}
+          OUTPUT_FILE: pages/${{ steps.basename.outputs.render_name }}/index.html
+        run: |
+          npx --yes @redocly/cli@1 build-docs "$SPEC_FILE" \
+            --output "$OUTPUT_FILE" \
+            ${{ env.BUILD_ARGS }}
       - name: Check in any changes
         uses: domgen/api-developer-portal/.github/actions/matrix-git-push@main
         with:
@@ -89,9 +93,13 @@ jobs:
       - name: Create the page folder
         run: mkdir -p "pages/${{ steps.basename.outputs.render_name }}"
       - name: Render the spec
-        uses: fluximus-prime/redocly-cli-github-action@v1
-        with:
-          args: build-docs ${{ matrix.file }} --output "pages/${{ steps.basename.outputs.render_name }}/index.html"
+        env:
+          SPEC_FILE: ${{ matrix.file }}
+          OUTPUT_FILE: pages/${{ steps.basename.outputs.render_name }}/index.html
+        run: |
+          npx --yes @redocly/cli@1 build-docs "$SPEC_FILE" \
+            --output "$OUTPUT_FILE" \
+            ${{ env.BUILD_ARGS }}
       - name: Check in any changes
         uses: domgen/api-developer-portal/.github/actions/matrix-git-push@main
         with:
