@@ -2,16 +2,16 @@ openapi: 3.0.3
 info:
   title: D&G Global Integration
   description: This spec defines the API for the D&G Global Integration Service
-  version: v1.4.2
+  version: v1.6.9
 servers:
-  - url: 'https://prod-sandbox.api.dg-click-integrations.com/{version}'
+  - url: 'https://prod-sandbox.api.dg-click-integrations.com/v1'
     description: Sandbox environment for testing before going live
     variables:
       version:
         default: v1
         enum:
           - v1
-  - url: 'https://api.dg-click-integrations.com/{version}'
+  - url: 'https://api.dg-click-integrations.com/v1'
     description: Live production environment
     variables:
       version:
@@ -98,6 +98,21 @@ paths:
               schema:
                 allOf:
                   - $ref: '#/components/schemas/ITBCreateResponse'
+              examples:
+                StandardResponse:
+                  summary: Default POST /itb response
+                  value:
+                    itbId: c73bcdcc-2669-4bf6-81d3-e4ae73fb11fd
+                    paymentEmbedUrl: >-
+                      https://retailer.secure.dg-click-integrations.com/ddi?reference=e7116591-3906-41be-be1d-31bf635daded
+                    paymentRedirectUrl: >-
+                      https://retailer.secure.dg-click-integrations.com/ddi-page?reference=e7116591-3906-41be-be1d-31bf635daded
+                TriggerEmailTypeResponse:
+                  summary: Response when triggerEmailType is passed in the request
+                  value:
+                    itbId: c73bcdcc-2669-4bf6-81d3-e4ae73fb11fd
+                    emailTriggered: true
+                    emailType: FOLLOW_UP_REQUESTED
         '400':
           description: Status 400 Response
           content:
@@ -106,6 +121,7 @@ paths:
                 oneOf:
                   - $ref: '#/components/schemas/ValidationError'
                   - $ref: '#/components/schemas/priceBandRangeUnauthorizedError'
+                  - $ref: '#/components/schemas/skuNotFoundError'
               examples:
                 ValidationErrorExample:
                   summary: Validation error example
@@ -124,7 +140,13 @@ paths:
                 PriceBandRangeUnauthorizedExample:
                   summary: Price band range unauthorized error example
                   value:
-                    message: Appliance price does not fall within SKU price band range
+                    message: >-
+                      appliancePrice (50199) does not fall within SKU price band
+                      range (CW22002)
+                SKUNotFoundExample:
+                  summary: SKU not found error example
+                  value:
+                    message: 'Unable to find SKU: (123456)'
         '401':
           description: Status 401 Response
           content:
@@ -249,6 +271,7 @@ paths:
                 oneOf:
                   - $ref: '#/components/schemas/ValidationError'
                   - $ref: '#/components/schemas/priceBandRangeUnauthorizedError'
+                  - $ref: '#/components/schemas/skuNotFoundError'
               examples:
                 ValidationErrorExample:
                   summary: Validation error example
@@ -267,7 +290,13 @@ paths:
                 PriceBandRangeUnauthorizedExample:
                   summary: Price band range unauthorized error example
                   value:
-                    message: Appliance price does not fall within SKU price band range
+                    message: >-
+                      appliancePrice (50199) does not fall within SKU price band
+                      range (CW22002)
+                SKUNotFoundExample:
+                  summary: SKU not found error example
+                  value:
+                    message: 'Unable to find SKU: (123456)'
         '401':
           description: Status 401 Response
           content:
@@ -353,7 +382,9 @@ paths:
                 PriceBandRangeUnauthorizedExample:
                   summary: Price band range unauthorized error example
                   value:
-                    message: Appliance price does not fall within SKU price band range
+                    message: >-
+                      appliancePrice (50199) does not fall within SKU price band
+                      range (CW22002)
         '401':
           description: Status 401 Response
           content:
@@ -407,6 +438,10 @@ paths:
               schema:
                 allOf:
                   - $ref: '#/components/schemas/Accepted'
+                  - properties:
+                      message:
+                        type: string
+                        example: Contract cancel request received
         '400':
           description: Status 400 Response
           content:
@@ -454,9 +489,7 @@ paths:
                 $ref: '#/components/schemas/InternalError'
   /itb/appliance/delivery:
     patch:
-      summary: >-
-        Confirm the delivery date of of a specific line item; must be today’s
-        date.
+      summary: Confirm the delivery date of of a specific line item.
       parameters:
         - in: header
           name: X-Request-Id
@@ -639,7 +672,11 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ITBGetContractStatusResponse'
+                oneOf:
+                  - $ref: '#/components/schemas/ITBGetContractStatusResponse'
+                  - $ref: '#/components/schemas/ITBGetContractStatusMultiPlanResponse'
+                  - $ref: >-
+                      #/components/schemas/ITBGetContractStatusResponseWithoutExpandedFields
         '400':
           description: Status 400 Response
           content:
@@ -682,7 +719,7 @@ paths:
       parameters:
         - in: query
           name: approvedFromDate
-          example: 2024-01-01-00.00
+          example: 2026-01-01-00.00
           schema:
             type: string
             pattern: >-
@@ -692,7 +729,7 @@ paths:
             that were approved after this date and time
         - in: query
           name: approvedToDate
-          example: 2024-01-02-00.00
+          example: 2026-01-02-00.00
           schema:
             type: string
             pattern: >-
@@ -712,39 +749,175 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ITBGetPolicyUpdateResponse'
-  /reg/retailer/sku:
+  /itb/touchpoint:
     post:
-      summary: Insert/Update the sku inventory for a given retailer
+      summary: generates the opt-in iframe url to display the opt-in step
       parameters:
         - in: header
           name: X-Request-Id
+          required: true
           description: uuidv4 string to identify the individual request
           schema:
-            $ref: '#/components/schemas/RegAuthX-Request-Id'
+            $ref: '#/components/schemas/X-Request-Id'
       security:
         - BearerAuth:
             - read
             - write
       tags:
-        - reg
+        - itb
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PostSku'
+              $ref: '#/components/schemas/ITBTouchPointRequest'
+            example:
+              itbId: a1a3287f-1596-4bfe-83ab-44e0c36658c6
+              appliance:
+                applianceBrand: test
+                premium: 123
+                appliancePrice: 123456
+                sku: test-sku
+                description: test description
+                termSku: CW22002
+                termPremium: 123456
+                imageUrl: 'https://testImageUrl.com'
+                journeyStep: LISTINGS PAGE
+                placement: MODAL
+                policyTypes:
+                  - MONTHLY
+      responses:
+        '200':
+          description: Status 200 Response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ITBTouchPointResponse'
+        '400':
+          description: Status 400 Response
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/ValidationError'
+                  - $ref: '#/components/schemas/priceBandRangeUnauthorizedError'
+              examples:
+                ValidationErrorExample:
+                  summary: Validation error example
+                  value:
+                    message: validation error
+                    validationError:
+                      - code: too small
+                        minimum: 1
+                        type: string
+                        inclusive: true
+                        message: String must contain at least 1 character(s)
+                        path:
+                          - appliance
+                          - applianceBrand
+                PriceBandRangeUnauthorizedExample:
+                  summary: Price band range unauthorized error example
+                  value:
+                    message: >-
+                      appliancePrice (50199) does not fall within SKU price band
+                      range (CW22002)
+        '401':
+          description: Status 401 Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedError'
+        '403':
+          description: Status 403 Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenError'
+        '500':
+          description: Status 500 Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+  /itb/checkout:
+    post:
+      summary: >-
+        post customer and product information for users who are going through
+        landing page and checkout. Based on the provided payload this can lead
+        to either anonymous or pre-populated checkout.
+      parameters:
+        - in: header
+          name: X-Request-Id
+          required: true
+          description: uuidv4 string to identify the individual request
+          schema:
+            $ref: '#/components/schemas/X-Request-Id'
+      security:
+        - BearerAuth:
+            - read
+            - write
+      tags:
+        - itb
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CheckoutLinkCreateRequest'
       responses:
         '201':
           description: Status 201 Response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Success'
+                allOf:
+                  - $ref: '#/components/schemas/CheckoutLinkCreateResponse'
+              examples:
+                StandardResponse:
+                  summary: Default POST /checkout response
+                  value:
+                    itbId: c73bcdcc-2669-4bf6-81d3-e4ae73fb11fd
+                    checkoutLinkUrl: >-
+                      https://retailer.secure.dg-click-integrations.com/entry?ref=e7116591-3906-41be-be1d-31bf635daded
+                TriggerEmailTypeResponse:
+                  summary: Response when triggerEmailType is passed in the request
+                  value:
+                    itbId: c73bcdcc-2669-4bf6-81d3-e4ae73fb11fd
+                    emailTriggered: true
+                    emailType: FOLLOW_UP_REQUESTED
         '400':
           description: Status 400 Response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/RegAuthValidationError'
+                oneOf:
+                  - $ref: '#/components/schemas/ValidationError'
+                  - $ref: '#/components/schemas/priceBandRangeUnauthorizedError'
+                  - $ref: '#/components/schemas/skuNotFoundError'
+              examples:
+                ValidationErrorExample:
+                  summary: Validation error example
+                  value:
+                    message: validation error
+                    validationError:
+                      - code: too small
+                        minimum: 1
+                        type: string
+                        inclusive: true
+                        message: String must contain at least 1 character(s)
+                        path:
+                          - appliancesPurchased
+                          - 0
+                          - applianceBrand
+                PriceBandRangeUnauthorizedExample:
+                  summary: Price band range unauthorized error example
+                  value:
+                    message: >-
+                      appliancePrice (50199) does not fall within SKU price band
+                      range (CW22002)
+                SKUNotFoundExample:
+                  summary: SKU not found error example
+                  value:
+                    message: 'Unable to find SKU: (123456)'
         '401':
           description: Status 401 Response
           content:
@@ -769,6 +942,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/InternalError'
+  /reg/retailer/sku:
     get:
       summary: Retrieve a sku to appliance mapping for a given retailer
       parameters:
@@ -782,8 +956,87 @@ paths:
           schema:
             type: string
             example: 12345678
-          required: true
+          required: false
           description: The sku for a given sku to appliance mapping
+        - in: query
+          name: skus
+          schema:
+            type: array
+            items:
+              type: string
+              example: 12345678
+          required: false
+          description: The array of skus for a given sku to appliance mapping
+        - in: query
+          name: retailerDomain
+          schema:
+            type: string
+            example: retailer.com
+          required: false
+          description: >-
+            The retailer domain for the required skus (either retailerName or
+            retailerDomain should be passed)
+        - in: query
+          name: retailerName
+          schema:
+            type: string
+            example: retailer
+          required: false
+          description: >-
+            The retailer name for the required skus (either retailerName or
+            retailerDomain should be passed)
+        - in: query
+          name: contexts
+          schema:
+            type: string
+            example: online
+          required: true
+          description: The contexts or retailer channel of the required skus
+        - in: query
+          name: applianceCode
+          schema:
+            type: string
+            example: FF
+          required: false
+          description: >-
+            Appliance code used for SKU lookup. Must be supplied together with
+            appliancePrice and manufacturerGuarantee.
+        - in: query
+          name: appliancePrice
+          schema:
+            type: number
+            example: 2000
+            minimum: 0
+          required: false
+          description: >-
+            Appliance price used for SKU lookup. Must be supplied together with
+            applianceCode and manufacturerGuarantee. note - amounts should be passed in lowest currency denomination
+        - in: query
+          name: manufacturerGuarantee
+          schema:
+            type: number
+            example: 24
+            minimum: 0
+          required: false
+          description: >-
+            Manufacturer guarantee duration used for SKU lookup. Must be
+            supplied together with applianceCode and appliancePrice.
+        - in: query
+          name: pricingOnly
+          schema:
+            type: boolean
+            example: true
+          required: false
+          description: >-
+            If true then only returns the sku id, applianceCode, appliancePrice,
+            manufacturerGuarantee, premium and promotion.
+        - in: query
+          name: idsOnly
+          schema:
+            type: boolean
+            example: true
+          required: false
+          description: If true then only returns the Sku Ids rather than full data
       security:
         - BearerAuth:
             - read
@@ -796,13 +1049,50 @@ paths:
           content:
             application/json:
               schema:
-                allOf:
+                oneOf:
                   - $ref: '#/components/schemas/SkuMap'
-                  - type: object
-                    properties:
-                      version:
-                        type: number
-                        description: The version of the retailer's sku inventory
+                  - $ref: '#/components/schemas/SkuMapResponseWithPricingOnly'
+              examples:
+                SkuMap:
+                  summary: Standard SKU mapping response
+                  value:
+                    sku: '5673920'
+                    schemeCode: ABC
+                    applianceCode: FF
+                    manufacturerGuarantee: 24
+                    partsGuarantee: 12
+                    startBehaviour: Immediate
+                    multiplan: false
+                    periodOfCover: 12
+                    priceBandStart: 100
+                    priceBandEnd: 100000000
+                    description: Frost-free fridge freezer
+                    policyName: Complete Appliance Protection
+                    agentNumber: 7C370
+                    excess: 100
+                    additionalCoverage: Accidental damage included
+                    premium: 50
+                    promotion: 2MF
+                    promitionPrefix: SAVE
+                    numberOfPayments: 12
+                    paymentType: 1
+                    paymentProfile: Monthly
+                    ipid: 'https://example.com/ipid/5673920'
+                    termsAndConditions: 'https://example.com/terms/5673920'
+                    retailer: retailer
+                    effectiveFrom: '2026-08-17'
+                    effectiveTo: '2026-12-14'
+                    contexts: online
+                    version: 5
+                SkuMapResponseWithPricingOnly:
+                  summary: Response when pricingOnly is true
+                  value:
+                    applianceCode: FF
+                    manufacturerGuarantee: 24
+                    appliancePrice: 2000
+                    sku: '5673920'
+                    premium: 50
+                    promotion: 2MF
         '400':
           description: Status 400 Response
           content:
@@ -916,13 +1206,27 @@ components:
       properties:
         itbId:
           $ref: '#/components/schemas/itbId'
+        emailTriggered:
+          type: boolean
+          description: >-
+            Present when triggerEmailType was supplied. True if the requested
+            email was queued successfully.
+          example: true
+        emailType:
+          type: string
+          description: >-
+            Present when triggerEmailType was supplied. Echoes the requested
+            triggerEmailType.
+          enum:
+            - FOLLOW_UP_REQUESTED
+          example: FOLLOW_UP_REQUESTED
         paymentEmbedUrl:
           type: string
           description: >-
             a secured URL that can be used to display a payment form within an
             IFrame
           example: >-
-            https://secure.dg-click-integrations.com/ddi?reference=e7116591-3906-41be-be1d-31bf635daded
+            https://retailer.secure.dg-click-integrations.com/ddi?reference=e7116591-3906-41be-be1d-31bf635daded
         paymentRedirectUrl:
           type: string
           description: >-
@@ -931,7 +1235,32 @@ components:
             URL}' to the end to have the page redirect once the form has been
             submitted.
           example: >-
-            https://secure.dg-click-integrations.com/ddi-page?reference=e7116591-3906-41be-be1d-31bf635daded
+            https://retailer.secure.dg-click-integrations.com/ddi-page?reference=e7116591-3906-41be-be1d-31bf635daded
+    CheckoutLinkCreateResponse:
+      properties:
+        itbId:
+          $ref: '#/components/schemas/itbId'
+        emailTriggered:
+          type: boolean
+          description: >-
+            Present when triggerEmailType was supplied. True if the requested
+            email was queued successfully.
+          example: true
+        emailType:
+          type: string
+          description: >-
+            Present when triggerEmailType was supplied. Echoes the requested
+            triggerEmailType.
+          enum:
+            - FOLLOW_UP_REQUESTED
+          example: FOLLOW_UP_REQUESTED
+        checkoutLinkUrl:
+          type: string
+          description: >-
+            a secured URL that can be used to display landing page and checkout
+            page
+          example: >-
+            https://retailer.secure.dg-click-integrations.com/entry?ref=e7116591-3906-41be-be1d-31bf635daded
     ITBTermPlanResponse:
       required:
         - itbId
@@ -1127,6 +1456,21 @@ components:
                         subject to renewal (YYYY-MM-DD) - this should be the
                         same as the header plan.
     ITBCreateRequest:
+      properties:
+        itbId:
+          type: string
+          description: >-
+            Leave undefined, unless provided an itbId from the opt-in iframe
+            flow.
+          example: a1a3287f-1596-4bfe-83ab-44e0c36658c6
+        contexts:
+          type: string
+          description: >-
+            Specifies the context through which this sale is being made, for
+            example “online” or "instore". If not specified, the value defaults
+            to "online". The value to be used here will be advised by Domestic &
+            General based on the applicable customer journey.
+          example: online
       allOf:
         - $ref: '#/components/schemas/ITBPurchaseDetails'
         - $ref: '#/components/schemas/ITBApplianceDetails'
@@ -1141,6 +1485,13 @@ components:
         - appliancesPurchased
         - email
     ITBTermCreateRequest:
+      properties:
+        itbId:
+          type: string
+          description: >-
+            Leave undefined, unless provided an itbId from the opt-in iframe
+            flow.
+          example: a1a3287f-1596-4bfe-83ab-44e0c36658c6
       allOf:
         - $ref: '#/components/schemas/ITBTermPurchaseDetails'
         - $ref: '#/components/schemas/ITBApplianceDetails'
@@ -1168,6 +1519,21 @@ components:
         - postalCode
         - country
         - policiesPurchased
+        - email
+    CheckoutLinkCreateRequest:
+      properties:
+        itbId:
+          type: string
+          description: >-
+            Leave undefined, unless provided an itbId from the opt-in iframe
+            flow.
+          example: a1a3287f-1596-4bfe-83ab-44e0c36658c6
+      allOf:
+        - $ref: '#/components/schemas/ITBPurchaseDetails'
+        - $ref: '#/components/schemas/ITBApplianceDetails'
+        - $ref: '#/components/schemas/ITBOrderDetails'
+      required:
+        - appliancesPurchased
         - email
     OFDCreateRequest:
       allOf:
@@ -1338,7 +1704,7 @@ components:
         contractNumber:
           type: string
           example: ZGJ0001131
-        contractStatus:
+        status:
           type: string
           enum:
             - Active
@@ -1346,74 +1712,119 @@ components:
             - Lapsed
             - Error
             - Pending
-      oneOf:
-        - type: object
-          description: >-
-            Expanded fields (fields provided if the 'expandFields' input is
-            true)
-          properties:
-            firstName:
-              type: string
-              example: John
-            lastName:
-              type: string
-              example: Smith
-            addressLine1:
-              type: string
-              example: 1 Street
-            addressLine2:
-              type: string
-              example: Some Town
-            addressLine3:
-              type: string
-              example: Some City
-            postcode:
-              type: string
-              example: AA00 0AA
-            countryCode:
-              type: string
-              example: GBR
-            acceptanceDate:
-              type: string
-              example: '2023-10-31T00:00:00.000Z'
-            renewalDate:
-              type: string
-              example: '2024-10-31T00:00:00.000Z'
-            itemCode:
-              type: string
-              example: CN
-              description: The code of the item/appliance associated with the contract
-            itemDescription:
-              type: string
-              example: MOBILE PHONE
-              description: >-
-                The description of the item/appliance associated with the
-                contract
-            appliancesPurchased:
-              type: array
-              items:
-                type: object
-                properties:
-                  contractNumber:
-                    type: string
-                    example: ZGJ0001131
-                  contractStatus:
-                    type: string
-                    enum:
-                      - Active
-                      - Cancelled
-                      - Lapsed
-                      - Error
-                      - Pending
-                  itemCode:
-                    type: string
-                    example: CN
-                    description: >-
-                      The code of the item/appliance associated with the
-                      contract
-                  itemDescription:
-                    type: string
-                    example: MOBILE PHONE
+        firstName:
+          type: string
+          example: John
+        lastName:
+          type: string
+          example: S
+          description: The first letter of the surname
+        postcodeOutCode:
+          type: string
+          example: AA00
+          description: The out code of the postcode (up to the subdistrict)
+        countryCode:
+          type: string
+          example: GBR
+        acceptanceDate:
+          type: string
+          example: '2025-10-31T00:00:00.000Z'
+        renewalDate:
+          type: string
+          example: '2026-10-31T00:00:00.000Z'
+        itemCode:
+          type: string
+          example: CN
+          description: The code of the item/appliance associated with the contract
+        itemDescription:
+          type: string
+          example: MOBILE PHONE
+          description: The description of the item/appliance associated with the contract
+    ITBGetContractStatusResponseWithoutExpandedFields:
+      properties:
+        contractNumber:
+          type: string
+          example: ZGJ0001131
+        status:
+          type: string
+          enum:
+            - Active
+            - Cancelled
+            - Lapsed
+            - Error
+            - Pending
+        appliancesPurchased:
+          type: array
+          items:
+            type: object
+            properties:
+              contractNumber:
+                type: string
+                example: ZGJ0001131
+              status:
+                type: string
+                enum:
+                  - Active
+                  - Cancelled
+                  - Lapsed
+                  - Error
+                  - Pending
+    ITBGetContractStatusMultiPlanResponse:
+      properties:
+        contractNumber:
+          type: string
+          example: ZGJ0001131
+        status:
+          type: string
+          enum:
+            - Active
+            - Cancelled
+            - Lapsed
+            - Error
+            - Pending
+        firstName:
+          type: string
+          example: John
+        lastName:
+          type: string
+          example: S
+          description: The first letter of the surname
+        postcodeOutCode:
+          type: string
+          example: AA00
+          description: The out code of the postcode (up to the subdistrict)
+        countryCode:
+          type: string
+          example: GBR
+        acceptanceDate:
+          type: string
+          example: '2025-10-31T00:00:00.000Z'
+        renewalDate:
+          type: string
+          example: '2026-10-31T00:00:00.000Z'
+        appliancesPurchased:
+          type: array
+          items:
+            type: object
+            properties:
+              contractNumber:
+                type: string
+                example: ZGJ0001131
+              status:
+                type: string
+                enum:
+                  - Active
+                  - Cancelled
+                  - Lapsed
+                  - Error
+                  - Pending
+              itemCode:
+                type: string
+                example: CN
+                description: The code of the item/appliance associated with the contract
+              itemDescription:
+                type: string
+                example: MOBILE PHONE
     ITBPurchaseDetails:
       properties:
         addressLine1:
@@ -1488,6 +1899,14 @@ components:
             A description of the sales channel through which this sale is being
             made, for example “telesales”. The value to be used here will be
             advised by Domestic & General.
+        triggerEmailType:
+          type: string
+          description: >-
+            Triggers a customer email communication from Domestic & General
+            based on the specified scenario (for example, FOLLOW_UP_REQUESTED).
+          enum:
+            - FOLLOW_UP_REQUESTED
+          example: FOLLOW_UP_REQUESTED
         agentId:
           type: string
           example: SALESAGENT0001
@@ -1776,9 +2195,10 @@ components:
           type: string
           format: date
           description: >
-            The date of delivery in YYYY-mm-dd format; must be today’s date and
-            the update will result in the customer’s plan being activated
-            immediately
+            The date of delivery in YYYY-mm-dd format; the update will result in
+            the customer’s plan being activated on this date, any past dates
+            will be converted to today's date as plans can not be activated in
+            the past.
         imei:
           allOf:
             - $ref: '#/components/schemas/imei'
@@ -1788,6 +2208,7 @@ components:
         order to use this endpoint
       required:
         - lineItemId
+        - imei
       properties:
         lineItemId:
           allOf:
@@ -1830,8 +2251,8 @@ components:
           description: >
             A Domestic & General defined Corerespondance code for the
             cancellation:
-              - EMAIL: 
-              - LETTER: 
+              - EMAIL:
+              - LETTER:
               - NOTREQUIRED:
           type: string
           minimum: 5
@@ -1844,11 +2265,11 @@ components:
           description: >
             A Domestic & General defined Cancellation Source for the
             cancellation:
-              - BANK: 
-              - EMAIL: 
-              - WHITEMAIL: 
-              - RECALL: 
-              - TELEPHONE: 
+              - BANK:
+              - EMAIL:
+              - WHITEMAIL:
+              - RECALL:
+              - TELEPHONE:
               - WRITEOFF:
           type: string
           minimum: 4
@@ -1924,7 +2345,7 @@ components:
         deliveryEstimate:
           type: string
           format: date
-          example: '2017-07-21T00:00:00.000Z'
+          example: '2026-01-21T00:00:00.000Z'
           pattern: '([12]\d{3}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01]))'
           maximum: 10
           minimum: 10
@@ -1974,7 +2395,7 @@ components:
         deliveryEstimate:
           type: string
           format: date
-          example: '2017-07-21T00:00:00.000Z'
+          example: '2026-01-21T00:00:00.000Z'
           pattern: '([12]\d{3}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01]))'
           maximum: 10
           minimum: 10
@@ -2057,6 +2478,105 @@ components:
           maximum: 3
           enum:
             - GBP
+    ITBTouchPointRequest:
+      required:
+        - appliance
+      properties:
+        itbId:
+          type: string
+          description: >-
+            optional tracking id for the opt-in journey. If omitted, one is
+            generated.
+          example: a1a3287f-1596-4bfe-83ab-44e0c36658c6
+        appliance:
+          type: object
+          required:
+            - applianceBrand
+            - premium
+            - appliancePrice
+            - sku
+            - description
+            - journeyStep
+            - placement
+          properties:
+            applianceBrand:
+              type: string
+              example: Test-brand
+              minimum: 1
+              maximum: 4
+            premium:
+              type: number
+              example: 123456
+              minimum: 1
+              maximum: 999999999999999
+              description: >-
+                the full price of the warranty plan. note - amounts should be
+                passed in lowest currency denomination
+            appliancePrice:
+              type: number
+              example: 123456
+              description: note - amounts should be passed in lowest currency denomination
+              maximum: 999999999999999
+              minimum: 1
+            sku:
+              type: string
+              example: Test-sku
+              maximum: 50
+              minimum: 1
+            description:
+              type: string
+              example: test description
+              maximum: 200
+              minimum: 1
+            termSku:
+              type: string
+              example: Test-sku
+              maximum: 50
+              minimum: 1
+            termPremium:
+              type: number
+              example: 123456
+              minimum: 1
+              maximum: 999999999999999
+            imageUrl:
+              type: string
+              example: >-
+                https://prod.domesticgeneral.magnolia-platform.io/dam/jcr:ccc1871e-a3f6-4d5f-83af-8e3ec92af7aa/engineer-repairing-oven.jpg
+            journeyStep:
+              type: string
+              enum:
+                - LISTINGS PAGE
+                - PRODUCT PAGE
+                - BASKET PAGE
+              example: LISTINGS PAGE
+            placement:
+              type: string
+              enum:
+                - MODAL
+                - SIDE-DRAWER
+              example: SIDE-DRAWER
+            policyTypes:
+              type: array
+              example:
+                - MONTHLY
+              items:
+                type: string
+                enum:
+                  - MONTHLY
+                  - TERM
+    ITBTouchPointResponse:
+      properties:
+        itbId:
+          type: string
+          description: a tracking id for the opt-in journey.
+          example: a1a3287f-1596-4bfe-83ab-44e0c36658c6
+        frameSrcUrl:
+          type: string
+          description: >-
+            a secured URL that can be used to display the opt-in widget within
+            an IFrame
+          example: >-
+            https://secure.dg-click-integrations.com/embed?payload=eyJhcHBsaWFuY2UiOnsiYXBwbGlhbmNlQnJhbmQiOiJIT1RQIiwicHJlbWl1bSI6OTAwLCJhcHBsaWFuY2VQcmljZSI6Mjk5OTksInNrdSI6IkFPQU0tV0VCLVNVQi1NT0JJTEUtTFQtMDAwMSIsImRlc2NyaXB0aW9uIjoiaGVsbG8gQW5keSIsImpvdXJuZXlTdGVwIjoiTElTVElOR1MgUEFHRSIsInBsYWNlbWVudCI6IlNJREUtRFJBV0VSIn0sIml0YklkIjoiYTFhMzI4N2YtMTU5Ni00YmZlLTgzYWItNDRlMGMzNjY1OGM2In0=
     InternalError:
       required:
         - message
@@ -2383,8 +2903,15 @@ components:
         message:
           type: string
           default: >-
-            Appliance price (50199) does not fall within SKU price band range
+            appliancePrice (50199) does not fall within SKU price band range
             (CW22002)
+    skuNotFoundError:
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          default: 'Unable to find SKU: (123456)'
     Success:
       required:
         - message
@@ -2497,12 +3024,10 @@ components:
       allOf:
         - $ref: '#/components/schemas/Retailer'
     SkuMap:
-      required:
-        - schemeCode
-        - applianceCode
-        - manufacturerGuarantee
-        - partsGuarantee
       properties:
+        sku:
+          type: string
+          example: 5673920
         schemeCode:
           type: string
           example: ABC
@@ -2525,13 +3050,108 @@ components:
           type: number
           minimum: 0
           maximum: 180
+        startBehaviour:
+          type: string
+          enum:
+            - Immediate
+            - Demand
+            - Estimate
+        multiplan:
+          type: boolean
+        periodOfCover:
+          type: number
+          minimum: 0
+          maximum: 180
+        priceBandStart:
+          type: number
+          maximum: 100000000
+          description: amounts are shown in lowest currency denomination
+        priceBandEnd:
+          type: number
+          maximum: 100000000
+          description: amounts are shown in lowest currency denomination
+        description:
+          type: string
+        policyName:
+          type: string
+        agentNumber:
+          type: string
+          maximum: 5
+        excess:
+          type: number
+        additionalCoverage:
+          type: string
+        premium:
+          type: number
+          description: amounts are shown in lowest currency denomination
+          example: 500
+        promotion:
+          type: string
+          example: 2MF
+        promitionPrefix:
+          type: string
+        numberOfPayments:
+          type: number
+          description: >-
+            Number of payments during the contract period to work out the total
+            contract amount (temp solution for catering x free month promotions
+        paymentType:
+          type: number
+        paymentProfile:
+          type: string
+        ipid:
+          type: string
+        termsAndConditions:
+          type: string
+        retailer:
+          type: string
+        effectiveFrom:
+          type: string
+          example: '2026-08-17T00:00:00.000Z'
+        effectiveTo:
+          type: string
+          example: '2026-12-14T00:00:00.000Z'
+        contexts:
+          type: string
+          example: online
+        version:
+          type: number
+          example: 5
+    SkuMapResponseWithPricingOnly:
+      properties:
+        applianceCode:
+          type: string
+          example: FF
+          description: FF for fridge freezer etc
+          maximum: 2
+          minimum: 2
+        manufacturerGuarantee:
+          type: number
+          minimum: 0
+          maximum: 180
+        appliancePrice:
+          type: number
+          description: amounts are shown in lowest currency denomination
+          example: 2000
+        sku:
+          type: string
+          example: 5673920
+        premium:
+          type: number
+          description: amounts are shown in lowest currency denomination
+          example: 500
+        promotion:
+          type: string
+          example: 2MF
     PostSku:
       required:
         - skus
+        - retailerName
       properties:
         skus:
           type: object
           additionalProperties:
+            type: object
             $ref: '#/components/schemas/SkuMap'
     RegAuthX-Request-Id:
       type: string
